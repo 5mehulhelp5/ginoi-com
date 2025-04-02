@@ -6,11 +6,11 @@
 !*/
 !/.editorconfig
 !/.gitignore
+!/composer.json
+!/readme.md
 !/app/code/**/*
 !/app/design/frontend/Hyva/**/*
 !/app/etc/config.php
-!/composer.json
-!/readme.md
 /dev
 /update/
 /vendor/aws/aws-crt-php
