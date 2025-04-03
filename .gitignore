@@ -17,16 +17,12 @@
 !/app/design/frontend/**/*
 /app/design/frontend/Magento/
 !/app/etc/config.php
-/dev
-/update/
-/vendor/aws/aws-crt-php
-/vendor/magento/framework/Test
-/vendor/magento/magento2-base
-/vendor/magento/magento2-functional-testing-framework
-/vendor/tubalmartin
 # 2023-07-22 Dmitrii Fediuk https://upwork.com/fl/mage2pro
 # Today I noticed that `git add . && git commit -a -m refactoring && git push`
 # started to commit subfolders which are git repositories (for an unknown reason).
+# 2025-04-03 https://gemini.google.com/u/1/app/de95853eeeb45648
 /_my
-/vendor/ginoi
-/vendor/mage2pro
+/dev
+/update/
+# 2025-04-03 https://gemini.google.com/u/1/app/de95853eeeb45648
+/vendor/
