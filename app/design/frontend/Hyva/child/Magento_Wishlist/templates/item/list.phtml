@@ -1,0 +1,99 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Items;
+
+/** @var Escaper $escaper */
+/** @var Items $block */
+$columns = $block->getColumns();
+?>
+<style>
+     .table-wishlist td{
+        text-align: center;
+        vertical-align: middle;
+    }
+     table {
+         border-collapse: separate;
+         border-spacing: 0;
+     }
+</style>
+<div class="products-grid wishlist overflow-auto border rounded-xl">
+    <?php if (count($block->getItems())): ?>
+    <table class="table-wishlist w-full sm:table-fixed lg:table-auto min-w-[930px] ">
+        <thead class="text-sm text-secondary">
+        <tr>
+            <th class="py-2 pr-2 pl-4 text-center text-primary-purple " style="width: 12%">
+                <span><?= $escaper->escapeHtmlAttr('Image') ?></span>
+            </th>
+            <th class="p-2 text-start text-primary-purple" style="width: 24%"><?= $escaper->escapeHtmlAttr('Product Description') ?></th>
+            <th class="p-2 text-center text-primary-purple" style="width: 9%"><?= $escaper->escapeHtmlAttr('Unit Price') ?></th>
+            <th class="p-2 text-start text-primary-purple" style="width: 23%"><?= $escaper->escapeHtmlAttr('Notes') ?></th>
+            <th class="p-2 text-center text-primary-purple" style="width: 14%">
+                <p><?= $escaper->escapeHtmlAttr('Quantity') ?></p>
+                <p class="font-thin text-sm">(<?= $escaper->escapeHtmlAttr('Units') ?>)</p>
+            </th>
+            <th class="p-2 text-center text-primary-purple" style="width: 6%"><?= $escaper->escapeHtmlAttr('Add to Cart') ?></th>
+            <th class="p-2 text-center text-primary-purple" style="width: 6%"><?= $escaper->escapeHtmlAttr('Edit') ?></th>
+            <th class="p-2 text-center text-primary-purple" style="width: 6%"><?= $escaper->escapeHtmlAttr('Delete') ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($block->getItems() as $item): ?>
+            <?php
+             $imageBlock = $block->getChildBlock("customer.wishlist.item.image")->setItem($item);
+             $nameBlock = $block->getChildBlock("customer.wishlist.item.name")->setItem($item);
+             $priceBlock = $block->getChildBlock("customer.wishlist.item.price")->setItem($item);
+
+             $innerBlock = $block->getChildBlock("customer.wishlist.item.inner");
+             $commentBlock = $innerBlock->getChildBlock('customer.wishlist.item.comment')->setItem($item);
+             $cartBlock = $innerBlock->getChildBlock('customer.wishlist.item.cart')->setItem($item);
+             $quantityBlock  = $innerBlock->getChildBlock('customer.wishlist.item.cart.quantity')->setItem($item);
+
+             $actionBlock = $innerBlock->getChildBlock('customer.wishlist.item.actions');
+             $editButton = $actionBlock->getChildBlock('customer.wishlist.item.edit')->setItem($item);
+             $removeButton = $actionBlock->getChildBlock('customer.wishlist.item.remove')->setItem($item);
+            ?>
+        <tr class="align-top bg-container-purple">
+            <td class="py-2 pr-2 pl-4 text-start font-normal">
+                <?= $imageBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $nameBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $priceBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $commentBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $quantityBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $cartBlock->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $editButton->toHtml() ?>
+            </td>
+            <td class="p-2">
+                <?= $removeButton->toHtml() ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <?php else: ?>
+        <div class="message info empty">
+            <span><?= $escaper->escapeHtml(__('This Wish List has no Items')) ?></span>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php foreach ($columns as $column): ?>
+    <?= $column->getAdditionalHtml() ?>
+<?php endforeach; ?>

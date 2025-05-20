@@ -1,0 +1,272 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Shop By Brand Compatibility with Hyva for Magento 2
+ */
+
+use Amasty\ShopbyBase\Block\Product\AttributeIcon;
+use Amasty\ShopbyBrand\Block\Widget\BrandSlider;
+use Hyva\GraphqlViewModel\ViewModel\GraphqlViewModel;
+use Amasty\ShopByBrandHyvaCompatibility\ViewModel\BrandsList;
+use Hyva\Theme\ViewModel\Store as StoreViewModel;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Amasty\ShopByBaseHyvaCompatibility\ViewModel\Tooltip;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Amasty\ShopbyBrand\Block\Widget\BrandSlider $block */
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var AttributeIcon $attributeIconBlock */
+
+/** @var Tooltip $tooltipViewModel */
+$tooltipViewModel = $viewModels->require(Tooltip::class);
+/** @var GraphqlViewModel $viewModelGraphQl */
+$viewModelGraphQl = $viewModels->require(GraphqlViewModel::class);
+/** @var StoreViewModel $viewModelStore */
+$viewModelStore = $viewModels->require(StoreViewModel::class);
+/** @var BrandsList $brandsListViewModel */
+$brandsListViewModel = $viewModels->require(BrandsList::class);
+/** @var HeroiconsOutline $heroIcons */
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+$isSliderEnable = $block->isSliderEnabled();
+$swiperPrefix = $isSliderEnable ? 'swiper-' : '';
+$itemsPerView = (int)$block->getData('items_number') ?: BrandSlider::DEFAULT_ITEM_NUMBER;
+$imgWidth = (int)$block->getData('image_width') ?: BrandSlider::DEFAULT_IMG_WIDTH;
+$imgHeight = (int)$block->getData('image_height');
+$sliderWidth = (int)$block->getData('slider_width') ?: ($imgWidth + 10) * $itemsPerView;
+$displayZero = $block->getData('display_zero') ?: 0;
+$sortBy = $block->getData('sort_by') ?: 'name';
+$buttonWidth = 40;
+$fontSizeMultiplier = 0.65;
+
+$sliderId = BrandSlider::HTML_ID . random_int(1, 10000);
+$sliderTitle = $block->getTitle();
+$uniqId = uniqid();
+$items = $block->getItems();
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$requestmanger = $objectManager->get(\Magento\Framework\App\Action\Context::class);
+
+?>
+<?php $currentpage=$requestmanger->getRequest()->getFullActionName();
+             if($currentpage == 'cms_index_index'){?>
+<div class="category-grid background-purple mb-10">
+<?php
+echo $this->getLayout()->createBlock(\Magento\Cms\Block\Block::class)
+    ->setBlockId('category_grid')
+    ->toHtml();
+?>
+</div>
+<?php
+echo $this->getLayout()->createBlock(\Magento\Cms\Block\Block::class)
+    ->setBlockId('banner-section')
+    ->toHtml();
+?>
+<?php } ?>
+
+<br>
+<br>
+<?php return ?>
+
+<div id="am_widget_<?= $escaper->escapeHtmlAttr($sliderId); ?>"
+     class="am-widget-brand-slider"
+     x-data="amBrandsSlider<?= $escaper->escapeJs($uniqId) ?>()">
+    <style>
+        <?php if ($isSliderEnable): ?>
+            #<?= /* @noEscape */ $sliderId ?> {
+                max-width: 1280px;
+            }
+        <?php endif;?>
+
+        #<?= /* @noEscape */ $sliderId ?> .ambrands-swiper-brand .ambrands-image-block,
+        #<?= /* @noEscape */ $sliderId ?> .ambrands-swiper-brand .ambrands-image-block > .ambrands-image {
+          <?php if ($imgWidth): ?>
+              max-width: <?= /* @noEscape */ $imgWidth ?>px;
+          <?php endif;?>
+          <?php if ($imgHeight): ?>
+              max-height: <?= /* @noEscape */ $imgHeight ?>px;
+          <?php endif;?>
+        }
+
+        .ambrands-swiper-brand .ambrands-empty {
+            max-width: <?= /* @noEscape */ $imgWidth ?>px;
+            line-height: <?= /* @noEscape */ $imgWidth ?>px;
+            font-size: <?= /* @noEscape */ $imgWidth * $fontSizeMultiplier ?>px;
+        }
+
+        <?php if ($block->getHeaderColor()): ?>
+        .ambrands-slider-container.<?= /* @noEscape */ $sliderId ?> {
+            background-color: <?= $escaper->escapeHtml($block->getHeaderColor()) ?>
+        }
+        <?php endif; ?>
+
+        <?php if ($block->getTitleColor()): ?>
+        .ambrands-slider-container.<?= /* @noEscape */ $sliderId ?> .ambrand-title {
+            color: <?= $escaper->escapeHtml($block->getTitleColor()) ?>;
+        }
+        <?php endif; ?>
+
+        @media screen and (min-width: 1280px){
+            .ambrands-slider-container.<?= /* @noEscape */ $sliderId ?> .js_slide,
+            .ambrands-slider-container.<?= /* @noEscape */ $sliderId ?> .js_dummy_slide{
+                width: <?= $isSliderEnable ? (100 / $itemsPerView).'%' : 'auto' ?>;
+            }
+        }
+
+    </style>
+
+    <div class="ambrands-slider-container <?= /* @noEscape */ $sliderId ?>">
+        <?php if ($block->getTitle()): ?>
+            <div class="amslider-header-container text-gray-500 text-center not-italic text-4xl pt-10 pb-0 px-2.5 test">
+                <!--<?= $escaper->escapeHtml($block->getTitle()) ?>--><?= $escaper->escapeHtmlAttr(__('Featured Brands')) ?>
+            </div>
+        <?php endif;?>
+        <div class="ambrands-slider amslider p-0 max-w-full relative mt-5 mb-8 mx-auto
+        <?= $escaper->escapeHtml($isSliderEnable ? '-enable' : 'grid-mode') ?>"
+             id="<?= /** @noEscape */ $sliderId ?>">
+
+            <div class="ambrands-inner relative pb-2.5 px-6">
+                <?php if ($block->getData('buttons_show') && $isSliderEnable): ?>
+                    <button class="swiper-button-prev !left-4 2xl:!-left-10 m-0 !mt-0 !w-10 !h-10 -translate-y-1/2 border-none rounded-full shadow-none transition-all bg-center bg-no-repeat bg-size-20"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Previous')) ?>"
+                            title="<?= $escaper->escapeHtmlAttr(__('Previous')) ?>">
+                        <?= $heroIcons->chevronLeftHtml("w-10 h-10 stroke-black text-gray-500", 25, 25) ?>
+                    </button>
+                    <button class="swiper-button-next !right-4 2xl:!-right-10 m-0 !mt-0 !w-10 !h-10 -translate-y-1/2 border-none rounded-full shadow-none transition-all bg-center bg-no-repeat bg-size-20"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Next')) ?>"
+                            title="<?= $escaper->escapeHtmlAttr(__('Next')) ?>">
+                        <?= $heroIcons->chevronRightHtml("w-10 h-10 stroke-black text-gray-500", 25, 25) ?>
+                    </button>
+                <?php endif; ?>
+
+                <div class="swiper-container overflow-hidden">
+                    <div class="<?= /** @noEscape */ $swiperPrefix ?>wrapper <?= $escaper->escapeHtml($isSliderEnable ? '' : ' text-center overflow-hidden flex flex-wrap justify-center') ?>">
+                        <?php foreach ($items as $brand): ?>
+                            <div class="<?= /** @noEscape */ $swiperPrefix ?>slide hover:no-underline flex items-stretch text-center text-gray-800
+                                 <?= $escaper->escapeHtml($isSliderEnable ? ' text-lg h-auto box-border p-2.5 ' : ' max-w-[30%] justify-center basis-auto mt-0 mb-5 ml-0 mr-5') ?>">
+                                 <a href="<?= /** @noEscape */ $brand['url']?>" class="flex flex-col h-full">
+                                     <span class="ambrands-swiper-brand flex flex-col grow
+                                          <?= $escaper->escapeHtmlAttr($block->getData('show_label') ? ' brand-label' : ''); ?>">
+                                         <?php if ($brand['img']): ?>
+                                            <?php
+                                            $path = parse_url($brand['url'], PHP_URL_PATH);
+                                            $lastSegment = basename($path);
+                                                ?>
+                                             <span class="ambrands-image-block flex grow my-0 mx-auto <?= $escaper->escapeHtml($isSliderEnable ? '' : 'overflow-hidden mb-2.5') ?>">
+                                                 <img alt="<?= $escaper->escapeHtml($brand['alt']) ?>"
+                                                      title="<?= $escaper->escapeHtml($brand['alt']) ?>"
+                                                      src="<?= /* @escapeNotVerified */ $escaper->escapeHtml($brand['img']); ?>"
+                                                      class="ambrands-image max-w-full min-w-full w-auto self-center <?= $escaper->escapeHtml($isSliderEnable ? '' : 'h-auto') ?>"/>
+                                                      <img class="hoverimg" src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/'.$lastSegment.'_hover.png'); ?>' alt="Ginoi">
+                                             </span>
+                                         <?php else: ?>
+                                             <span class="ambrands-image-block self-center">
+                                                 <span class="ambrands-empty m-auto <?= $escaper->escapeHtml($isSliderEnable ? 'inline-block my-0 mx-auto text-cornflower-100' : '')?>">
+                                                     <?= /** @noEscape */ $brand['label'][0] ?>
+                                                 </span>
+                                             </span>
+                                         <?php endif ?>
+                                         <?php if ($block->getData('show_label')): ?>
+                                             <span class="ambrands-label <?= $escaper->escapeHtml($isSliderEnable ? 'mt-2.5 min-h-[40px]	text-gray-800 font-semibold	text-sm' : '') ?>">
+                                                 <?= $escaper->escapeHtml($brand['label']) ?>
+                                             </span>
+                                         <?php endif; ?>
+                                     </span>
+                                 </a>
+                            </div>      
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <?php if ($block->isPaginationShow()): ?>
+                <div class="swiper-pagination swiper-pagination-<?= $escaper->escapeJs($uniqId) ?>"></div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+    function amBrandsSlider<?= $escaper->escapeJs($uniqId) ?>() {
+        return {
+            swiperInstance: null,
+            displayZero: !!<?= $escaper->escapeHtml($displayZero); ?>,
+            sortBy: '<?= $escaper->escapeHtml($sortBy); ?>',
+            isSliderEnabled: <?= $isSliderEnable ? 1 : 0 ?>,
+            sliderSelector: "#am_widget_<?= $escaper->escapeJs($sliderId) ?>",
+
+            init() {
+                if (!window.Swiper) {
+                    window.addEventListener('amSwiperLoaded', () => {
+                        this.initializeSwiper();
+                    });
+                } else {
+                    this.initializeSwiper();
+                }
+            },
+
+            initializeSwiper () {
+                this.swiperInstance = new Swiper('#<?= /** @noEscape */ $sliderId ?> .swiper-container', {
+                    slidesPerView: 1,
+                    spaceBetween: 10,
+                    simulateTouch: <?= (int) $block->getSimulateTouch() ?>,
+                    a11y: {
+                        slideLabelMessage: "<?= $escaper->escapeHtml(__('slide {{index}} of {{slidesLength}} slide')) ?>",
+                        itemRoleDescriptionMessage: "<?= $escaper->escapeHtml(__('This is a slide for a brand')) ?>"
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev'
+                    },
+                    breakpoints: {
+                        <?php for ($i = 1; $i <= $itemsPerView; $i++): ?>
+                            <?= ($i + 1) * ($imgWidth + 20 + 10) + $buttonWidth * 2; ?> : {
+                            slidesPerView: <?= (int) $i ?>
+                        },
+                        <?php endfor; ?>
+                    },
+                    loop: <?= (int)$block->isLoopAvailable(1) ?>,
+                    <?php if ($block->isPaginationShow()): ?>
+                    pagination: {
+                        el: '.swiper-pagination-<?= $escaper->escapeJs($uniqId) ?>',
+                        clickable: true
+                    },
+                    <?php endif; ?>
+                    <?php if ($block->isAutoplay()): ?>
+                    autoplay: {
+                        delay: <?= (int) $block->getAutoplayTime() ?>
+                    },
+                    <?php endif; ?>
+                });
+            },
+        }
+    }
+
+    <?php if ($isSliderEnable): ?>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window._amSwiperLoaded) return;
+        const script = document.createElement('script');
+        script.src = '<?= $escaper->escapeUrl($block->getViewFileUrl('Amasty_ShopByBrandHyvaCompatibility::js/swiper.min.js')) ?>';
+        script.async = true;
+        document.body.appendChild(script);
+
+        window._amSwiperLoaded = true;
+        script.onload = () => {
+            window.dispatchEvent(new CustomEvent('amSwiperLoaded'));
+        };
+
+        const styles = document.createElement('link');
+        styles.rel = 'stylesheet';
+        styles.href = '<?= $escaper->escapeUrl($block->getViewFileUrl('Amasty_ShopByBrandHyvaCompatibility::css/swiper.min.css')) ?>';
+        document.head.appendChild(styles);
+    });
+    <?php endif; ?>
+</script>
+

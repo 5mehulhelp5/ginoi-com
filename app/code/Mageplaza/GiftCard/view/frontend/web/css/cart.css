@@ -1,0 +1,55 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+.cart.table-wrapper .product-item-name + .item-options {
+    word-break: break-word;
+}
+
+@media (min-width: 768px) {
+    #block-discount {
+        float: left;
+        margin-left: 50px;
+    }
+}
+
+.gift-card-check-code > .fieldset {
+    margin-bottom: 0;
+}
+
+.gift-card-check-code > .fieldset > .field {
+    display: block;
+    margin-bottom: 10px;
+    clear: both;
+}
+
+.cart-discount .gift-card-check-code > .fieldset > .field > label {
+    width: 30%;
+    float:left;
+    display: block;
+    height: unset;
+    position: unset;
+}
+
+.cart-discount .gift-card-check-code > .fieldset > .field > .control {
+    width: 60%;
+    float:left;
+    margin-left: 5%;
+    display: block;
+}

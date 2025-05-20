@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/system_file.xsd">
+    <system>
+		<tab id="magecomp" translate="label" sortOrder="100" class="magecomp-logo">
+			<label><![CDATA[]]></label>
+		</tab>
+        <section id="whatsapppro" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+			 <tab>magecomp</tab>
+             <label>WhatsApp Order Notification</label>
+          	 <resource>Magecomp_Whatsapppro::whatsappproconfig</resource>
+			 <group id="general" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Configuration</label>
+					<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+						<label>WhatsApp Order Notification</label>
+						<source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+					</field>
+			 </group>
+			 <group id="smsgatways" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>API Gateway</label>
+				<field id="gateway" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+					<label>WhatsApp API</label>
+					<source_model>Magecomp\Whatsapppro\Model\Config\Gateways</source_model>
+					<config_path>whatsapppro/smsgatways/gateway</config_path>
+				</field>
+			 </group>
+		 </section>
+		<section id="usertemplate" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<tab>magecomp</tab>
+			<label>User Templates</label>
+			<resource>Magecomp_Whatsapppro::whatsappproconfig</resource>
+			<group id="usersignup" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Sign Up Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="userorderplace" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Order Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}},{{var order_total}} <br /> <b>Objects : </b>order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="userinvoice" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Invoice Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}},{{var invoice_total}} <br /> <b>Objects : </b>invoice,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="usershipment" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Shipment Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>shipment,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="usercreditmemo" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Creditmemo Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>creditmemo,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="usercontactus" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Contact Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b> {{var name}},{{var email}},{{var telephone}},{{var comment}},{{var store_name}}]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+		</section>
+		<section id="admintemplate" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+			<tab>magecomp</tab>
+			<label>Admin Templates</label>
+			<resource>Magecomp_Whatsapppro::whatsappproconfig</resource>
+			<group id="admingeneral" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>General</label>
+				<field id="mobile" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Admin WhatsApp Number</label>
+					<comment><![CDATA[Enter WhatsApp Number With Country code & without any sign.<br /> e.g:-(91xxxxxxx09)]]></comment>
+					<validate>validate-number</validate>
+				</field>
+			</group>
+			<group id="adminsignup" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Sign Up Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="adminorderplace" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Order Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}},{{var order_total}} <br /> <b>Objects : </b>order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="admininvoice" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Invoice Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}},{{var invoice_total}} <br /> <b>Objects : </b>invoice,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="adminshipment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Shipment Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>shipment,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="admincreditmemo" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Creditmemo Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b>{{var mobilenumber}} <br /> <b>Objects : </b>creditmemo,order,customer]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+			<group id="admincontactus" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Contact Notification</label>
+				<field id="enable" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Notification</label>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="template" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" >
+					<label>Notification Text</label>
+					<comment><![CDATA[<b>Variables : </b> {{var name}},{{var email}},{{var telephone}},{{var comment}},{{var store_name}}]]></comment>
+					<depends><field id="enable">1</field></depends>
+					<validate>required-entry</validate>
+				</field>
+				<field id="contentsid" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Content Template SID</label>
+                    <depends><field id="enable">1</field></depends>
+                </field>
+			</group>
+		</section>
+    </system>
+</config>

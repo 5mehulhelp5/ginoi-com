@@ -1,0 +1,39 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Pro Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $items */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItemViewModel->setBlock($block);
+
+$menuItems = $block->getAllNodesData();
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<template x-if="mobile_class === 'drill' && !hideMainMenu() && isMobile">
+    <div class="drill">
+        <?php foreach ($menuItems as $key => $item): ?>
+            <?php if (!empty($item['elems']) || !empty($item['mobile_content'])): ?>
+                <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/drill.phtml', [
+                    'item' => $item,
+                    'parentItem' => null
+                ], 'Amasty_MegaMenuHyvaAddon::%s'); ?>
+            <?php endif ?>
+        <?php endforeach ?>
+    </div>
+</template>

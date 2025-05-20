@@ -1,0 +1,72 @@
+<?php
+namespace Magecomp\Whatsapppro\Observer\Customer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class ShipmentSaveObserver implements ObserverInterface
+{
+    protected $helperapi;
+    protected $helpershipment;
+    protected $emailfilter;
+    protected $customerFactory;
+
+    public function __construct(
+        \Magecomp\Whatsapppro\Helper\Apicall $helperapi,
+        \Magecomp\Whatsapppro\Helper\Shipment $helpershipment,
+        \Magento\Email\Model\Template\Filter $filter,
+        \Magento\Customer\Model\CustomerFactory $customerFactory
+    ) {
+        $this->helperapi = $helperapi;
+        $this->helpershipment = $helpershipment;
+        $this->emailfilter = $filter;
+        $this->customerFactory = $customerFactory;
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        $shipment   = $observer->getShipment();
+        $order      = $shipment->getOrder();
+
+        if (!$this->helpershipment->isEnabledWhatsapp($order->getStoreId())) {
+            return $this;
+        }
+        if ($shipment) {
+            $storeId= $order->getStoreId();
+            $billingAddress = $order->getBillingAddress();
+            $mobilenumber = $billingAddress->getTelephone();
+            if ($order->getCustomerId() > 0) {
+                $customer = $this->customerFactory->create()->load($order->getCustomerId());
+                $mobile = $customer->getMobilenumber();
+                if ($mobile != '' && $mobile != null) {
+                    $mobilenumber = $mobile;
+                }
+
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'shipment' => $shipment,
+                    'customer' => $customer,
+                    'mobilenumber' => $mobilenumber
+                ]);
+            } else {
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'shipment' => $shipment,
+                    'mobilenumber' => $mobilenumber
+                ]);
+            }
+
+            if ($this->helpershipment->isShipmentNotificationForUser($storeId)) {
+                $message = $this->helpershipment->getShipmentNotificationUserTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($mobilenumber, $finalmessage,$storeId);
+            }
+
+            if ($this->helpershipment->isShipmentNotificationForAdmin($storeId) && $this->helpershipment->getAdminNumber($storeId)) {
+                $message = $this->helpershipment->getShipmentNotificationForAdminTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($this->helpershipment->getAdminNumber($storeId), $finalmessage,$storeId);
+            }
+        }
+        return $this;
+    }
+}

@@ -1,0 +1,33 @@
+.checkout-cart-index.page-layout-2columns-left {
+    .columns {
+        @apply !grid-cols-1 sm:!grid-cols-2 lg:!grid-cols-3 lg:px-10;
+
+        .main {
+            @apply !col-start-1;
+        }
+
+        .sidebar {
+            @apply md:order-3 lg:order-1;
+        }
+    }
+}
+
+.checkout-cart-index:has(.cart-empty) {
+    .cart-empty {
+        @apply md:h-[calc(100vh-800px)] lg:h-[calc(100vh-720px)] xl:h-[calc(100vh-540px)]
+    }
+
+}
+.checkout-cart-price {
+    .price {
+        @apply text-gray-600 font-normal;
+    }
+}
+
+.checkout-cart-icon {
+    background-image: url('../images/icons-checkout.jpg');
+}
+
+.ambanners.ambanner-8 {
+    @apply bg-white shadow-md rounded-b-lg relative;
+}

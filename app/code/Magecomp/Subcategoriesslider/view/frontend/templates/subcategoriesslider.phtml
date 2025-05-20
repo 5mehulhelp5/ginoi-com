@@ -1,0 +1,162 @@
+<?php 
+$nocategory = $block->getSlidervalue();
+if(isset($nocategory)){
+    if ($nocategory[0] != "No Subcategory") { 
+?>
+    <div class="maindivsubcategoriesslider" style="background-color:<?php /* @noEscape */ echo $block->getBackgroundcolor(); ?>; color:<?php /* @noEscape */ echo $block->getFontcolor(); ?>">
+        <div class="">
+            <?php if ($block->getCountslider() < 6) { ?>
+                <?php if ($block->isMobileDevice()) { ?>
+                    <div id="thumbnail-slider">
+                        <div class="inner">
+                            <div class="owl-carousel owl-theme setsliderview slidersize">
+                                <?php foreach ($block->getSlidervalue() as $value) { 
+                                    $data = $block->getDataforvalue($value);
+                                    if ($data) {
+                                        $image = $data->getImage();
+                                        $name = $data->getName();
+                                        $subcaturl = $data->getUrlPath();
+                                ?>
+                                    <div class="subcat-slider-li item sliderforget" style="position: relative;">
+                                        <a class="forlink" href="<?php /* @noEscape */ echo $block->getBaseUrl() . $subcaturl . ".html"; ?>" target="_blank" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;">
+                                            <div id="mainimgdiv">
+                                                <?php if ($image) { ?>
+                                                    <img class="thumb" src="<?php /* @noEscape */ echo $block->resize($image, 210, 250); ?>" alt="Image"/>
+                                                <?php } else { 
+                                                    $images = $block->isImage();
+                                                    if ($images) { ?>
+                                                        <img class="thumb" src="<?php /* @noEscape */ echo $block->resizes($images, 210, 250); ?>" alt="Configration media image"/>
+                                                    <?php } else { ?>
+                                                        <img id="forhideid" class="thumb insta-store1-img" src="<?php /* @noEscape */ echo $block->getdefaultimage(); ?>" alt="default image"/>
+                                                    <?php } ?>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="slidername" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;"><?php /* @noEscape */ echo $name; ?></div>
+                                        </a>
+                                    </div>
+                                <?php } } ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <div>
+                        <ul class="sliderviewforui liuirequried">
+                            <div>
+
+
+                                <?php 
+
+                                foreach ($block->getSlidervalue() as $value) {
+                                    $data = $block->getDataforvalue($value);
+                                    if ($data) {
+                                        $image = $data->getImage();
+                                        $name = $data->getName();
+                                        $subcaturl = $data->getUrlPath();
+                                ?>
+                                    <li class="lirequried sliderviewforli liuirequried">
+                                        <a class="forlink" href="<?php /* @noEscape */ echo $block->getBaseUrl() . $subcaturl . ".html"; ?>" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;">
+                                            <div class="sliderimage">
+                                                <?php if ($image) {                                                 ?>
+                                                    <img class="leftimg" src="<?php /* @noEscape */ echo $block->resize($image, 210, 250); ?>" alt="Category image "/>
+                                                <?php } else { 
+                                                    $images = $block->isImage();
+                                                    if ($images) { ?>
+                                                        <img class="leftimg" src="<?php /* @noEscape */ echo $block->resizes($images, 210, 250); ?>" alt="Configration media image"/>
+                                                    <?php } else { ?>
+                                                        <img id="forhideid" class="leftimg insta-store1-img" src="<?php /* @noEscape */ echo $block->getdefaultimage(); ?>" alt="defaultimage"/>
+                                                    <?php } ?>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="slidertext" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;"><?php /* @noEscape */ echo $name; ?></div>
+                                        </a>
+                                    </li>
+                                <?php } } ?>
+                            </div>
+                        </ul>
+                    </div>
+                <?php } ?>
+            <?php } else { ?>
+                <div id="thumbnail-slider">
+                    <div class="inner">
+                        <div class="owl-carousel owl-theme setsliderview slidersize">
+                            <?php foreach ($block->getSlidervalue() as $value) {
+                                $data = $block->getDataforvalue($value);
+                                if ($data) {
+                                    $image = $data->getImage();
+                                    $name = $data->getName();
+                                    $subcaturl = $data->getUrlPath();
+                            ?>
+                                <div class="subcat-slider-li item sliderforget" style="position: relative;">
+                                    <a class="forlink" href="<?php /* @noEscape */ echo $block->getBaseUrl() . $subcaturl . ".html"; ?>" target="_blank" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;">
+                                        <div id="mainimgdiv" >
+                                            <?php if ($image) { ?>
+                                                <img class="thumb" src="<?php /* @noEscape */ echo $block->resize($image, 210, 250); ?>" alt="Image"/>
+                                            <?php } else { 
+                                                $images = $block->isImage();
+                                                if ($images) { ?>
+                                                    <img class="thumb" src="<?php /* @noEscape */ echo $block->resizes($images, 210, 250); ?>" alt="Configration media image"/>
+                                                <?php } else { ?>
+                                                    <img id="forhideid" class="thumb insta-store1-img" src="<?php /* @noEscape */ echo $block->getdefaultimage(); ?>" alt="default image"/>
+                                                <?php } ?>
+                                            <?php } ?>
+                                        </div>
+                                        <div class="slidername" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;"><?php /* @noEscape */ echo $name; ?></div>
+                                    </a>
+                                </div>
+                            <?php } } ?>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+
+        <?php if ($block->getSubcategorylist()) {
+
+            $nocategory = $block->getListvalue();
+            if(isset($nocategory) && !empty($nocategory)){
+            if($nocategory[0] != "No Subcategory") {
+                if ($block->getCountlist() != null) {
+                    $number = 1; ?>
+                    <div class="listviewforlist">
+                        <?php foreach ($block->getListvalue() as $value) {
+                            $number++;
+                            $data = $block->getDataforvalue($value);
+                            if ($data) {
+                                $name = $data->getName();
+                                $subcaturl = $data->getUrlPath();
+                        ?>
+                            <a class="forlink listviewforli" href="<?php /* @noEscape */ echo $block->getBaseUrl() . $subcaturl . ".html"; ?>" style="color: <?php /* @noEscape */ echo $block->getFontcolor(); ?>;">
+                                <?php /* @noEscape */ echo $name; ?>
+                            </a>
+                        <?php } } ?>
+                    </div>
+                <?php }
+            }
+        }
+        } ?>
+    </div>
+    <script>
+        require(['jquery'], function ($) {
+            jQuery('.owl-carousel').owlCarousel({
+                loop: false,
+                margin: 10,
+                responsiveClass: true,
+                responsive: {
+                    0: {
+                        items: 1,
+                        nav: true
+                    },
+                    600: {
+                        items: 3,
+                        nav: true
+                    },
+                    1030: {
+                        items: 5,
+                        margin: 20
+                    }
+                }
+            });
+        });
+    </script>
+<?php } } ?>
+

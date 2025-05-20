@@ -1,0 +1,76 @@
+@layer components {
+    .btn {
+        @apply flex bg-gray-500 rounded-lg px-4 py-2 text-white text-base font-medium shadow-md items-center justify-center;
+
+        @screen md {
+            @apply px-6 text-lg;
+        }
+        @screen xl {
+            @apply text-base;
+        }
+
+        svg {
+            @apply inline-flex;
+        }
+
+        span {
+            vertical-align: middle;
+        }
+
+        &:hover {
+            @apply bg-gray-600;
+        }
+
+        &:focus {
+            @apply outline-none border-transparent;
+        }
+    }
+
+    .btn-primary {
+        @apply bg-violet-800 text-white;
+
+        &:hover {
+            @apply bg-violet-800/85;
+        }
+    }
+
+    .btn-secondary {
+        @apply bg-white border border-violet-800 text-black shadow-md;
+
+        &:hover {
+            @apply bg-white border-primary-darker shadow-lg;
+        }
+
+        &:focus {
+            @apply border border-transparent;
+        }
+    }
+
+    .btn-outline {
+        @apply bg-violet-50 border border-violet-800 text-violet-800 shadow-md;
+
+        &:hover {
+            @apply bg-violet-800 text-white shadow-lg;
+        }
+
+        &:focus {
+            @apply border border-transparent;
+        }
+    }
+
+    .btn-orange {
+        @apply bg-[#ff6f00] text-white;
+
+        &:hover {
+            @apply !bg-[#FF913C];
+        }
+    }
+
+    .btn-size-lg {
+        @apply px-10 py-4 text-lg;
+    }
+
+    .btn-size-sm {
+        @apply px-2 py-2 text-sm;
+    }
+}

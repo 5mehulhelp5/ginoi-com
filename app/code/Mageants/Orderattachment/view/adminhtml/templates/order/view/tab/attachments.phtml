@@ -1,0 +1,18 @@
+<div data-bind="scope: 'Orderattachment'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+</div>
+
+<script type="text/x-magento-init">
+        {
+            "*": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "Orderattachment": {
+                            "component": "Mageants_Orderattachment/js/attachment",
+                             "dataconfig": <?= /* @noEscape */ $block->getAttachmentConfig() ?>
+                        }
+                    }
+                }
+            }
+        }
+</script>

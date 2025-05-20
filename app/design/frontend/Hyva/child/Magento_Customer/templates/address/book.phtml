@@ -1,0 +1,100 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Customer\Block\Address\Book;
+use Magento\Framework\Escaper;
+
+/** @var Book $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+?>
+<div class="block block-addresses-default mb-6">
+    <h1 class="mb-6 text-2xl block-title font-bold border-l-4 border-[#3E06B0] text-primary-purple pl-4 py-2">
+        <?= $escaper->escapeHtml(__('Address Book')) ?>
+    </h1>
+    <div class="block-dashboard-addresses my-6 flex flex-col border rounded-2xl">
+        <h2 class="block-title flex justify-between items-center text-primary-purple p-4 border-b">
+            <strong class="text-2xl block"><?= $escaper->escapeHtml(__('Default Addresses')) ?></strong>
+        </h2>
+        <div class="flex flex-wrap justify-between">
+            <?php if ($customerDefaultBillingAddress = $block->getDefaultBilling()): ?>
+                <div class="lg:w-1/2 w-full ">
+                    <div class="flex flex-col h-full">
+                        <div class="p-4 not-italic">
+                            <div class="text-primary-purple text-lg title-font font-medium mb-3">
+                                <span><?= $escaper->escapeHtml(__('Default Billing Address')) ?></span>
+                            </div>
+                                <address class="not-italic">
+                                    <?= $block->getAddressHtml($block->getAddressById($customerDefaultBillingAddress)) ?>
+                                </address>
+                        </div>
+                        <div class="border-t px-4 py-2">
+                            <a href="<?= $escaper->escapeUrl($block->getAddressEditUrl($customerDefaultBillingAddress)) ?>"
+                               class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                            >
+                                <span>
+                                    <?= $escaper->escapeHtml(__('Change Billing Address')) ?>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            <?php else: ?>
+                <div class="lg:w-1/2 w-full mt-4 lg:mt-0 p-4">
+                    <div class="flex flex-col h-full">
+                        <div class="text-primary-purple text-lg title-font font-medium mb-3">
+                    <span>
+                        <?= $escaper->escapeHtml(__('Default Billing Address')) ?>
+                    </span>
+                        </div>
+                        <div class="not-italic">
+                            <p><?= $escaper->escapeHtml(__('You have no default billing address in your address book.')) ?></p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
+
+            <?php if ($customerDefaultBillingAddress = $block->getDefaultShipping()): ?>
+                <div class="lg:w-1/2 w-full mt-4 lg:mt-0">
+                    <div class="flex flex-col h-full justify-between">
+                        <div class="p-4">
+                            <div class="text-primary-purple text-lg title-font font-medium mb-3">
+                                <span><?= $escaper->escapeHtml(__('Default Shipping Address')) ?></span>
+                            </div>
+                            <address class="not-italic">
+                                <?= $block->getAddressHtml($block->getAddressById($customerDefaultBillingAddress)) ?>
+                            </address>
+                        </div>
+                        <div class="border-t px-4 py-2">
+                        <a href="<?= $escaper->escapeUrl($block->getAddressEditUrl($customerDefaultBillingAddress)) ?>"
+                           class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                        >
+                            <span><?= $escaper->escapeHtml(__('Change Shipping Address')) ?></span>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="lg:w-1/2 w-full mt-4 lg:mt-0 p-4">
+                    <div class="text-primary-purple text-lg title-font font-medium mb-3">
+                    <span>
+                        <?= $escaper->escapeHtml(__('Default Shipping Address')) ?>
+                    </span>
+                    </div>
+                    <p class="not-italic">
+                        <?= $escaper->escapeHtml(__('You have no default shipping address in your address book.')) ?>
+                    </p>
+                </div>
+            <?php endif ?>
+        </div>
+    </div>
+
+</div>

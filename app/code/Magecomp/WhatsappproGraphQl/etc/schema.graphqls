@@ -1,0 +1,42 @@
+type Mutation {
+   
+    sendOrderNotification(
+        orderId: Int @doc(description: "Order Id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\OrderNotifier")
+    
+    sendInvoiceNotification(
+        invoiceId: Int @doc(description: "Invoice Id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\InvoiceNotifier")
+
+    sendShipmentNotification(
+        shipmentId: Int @doc(description: "Shipment Id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\ShipmentNotifier")
+
+    sendCreditmemoNotification(
+        creditmemoId: Int @doc(description: "Creditmemo Id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\CreditmemoNotifier")
+
+    sendContactNotification(
+        name: String @doc(description: "Contact Name")
+        email: String @doc(description: "Contact Email")
+        mobilenumber: String @doc(description: "Contact Mobile Number")
+        comment: String @doc(description: "Query Descreption")
+        storeId: Int @doc(description: "Store id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\ContactNotifier")
+
+    sendRegistrationNotification(
+        customerId: Int @doc(description: "Customer Id")
+        storeId: Int @doc(description: "Store id")
+    ): Response
+    @resolver(class:"Magecomp\\WhatsappproGraphQl\\Model\\Resolver\\RegistrationNotifier")
+    
+}
+type Response {
+    status: Boolean
+    message: String
+}

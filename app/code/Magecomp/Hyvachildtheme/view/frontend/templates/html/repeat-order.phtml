@@ -1,0 +1,9 @@
+<?php $label = __('Repeat Order'); ?>
+<a id="customer.header.order.link"
+       class="flex gap-2 py-2 lg:py-2 hover:bg-gray-100 px-2 items-center"
+       href="<?= $escaper->escapeUrl($block->getUrl('sales/order/history')) ?>"
+       title="<?= $escaper->escapeHtmlAttr($label) ?>"
+    >
+        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/repeat_order.svg'); ?>' alt="Repeat Order" class="w-6">
+        <span class="text-sm interstatelight"><?= $escaper->escapeHtml($label) ?></span>
+    </a>

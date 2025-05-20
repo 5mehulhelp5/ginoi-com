@@ -1,0 +1,31 @@
+{
+    "name": "iksanika/productmanage",
+    "description": "Advanced Products Manager",
+    "require": {
+        "magento/module-store": "*",
+        "magento/module-backend": "*",
+        "magento/module-catalog": "*",
+        "magento/framework": "*"
+    },
+    "type": "magento2-module",
+    "version": "2.0.10",
+    "license": [
+        "IKS-LICENSE"
+    ],
+    "authors": [
+        {
+            "name": "Iksanika",
+            "email": "support@iksanika.com",
+            "homepage": "https://www.iksanika.com/products/",
+            "role": "Iksanika Magento Extensions"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Iksanika\\Productmanage\\": ""
+        }
+    }
+}

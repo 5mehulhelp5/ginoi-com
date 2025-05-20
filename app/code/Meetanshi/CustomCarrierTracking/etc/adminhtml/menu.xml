@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Meetanshi_CustomCarrierTracking::custom_carrier" title="Custom Carrier Tracking" module="Meetanshi_CustomCarrierTracking" sortOrder="120" parent="Magento_Reports::report" resource="Meetanshi_CustomCarrierTracking::custom_carrier"/>
+        <add id="Meetanshi_CustomCarrierTracking::manage_custom_carrier" title="Manage Custom Carrier Trackers" module="Meetanshi_CustomCarrierTracking" sortOrder="10" parent="Meetanshi_CustomCarrierTracking::custom_carrier" action="customcarrier/carrier/index" resource="Meetanshi_CustomCarrierTracking::manage_custom_carrier"/>
+		<add id="Meetanshi_CustomCarrierTracking::customcarriertracking" title="Configuration" module="Meetanshi_CustomCarrierTracking" sortOrder="15" parent="Meetanshi_CustomCarrierTracking::custom_carrier" action="adminhtml/system_config/edit/section/customcarriertracking" resource="Meetanshi_CustomCarrierTracking::customcarriertracking"/>
+    </menu>
+</config>

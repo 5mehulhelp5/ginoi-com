@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+	<head>
+		<css src="Magecomp_Whatsapppro::css/whatsapp.css"/>
+		<css src="Magecomp_Whatsapppro/hyva/css/hyvaIntlTelInput.css"/>
+        <link src="Magecomp_Whatsapppro::hyva/js/hyvaIntlTelInput.min.js"/>
+		<remove src="Magecomp_Whatsapppro::countryflag/js/intlTelInput.js"/>
+		<remove src="Magecomp_Whatsapppro::countryflag/css/intlTelInput.css"/>
+	</head>
+	<body>
+		<referenceContainer name="form.additional.info">
+            <block class="Magecomp\Whatsapppro\Block\Customer\Register" name="customer_register_sms" template="Magecomp_Whatsapppro::hyva/customer/register.phtml" ifconfig="whatsapppro/general/enable" />
+        </referenceContainer>
+	</body>		
+</page>

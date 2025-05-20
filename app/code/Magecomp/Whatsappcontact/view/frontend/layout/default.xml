@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+  <head>
+    	<css src="Magecomp_Whatsappcontact::whatsappcontact/css/whatsappcontact.css"/>
+		<css src="Magecomp_Whatsappcontact::whatsappcontact/css/font-awesome-4.7.0/css/font-awesome.css"/>
+		<css src="Magecomp_Whatsappcontact::whatsappcontact/css/font-awesome-4.7.0/css/font-awesome.min.css"/>
+  </head>
+  <body>
+    <referenceBlock name="before.body.end">
+        <block class="Magecomp\Whatsappcontact\Block\Whatsappcontact" name="whatsappcontact-design" template="Magecomp_Whatsappcontact::whatsappcontact.phtml" ifconfig="whatsappcontact/general/enable"/>
+    </referenceBlock>
+</body>
+</page>

@@ -1,0 +1,40 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Edit;
+use Magento\Wishlist\Model\Item;
+
+/** @var Edit $block */
+/** @var Escaper $escaper */
+
+/** @var Item $item */
+$item = $block->getItem();
+$product = $item->getProduct();
+
+// The product url contains a hash with selected product options
+// We're going to use that hash
+$productUrl = $block->getProductUrl($item);
+$urlHash = explode('#', $productUrl);
+// it would be nicer if we would one day extend the getItemConfigureUrl instead
+$configureUrl = $block->getItemConfigureUrl($item);
+
+// we add the hash from productUrl to the configureUrl
+$editProductUrl = $configureUrl . (count($urlHash) > 1 ? '#' . $urlHash[1] : '');
+?>
+<?php if ($product->isVisibleInSiteVisibility()): ?>
+    <a class="action inline-flex"
+       href="<?= $escaper->escapeUrl($editProductUrl) ?>"
+       title="<?= $escaper->escapeHtmlAttr(__('Edit Item')) ?>">
+            <img class="cancel-btn h-[25px] w-[25px]" x-data="{ hover: false }"
+                 src="<?= $this->getViewFileUrl('images/wishlist/edit-icon.svg') ?>"
+                 :src="hover ? '<?= $this->getViewFileUrl('images/wishlist/edit-hover.svg') ?>' : '<?= $this->getViewFileUrl('images/wishlist/edit-icon.svg') ?>'"
+                 @mouseenter="hover = true"
+                 @mouseleave="hover = false"
+                 alt="">
+    </a>
+<?php endif ?>

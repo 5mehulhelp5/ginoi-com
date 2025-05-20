@@ -1,0 +1,30 @@
+{
+    "name": "magecomp/magento-2-whatsapp-order-notification",
+    "description": "Magento 2 WhatsApp Order Notification Pro",
+    "require": {
+        "php": "~5.5.0||~5.6.0||~7.0.0||~7.1.0||~7.2.0||~7.3.0||~7.4.0||~8.1.0||~8.2.0",
+        "magecomp/module-wappnotoficationprocountryflag": ">=1.0.3",
+        "magecomp/module-wappnotoficationprowhatsappapi": ">=1.0.1",
+        "magecomp/module-wappnotoficationprotwilioapi": ">=1.0.1"
+    },
+    "type": "magento2-module",
+    "version": "1.0.7",
+    "license": [
+        "Commercial"
+    ],
+    "authors": [
+        {
+            "name": "Magecomp",
+            "email": "support@magecomp.com",
+            "homepage": "https://magecomp.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magecomp\\Whatsapppro\\": ""
+        }
+    }
+}

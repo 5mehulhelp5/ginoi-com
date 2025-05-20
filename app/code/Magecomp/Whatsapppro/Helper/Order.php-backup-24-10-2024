@@ -1,0 +1,67 @@
+<?php
+namespace Magecomp\Whatsapppro\Helper;
+
+use Magento\Store\Model\ScopeInterface;
+
+class Order extends \Magecomp\Whatsapppro\Helper\Data
+{
+    // USER TEMPLATE
+    const SMS_IS_CUSTOMER_ORDER_NOTIFICATION = 'usertemplate/userorderplace/enable';
+    const SMS_CUSTOMER_ORDER_NOTIFICATION_TEMPLATE = 'usertemplate/userorderplace/template';
+
+    //ADMIN TEMPLATE
+    const SMS_IS_ADMIN_ORDER_NOTIFICATION = 'admintemplate/adminorderplace/enable';
+    const SMS_ADMIN_ORDER_NOTIFICATION_TEMPLATE = 'admintemplate/adminorderplace/template';
+
+    public function isOrderNotificationForUser($storeId = null)
+    {
+        if ($storeId==null) {
+            $storeId = $this->getStoreid();
+        }
+        return $this->isEnabledWhatsapp($storeId) && $this->scopeConfig->getValue(
+            self::SMS_IS_CUSTOMER_ORDER_NOTIFICATION,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    public function getOrderNotificationUserTemplate($storeId = null)
+    {
+        if ($storeId==null) {
+            $storeId = $this->getStoreid();
+        }
+        if ($this->isEnabledWhatsapp($storeId)) {
+            return  $this->scopeConfig->getValue(
+                self::SMS_CUSTOMER_ORDER_NOTIFICATION_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $storeId
+            );
+        }
+    }
+
+    public function isOrderNotificationForAdmin($storeId = null)
+    {
+        if ($storeId==null) {
+            $storeId = $this->getStoreid();
+        }
+        return $this->isEnabledWhatsapp($storeId) && $this->scopeConfig->getValue(
+            self::SMS_IS_ADMIN_ORDER_NOTIFICATION,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    public function getOrderNotificationForAdminTemplate($storeId = null)
+    {
+        if ($storeId==null) {
+            $storeId = $this->getStoreid();
+        }
+        if ($this->isEnabledWhatsapp($storeId)) {
+            return  $this->scopeConfig->getValue(
+                self::SMS_ADMIN_ORDER_NOTIFICATION_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $storeId
+            );
+        }
+    }
+}

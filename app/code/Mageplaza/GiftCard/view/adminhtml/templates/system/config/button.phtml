@@ -1,0 +1,61 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var Button $block */
+
+use Mageplaza\GiftCard\Block\Adminhtml\System\Config\Button;
+
+?>
+<div class="pp-buttons-container">
+    <a class="action-default" href="<?= /** @noEscape */ $block->escapeUrl($block->getButtonUrl()) ?>">
+        <?= /** @noEscape */ $block->escapeHtml($block->getButtonLabel()) ?>
+    </a>
+</div>
+<script type="text/javascript">
+    require(['jquery'], function($){
+        $(document).ready(function() {
+
+            var checkboxConditionsUse = $('#mpgiftcard_product_checkout_condition_inherit'),
+                InputGiftCardUse  = $('#mpgiftcard_product_checkout_condition');
+
+            function toggleInput() {
+
+                if (checkboxConditionsUse.prop('checked')) {
+                    InputGiftCardUse.prop('disabled', true);
+                } else {
+                    InputGiftCardUse.prop('disabled', false);
+                }
+
+            }
+            checkboxConditionsUse.on('change', toggleInput);
+
+            toggleInput();
+        });
+    });
+</script>
+<style>
+    .admin__data-grid-pager-wrap {
+        margin-top: 10px;
+    }
+    .admin__data-grid-pager-wrap .admin__control-select, .admin__data-grid-pager-wrap .admin__control-text {
+        width: 50px !important;
+    }
+</style>

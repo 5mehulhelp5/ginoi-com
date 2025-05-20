@@ -1,0 +1,90 @@
+<fieldset class="fieldset create account">
+    <legend class="legend"><span><?php /* @noEscape */ echo __('Additional Information') ?></span></legend>
+    <div class="field <?php if ($block->getCountryFlagEnable()): ?> required <?php endif; ?>">
+        <label for="phonenumber" class="label">
+                <span><?= /* @noEscape */ __('Whatsapp Number') ?></span>
+            </label>
+        <div class="control">
+            <input type="text" name="mobilenumber" id="mobilenumber" title="<?php /* @noEscape */ echo __('mobilenumber') ?>" class="input-text " autocomplete="off" placeholder="WhatsApp Number">
+            <input type="hidden" value="" id="countryreg" name="countryreg">
+            <?php if (!$block->getCountryFlagEnable()): ?>
+            <div class="comment" style="float: left;width: 100%;"><?php /* @noEscape */ echo __('Enter Your WhatsApp No. With Country Code i.e 91xxxxxxx09') ?></div>
+            <?php endif;?>
+        </div>
+        <div id="smserror" name="smserror" style="color:red;" generated="true" class="mage-error"></div>
+    </div>
+</fieldset>
+<script>
+        <?php if($block->getCountryFlagEnable()): ?>
+
+            const phoneInputField = document.querySelector("#mobilenumber");
+            <?php if($block->getCountryFlagDetectByIP()):?>
+                country_flag = "<?php /* @noEscape*/  echo $block->getGeoCountryCode();?>";
+            <?php endif; ?>
+             const phoneInput = window.intlTelInput(phoneInputField, {
+           initialCountry : country_flag,
+           utilsScript: "<?php /* @noEscape*/  echo $block->getViewFileUrl('Magecomp_Whatsapppro::hyva/js/hyvaUtils.js'); ?>"
+       });
+       var activeCountryElement = document.querySelector(".iti__country.iti__active");
+       var country_code = activeCountryElement.getAttribute('data-dial-code');
+
+       document.getElementById("mobilenumber").addEventListener("keyup", function () {
+               activeCountryElement = document.querySelector(".iti__country.iti__active");
+
+                countrycodeval = activeCountryElement.getAttribute('data-dial-code');
+                var mobilelength = document.querySelector('#mobilenumber').value.length;
+                var mobile =document.querySelector('#mobilenumber').value;
+                document.querySelector("#countryreg").value=countrycodeval;
+                
+                country_id = activeCountryElement.getAttribute('data-country-code');
+              
+                if (mobile == null || mobile == '') {
+                    document.querySelector('#mobilenumber').classList.add('mage-error');
+                    document.querySelector('#smserror').innerHTML ='<?php /* @noEscape */ echo __("This is a required field.") ?>';
+                }
+
+                if(!/^\d+$/.test(mobile) || mobile.charAt(0) === '+' || mobile.charAt(0) === '-'){
+                    document.getElementById('mobilenumber').classList.add('mage-error');
+                    document.getElementById('smserror').innerHTML='<?php /* @noEscape */ echo __("Please, Enter Valid Mobile Number.") ?>';
+                }
+
+                 let postUrl = BASE_URL + "whatsapppro/customer/hyvaregister";
+                 var requestOptions = {
+                            method: 'POST',
+                            headers: {accept: 'application/json'},
+                            body:JSON.stringify({
+                                mobile: mobile,
+                                countrycode : countrycodeval,
+                                mobilelength: mobilelength,
+                                country_id : country_id,
+                                formkey : hyva.getFormKey()
+
+                            })
+                        };
+                
+
+
+            fetch(postUrl, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+               if(data.validate == true) {
+                    document.getElementById('smserror').innerHTML = '';
+                      document.querySelector('button.action.submit.primary.btn.btn-primary').disabled = false;
+                }
+                else 
+                {
+                    document.getElementById('smserror').innerHTML = data.message;
+                      document.querySelector('button.action.submit.primary.btn.btn-primary').disabled = true;
+                }
+            })
+            .catch(error => {
+              
+                document.getElementById('smserror').style.display = 'block';
+                document.getElementById('smserror').innerHTML = '<?php /* @noEscape*/  echo __("Something Went Wrong, Try Again Later.") ?>';
+            });
+
+       });
+
+
+         <?php endif; ?>   
+</script>

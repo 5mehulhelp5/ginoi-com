@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="mageants_Orderattachment" resource="default" engine="innodb" comment="Mageants Orderattachment Table">
+    <column xsi:type="int" name="attachment_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Attachment ID"/>
+    <column xsi:type="int" name="quote_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Quote ID"/>
+    <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Order ID"/>
+    <column xsi:type="text" name="path" nullable="false" comment="Path"/>
+    <column xsi:type="text" name="comment" nullable="false" comment="Comment"/>
+    <column xsi:type="varchar" name="hash" nullable="false" length="32" comment="Hash"/>
+    <column xsi:type="varchar" name="type" nullable="false" length="1024" comment="File Type"/>
+    <column xsi:type="datetime" name="uploaded_at" on_update="false" nullable="false" comment="Uploaded at"/>
+    <column xsi:type="datetime" name="modified_at" on_update="false" nullable="false" comment="Modified at"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="attachment_id"/>
+    </constraint>
+    <constraint xsi:type="foreign" referenceId="MAGEANTS_ORDERATTACHMENT_ORDER_ID_SALES_ORDER_ENTITY_ID" table="mageants_Orderattachment" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
+    <index referenceId="MAGEANTS_ORDERATTACHMENT_QUOTE_ID" indexType="btree">
+      <column name="quote_id"/>
+    </index>
+    <index referenceId="MAGEANTS_ORDERATTACHMENT_ORDER_ID" indexType="btree">
+      <column name="order_id"/>
+    </index>
+    <index referenceId="MAGEANTS_ORDERATTACHMENT_HASH" indexType="btree">
+      <column name="hash"/>
+    </index>
+  </table>
+</schema>

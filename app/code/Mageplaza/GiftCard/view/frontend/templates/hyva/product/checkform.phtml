@@ -1,0 +1,151 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+use Mageplaza\GiftCard\Block\Product\View;
+use Magento\Framework\Escaper;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+
+$checkGiftCardUrl = $block->getUrl('mpgiftcard/index/check');
+?>
+<?php if ($block->isEnableCheckForm()): ?>
+    <div class="block block-gift-card-check block-content" aria-labelledby="block-gift-card-heading">
+        <div class="box box-information">
+            <div>
+                <strong><?= $escaper->escapeHtml(__('Check Gift Card Code Status')) ?></strong>
+            </div>
+            <div class="box-content">
+                <form class="form check-code flex flex-col sm:flex-row gap-2 justify-center md:justify-start" action="#" method="post" id="check-code-form"
+                      data-mage-init='{"validation": {}}'>
+                    <div class="check-code-field mr-3">
+                        <div class="control">
+                            <input name="code" type="text" class="required-entry no-whitespace" required
+                                   placeholder="<?= $escaper->escapeHtml(__('Enter your gift code')) ?>">
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="action action-check primary btn btn-primary" title="Check" type="submit">
+                            <?= $escaper->escapeHtml(__('Check')) ?>
+                        </button>
+                    </div>
+                </form>
+                <div class="check-result">
+                    <div class="check-result-success" style="display: none">
+                        <table class="result-table">
+                            <thead>
+                            <tr>
+                                <th scope="col" class="col code" data-bind="i18n: 'Code'"><?=$escaper->escapeHtml(__('Code'))?></th>
+                                <th scope="col" class="col status" data-bind="i18n: 'Status'"><?=$escaper->escapeHtml(__('Status'))?></th>
+                                <th scope="col" class="col balance" data-bind="i18n: 'Balance'"><?=$escaper->escapeHtml(__('Balance'))?></th>
+                                <th scope="col" class="col expired_at" data-bind="i18n: 'Expired Date'"><?=$escaper->escapeHtml(__('Expired Date'))?></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="result-code"></td>
+                                <td class="result-status"></td>
+                                <td class="result-balance"></td>
+                                <td class="result-date"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="message message-error error" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+        <div class="mp-clear"></div>
+    </div>
+    <style type="text/css">
+        .block-gift-card-check .box-content {
+            margin-top: 15px;
+        }
+
+        .check-result-success {
+            margin-top: 10px;
+        }
+
+        .result-table {
+            font-size: 0.9rem;
+        }
+
+        .result-table thead {
+            border-bottom: 1px solid gray;
+        }
+        .result-table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td {
+            padding: 11px 10px;
+        }
+        @media screen and (max-width: 768px) {
+            .check-code-field {
+                width: max-content;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", (event) => {
+            var ajaxUrl = "<?php echo /** @noEscape */ $checkGiftCardUrl ?>";
+            var checkForm = document.getElementById('check-code-form');
+
+            checkForm.addEventListener('submit', function(e) {
+                console.log('aa');
+                e.preventDefault();
+                var codeInput = document.querySelector('input[name="code"]');
+                var params = JSON.stringify({ "code": codeInput.value });
+
+                fetch(ajaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: params
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.errors) {
+                        document.querySelector('.check-result-success').style.display = 'none';
+                        document.querySelector('.message-error').innerHTML = data.message;
+                        document.querySelector('.message-error').style.display = 'block';
+                    } else {
+                        document.querySelector('.message-error').style.display = 'none';
+                        document.querySelector('.result-code').innerHTML = data.detail.code ?? '';
+                        document.querySelector('.result-status').innerHTML = data.detail.status_label ?? '';
+                        document.querySelector('.result-balance').innerHTML = data.detail.balance_formatted ?? '';
+                        document.querySelector('.result-date').innerHTML = data.detail.expired_at_formatted ?? '';
+                        document.querySelector('.check-result-success').style.display = 'block';
+                    }
+                })
+                .catch(function(error) {
+                    document.querySelector('.check-result-success').style.display = 'none';
+                    document.querySelector('.message-error').innerHTML = 'Invalid gift card code.';
+                    document.querySelector('.message-error').style.display = 'block';
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+            });
+
+        });
+    </script>
+<?php endif; ?>

@@ -1,0 +1,34 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+
+$label = $block->getData('label') ?? __('Lists');
+$urlPath = $block->getData('path') ?? 'wishlist';
+?>
+
+<a
+    id="<?= $escaper->escapeHtmlAttr($block->getNameInLayout()) ?>"
+    class="flex gap-2 py-2 lg:py-2 hover:bg-gray-100 px-2 items-center"
+    href="<?= $escaper->escapeUrl($block->getUrl($urlPath)) ?>"
+    title="<?= $escaper->escapeHtmlAttr($label) ?>"
+    x-data="{ itemCount: 0 }"
+    @private-content-loaded.window="itemCount = parseInt($event.detail.data.wishlist.counter)"
+>
+<img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/list2.svg'); ?>' alt="Lists" class="w-6">
+<span class="text-sm interstatelight"><?= $escaper->escapeHtml($label) ?></span>
+    <template x-if="itemCount">
+        <span class="tabular-nums" x-text="`(${itemCount})`"></span>
+    </template>
+</a>

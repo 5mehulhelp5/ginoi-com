@@ -1,0 +1,338 @@
+<?php
+/**
+ * @var Template $block
+ */
+
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+?>
+
+<?php $nocategory = $block->getSlidervalue();
+if (isset($nocategory)) {
+    if ($nocategory[0] != "No Subcategory") {
+        ?>
+        <div class="maindivsubcategoriesslider">
+            <div class="">
+                <?php
+                if ($block->getCountslider() < 6) {
+                    ?>
+                    <?php if ($block->isMobileDevice()) { ?>
+                        <div id="thumbnail-slider" style="background-color:<?php /* @noEscape */
+                        echo $block->getBackgroundcolor(); ?>; color:<?php /* @noEscape */
+                        echo $block->getFontcolor(); ?>;border-radius: 50px;">
+                            <h2 class="text-center text-4xl text-gray-500 mb-6"><?= __('Religiones & Creencias') ?></h2>
+                            <div class="inner">
+                                <div class="swiper-container">
+                                    <div class="swiper-wrapper">
+                                        <?php
+                                        foreach ($block->getSlidervalue() as $value) {
+                                            $image     = $block->getDataforvalue($value)->getImage();
+                                            $name      = $block->getDataforvalue($value)->getName();
+                                            $subcaturl = $block->getDataforvalue($value)->getUrlPath();
+                                            ?>
+
+                                            <div class="swiper-slide">
+                                                <a class="forlink"
+                                                   href="<?php /* @noEscape */
+                                                   echo $block->getBaseUrl() . $subcaturl . ".html"; ?>"
+                                                   target="_blank" style="color: <?php /* @noEscape */
+                                                echo $block->getFontcolor(); ?>;">
+                                                    <div id="slider_content mainimgdiv">
+                                                        <?php if ($image) {
+                                                            ?>
+                                                            <img class="thumb"
+                                                                 src="<?php /* @noEscape */
+                                                                 echo $block->resize($image, 210, 250); ?>"
+                                                                 alt="Image"/>
+                                                        <?php } else { ?>
+                                                            <?php $images = $block->isImage(); ?>
+                                                            <?php if ($images) { ?>
+                                                                <img class="thumb"
+                                                                     src="<?php /* @noEscape */
+                                                                     echo $block->resizes($images, 210, 250); ?>"
+                                                                     alt="Configration media image"/>
+                                                            <?php } else { ?>
+                                                                <img id="forhideid" class="thumb insta-store1-img"
+                                                                     src="<?php /* @noEscape */
+                                                                     echo $block->getdefaultimage(); ?>"
+                                                                     alt="default image"/>
+                                                            <?php } ?>
+                                                        <?php } ?>
+                                                    </div>
+                                                    <div class="slidername interstatelight"
+                                                         style="color: <?php /* @noEscape */
+                                                         echo $block->getFontcolor(); ?>;"><?php /* @noEscape */
+                                                        echo $name; ?></div>
+                                                </a>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                                <!-- <div class="swiper-pagination"></div> -->
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <div>
+                            <ul class="sliderviewforui liuirequried">
+
+                                <div>
+                                    <?php foreach ($block->getSlidervalue() as $value) {
+
+                                        $image     = $block->getDataforvalue($value)->getImage();
+                                        $name      = $block->getDataforvalue($value)->getName();
+                                        $subcaturl = $block->getDataforvalue($value)->getUrlPath();
+                                        ?>
+                                        <li class="lirequried sliderviewforli liuirequried">
+                                            <a class="forlink"
+                                               href="<?php /* @noEscape */
+                                               echo $block->getBaseUrl() . $subcaturl . ".html"; ?>"
+                                               style="color: <?php /* @noEscape */
+                                               echo $block->getFontcolor(); ?>;">
+
+                                                <div class="sliderimage">
+                                                    <?php if ($image) {
+                                                        ?>
+                                                        <img class="leftimg"
+                                                             src="<?php /* @noEscape */
+                                                             echo $block->resize($image, 210, 250); ?>"
+                                                             alt="Category image"/>
+                                                    <?php } else { ?>
+                                                        <?php $images = $block->isImage(); ?>
+                                                        <?php if ($images) { ?>
+                                                            <img class="leftimg"
+                                                                 src="<?php /* @noEscape */
+                                                                 echo $block->resizes($images, 210, 250); ?>"
+                                                                 alt="Configration media image"/>
+                                                        <?php } else { ?>
+
+                                                            <img id="forhideid" class="leftimg insta-store1-img"
+                                                                 src="<?php /* @noEscape */
+                                                                 echo $block->getdefaultimage(); ?>"
+                                                                 alt="defaultimage"/>
+                                                        <?php } ?>
+
+                                                    <?php } ?>
+                                                </div>
+                                                <div class="slidertext"
+                                                     style="color: <?php /* @noEscape */
+                                                     echo $block->getFontcolor(); ?>;"><?php /* @noEscape */
+                                                    echo $name ?></div>
+                                            </a>
+                                        </li>
+                                    <?php } ?>
+                                </div>
+                            </ul>
+                        </div>
+                    <?php } ?>
+                <?php } else { ?>
+                    <div id="thumbnail-slider" style="background-color:<?php /* @noEscape */
+                    echo $block->getBackgroundcolor(); ?>; color:<?php /* @noEscape */
+                    echo $block->getFontcolor(); ?>;border-radius: 50px;">
+                        <h2 class="text-center text-4xl text-gray-500 mb-6"><?= __('Religiones & Creencias') ?></h2>
+
+                        <div class="inner">
+                            <div class="swiper-container">
+                                <div class="swiper-wrapper">
+                                    <?php
+                                    foreach ($block->getSlidervalue() as $value) {
+                                        $image     = $block->getDataforvalue($value)->getImage();
+                                        $name      = $block->getDataforvalue($value)->getName();
+                                        $subcaturl = $block->getDataforvalue($value)->getUrlPath();
+                                        ?>
+                                        <div class="swiper-slide subcat-slider-li item sliderforget"
+                                             style="position: relative;">
+                                            <a class="forlink" href="<?php /* @noEscape */
+                                            echo $block->getBaseUrl() . $subcaturl . ".html"; ?>"
+                                               target="_blank" style="color: <?php /* @noEscape */
+                                            echo $block->getFontcolor(); ?>;">
+                                                <div id="slider_content mainimgdiv">
+                                                    <?php if ($image) {
+                                                        ?>
+                                                        <img class="thumb" src="<?php /* @noEscape */
+                                                        echo $block->resize($image, 210, 250); ?>"
+                                                             alt="Image"/>
+                                                    <?php } else { ?>
+                                                        <?php $images = $block->isImage(); ?>
+                                                        <?php if ($images) { ?>
+                                                            <img class="thumb"
+                                                                 src="<?php /* @noEscape */
+                                                                 echo $block->resizes($images, 210, 250); ?>"
+                                                                 alt="Configration media image"/>
+
+                                                        <?php } else { ?>
+                                                            <img id="forhideid" class="thumb insta-store1-img"
+                                                                 src="<?php /* @noEscape */
+                                                                 echo $block->getdefaultimage(); ?>"
+                                                                 alt="default image"/>
+                                                        <?php } ?>
+                                                    <?php } ?>
+                                                </div>
+                                                <div class="slidername interstatelight"
+                                                     style="color: <?php /* @noEscape */
+                                                     echo $block->getFontcolor(); ?>;"><?php /* @noEscape */
+                                                    echo $name; ?></div>
+                                            </a>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                                <div class="swiper-button-next"></div>
+                                <div class="swiper-button-prev"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <?php if ($block->getSubcategorylist()) {
+                $nocategory = $block->getListvalue();
+                if ($nocategory[0] != "No Subcategory") {
+                    if ($block->getCountlist() != null) {
+                        $number = 1; ?>
+                        <div class="listviewforlist">
+                            <?php foreach ($block->getListvalue() as $value) {
+                                $number++;
+                                $name      = $block->getDataforvalue($value)->getName();
+                                $subcaturl = $block->getDataforvalue($value)->getUrlPath();
+                                ?>
+                                <a class="forlink listviewforli"
+                                   href="<?php /* @noEscape */
+                                   echo $block->getBaseUrl() . $subcaturl . ".html"; ?>"
+                                   style="color: <?php /* @noEscape */
+                                   echo $block->getFontcolor(); ?>;">
+                                    <?php /* @noEscape */
+                                    echo $name; ?>
+                                </a>
+                                <?php
+                            } ?>
+                        </div>
+                    <?php }
+                }
+            }
+            ?>
+        </div>
+        <div class="subcategory swiper-pagination mt-4"></div>
+        <?php $nocategory = $block->getSlidervalue();
+        if ($nocategory[0] != "No Subcategory") { ?>
+            <script>
+                // Initialize Splide instances
+                function initSplides () {
+                    var hyvaSlider = new Swiper('.maindivsubcategoriesslider .swiper-container', {
+                        navigation: {
+                            nextEl: '#thumbnail-slider .swiper-button-next',
+                            prevEl: '#thumbnail-slider .swiper-button-prev'
+                        },
+                        slidesPerView: 1,
+                        spaceBetween: 10,
+                        slidesPerGroup: 1,
+                        pagination: {
+                            el: '.subcategory.swiper-pagination',
+                            clickable: true
+                        },
+                        breakpoints: {
+                            640: {
+                                slidesPerView: 2,
+                                slidesPerGroup: 2,
+                                spaceBetween: 15
+                            },
+                            768: {
+                                slidesPerView: 3,
+                                slidesPerGroup: 3,
+                                spaceBetween: 20
+                            },
+                            992: {
+                                slidesPerView: 4,
+                                slidesPerGroup: 4,
+                                spaceBetween: 25
+                            },
+                            1280: {
+                                slidesPerView: 5,
+                                slidesPerGroup: 5
+                            },
+                            1440: {
+                                slidesPerView: 6,
+                                slidesPerGroup: 6
+                            }
+                        },
+                    });
+                }
+
+                // Load Splide JS if not already loaded and then initialize
+                if (typeof window.Swiper === 'function') {
+                    initSplides();
+                } else {
+                    <?php $splideJsUrl = $block->getViewFileUrl('Magecomp_Subcategoriesslider::js/hyvaslider.min.js'); ?>
+                    const scriptSource = '<?= $escaper->escapeJs($escaper->escapeUrl($splideJsUrl)) ?>';
+
+                    const pendingLoadScript = Array.from(document.scripts).find(script => script.src === scriptSource);
+
+
+                    if (pendingLoadScript) {
+                        pendingLoadScript.addEventListener('load', initSplides);
+                    } else {
+                        const script = document.createElement('script');
+                        script.src   = scriptSource;
+                        script.async = true;
+
+
+                        script.addEventListener('load', initSplides);
+                        document.head.append(script);
+                    }
+                }
+
+            </script>
+        <?php }
+    } ?>
+<?php } ?>
+<style>
+    .swiper-pagination {
+        position: static;
+        padding-bottom: 15px;
+    }
+
+    .swiper-backface-hidden .swiper-slide {
+        margin-right: 13px;
+    }
+
+    .subcategory .swiper-pagination-bullet {
+        width: 15px !important;
+        height: 15px !important;
+        border-radius: 65% !important;
+        margin-left: 3px !important;
+        background-color: white;
+        opacity: 1;
+    }
+
+    .subcategory .swiper-pagination-bullet-active {
+        background-color: black;
+    }
+
+    .swiper-horizontal {
+        overflow-x: hidden;
+        width: 100% !important;
+    }
+
+    .maindivsubcategoriesslider .thumb {
+        width: 100%;
+        padding: 0 5px 5px;
+    }
+    
+    #thumbnail-slider .swiper-button-prev, #thumbnail-slider .swiper-button-next{
+        margin-top: 10px;
+    }
+    #thumbnail-slider .swiper-button-prev:after, #thumbnail-slider .swiper-button-next:after{
+        color: #656565;
+        font-size: 20px;
+        font-weight: bolder;
+    }
+    #thumbnail-slider .swiper-button-prev:hover:after, #thumbnail-slider .swiper-button-next:hover:after{
+        color: #a774b6;
+    }
+    #thumbnail-slider div.inner{
+        position: static;
+    }
+</style>
+

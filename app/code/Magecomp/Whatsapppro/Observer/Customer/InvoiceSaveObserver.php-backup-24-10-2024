@@ -1,0 +1,74 @@
+<?php
+namespace Magecomp\Whatsapppro\Observer\Customer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class InvoiceSaveObserver implements ObserverInterface
+{
+    protected $helperapi;
+    protected $helperinvoice;
+    protected $emailfilter;
+    protected $customerFactory;
+
+    public function __construct(
+        \Magecomp\Whatsapppro\Helper\Apicall $helperapi,
+        \Magecomp\Whatsapppro\Helper\Invoice $helperinvoice,
+        \Magento\Email\Model\Template\Filter $filter,
+        \Magento\Customer\Model\CustomerFactory $customerFactory
+    ) {
+        $this->helperapi = $helperapi;
+        $this->helperinvoice = $helperinvoice;
+        $this->emailfilter = $filter;
+        $this->customerFactory = $customerFactory;
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        $invoice    = $observer->getInvoice();
+        $order      = $invoice->getOrder();
+        if (!$this->helperinvoice->isEnabledWhatsapp($order->getStoreId())) {
+            return $this;
+        }
+        if ($invoice) {
+            $storeId= $order->getStoreId();
+            $billingAddress = $order->getBillingAddress();
+            $mobilenumber = $billingAddress->getTelephone();
+
+            if ($order->getCustomerId() > 0) {
+                $customer = $this->customerFactory->create()->load($order->getCustomerId());
+                $mobile = $customer->getMobilenumber();
+                if ($mobile != '' && $mobile != null) {
+                    $mobilenumber = $mobile;
+                }
+
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'invoice' => $invoice,
+                    'customer' => $customer,
+                    'invoice_total' => $order->formatPriceTxt($invoice->getGrandTotal()),
+                    'mobilenumber' => $mobilenumber
+                ]);
+            } else {
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'invoice' => $invoice,
+                    'invoice_total' => $order->formatPriceTxt($invoice->getGrandTotal()),
+                    'mobilenumber' => $mobilenumber
+                ]);
+            }
+            
+            if ($this->helperinvoice->isInvoiceNotificationForUser($storeId)) {
+                $message = $this->helperinvoice->getInvoiceNotificationUserTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($mobilenumber, $finalmessage,$storeId);
+            }
+
+            if ($this->helperinvoice->isInvoiceNotificationForAdmin($storeId) && $this->helperinvoice->getAdminNumber($storeId)) {
+                $message = $this->helperinvoice->getInvoiceNotificationForAdminTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($this->helperinvoice->getAdminNumber($storeId), $finalmessage,$storeId);
+            }
+        }
+        return $this;
+    }
+}

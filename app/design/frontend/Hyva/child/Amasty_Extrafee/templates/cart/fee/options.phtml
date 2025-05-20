@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Extra Fee Hyva
+ */
+
+use Magento\Framework\Escaper;
+
+/** @var \Amasty\Extrafee\Block\Cart\Fee\Options $block */
+/** @var Escaper $escaper */
+
+?>
+
+<?= /* @noEscape */
+$block->getChildHtml('am.extrafee.constants.js') ?>
+<?= /* @noEscape */
+$block->getChildHtml('am.extrafee.fees.service.js') ?>
+<?= /* @noEscape */
+$block->getChildHtml('am.extrafee.data.loader.js') ?>
+<?= /* @noEscape */
+$block->getChildHtml('am.extrafee.main.js') ?>
+<?= /* @noEscape */
+$block->getChildHtml('am.extrafee.collapsible.js') ?>
+
+<div x-data="amExFeeComponent()" x-bind="eventListeners" x-show="isShow">
+    <?= /** @noEscape */
+    $block->fetchView($block->getTemplateFile('Hyva_Theme::ui/loading-block.phtml')) ?>
+
+    <div x-data="collapsibleComponent()" class="bg-white border-b-2 border-gray-200 py-3 shadow-md mx-auto md:mx-0"
+         :class="{'my-4 rounded-lg': isOpen}">
+        <h3 class="title" id="amexfee-title">
+            <button @click="toggle" id="amexfee-toggle" type="button" :aria-expanded="isOpen" aria-expanded="false"
+                    class="flex items-center justify-between w-full px-4">
+                <span class="flex items-center gap-1">
+                    <span
+                        class="checkout-cart-icon bg-no-repeat bg-[length:1300%] bg-[position:-176px_-43px] h-8 w-10 block"></span>
+                    <span>
+                        <span x-text="blockTitle"></span>
+                    </span>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="border border-violet-800 w-6 h-6 block"
+                     viewBox="0 0 24 24" stroke="currentColor" focusable="false" style="color: #8b2692;">
+                    <path x-show="!isOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 9l-7 7-7-7" style="display: none;"></path>
+                    <path x-show="isOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M5 15l7-7 7 7"></path>
+                </svg>
+            </button>
+        </h3>
+
+        <div class="amexfee-form-container mx-5">
+            <?= /* @noEscape */
+            $block->getChildHtml('am.extrafee.form') ?>
+        </div>
+    </div>
+</div>

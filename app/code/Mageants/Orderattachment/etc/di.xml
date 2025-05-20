@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Mageants\Orderattachment\Api\Data\AttachmentInterface"
+                type="Mageants\Orderattachment\Model\Attachment" />
+    <preference for="Mageants\Orderattachment\Api\Data\AttachmentSearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults" />
+    <preference for="Mageants\Orderattachment\Api\AttachmentRepositoryInterface"
+                type="Mageants\Orderattachment\Model\AttachmentRepository" />
+
+    <preference for="\Magento\Framework\Mail\Template\TransportBuilder" 
+                type="Mageants\Orderattachment\Mail\Template\TransportBuilder" /> 
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="orderattachment_attachment_listing_data_source" xsi:type="string">Mageants\Orderattachment\Model\ResourceModel\Attachment\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mageants\Orderattachment\Model\ResourceModel\Attachment\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mageants_Orderattachment</argument>
+            <argument name="eventPrefix" xsi:type="string">orderattachment_attachment_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">orderattachment_attachment_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Mageants\Orderattachment\Model\ResourceModel\Attachment</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Config\Model\Config">
+        <plugin name="vendor_module_config_plugin" type="Mageants\Orderattachment\Model\Config\ExtensionValidation" sortOrder="1"/>
+    </type>
+</config>

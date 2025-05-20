@@ -1,0 +1,56 @@
+.account-nav li.current{
+    @apply bg-[#F8F5FF];
+}
+.page-layout-2columns-left .columns{
+    @apply py-8;
+}
+.repeat-order-icon:hover {
+    filter: invert(13%) sepia(98%) saturate(7464%) hue-rotate(270deg) brightness(65%) contrast(120%);
+    transition: none;
+}
+.bg-container-purple:nth-child(2n){
+    --tw-bg-opacity: 1;
+    background-color: #F8F5FF;
+}
+.text-primary-purple{
+    @apply  text-[#3E06B0];
+}
+.account-nav li {
+    & a{
+        @apply flex text-secondary px-4 py-2 gap-2;
+    }
+
+    & img{
+        @apply w-[30px] h-[25px];
+    }
+
+    & a:hover {
+        @apply text-black;
+    }
+
+    & svg {
+        @apply font-bold;
+    }
+
+    &.current a, &.current strong, &.current svg {
+        @apply  text-[#3E06B0];
+    }
+
+    & strong {
+        @apply text-[#3E06B0] font-bold;
+    }
+}
+
+.actions-toolbar {
+    @apply mt-6 border-t border-container-darker pt-4 flex justify-between flex-row-reverse items-center;
+
+    & a.back {
+        @apply text-secondary-darker underline;
+    }
+
+    @layer components {
+        & .primary button {
+            @apply btn btn-primary;
+        }
+    }
+}

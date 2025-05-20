@@ -1,0 +1,178 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+// phpcs:disable Magento2.Templates.ThisInTemplate
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Cart\ItemOutput;
+use Hyva\Theme\ViewModel\Modal;
+use Magento\Checkout\Block\Cart\Grid;
+use Magento\Checkout\ViewModel\Cart as CartViewModel;
+use Magento\Framework\Escaper;
+
+/** @var Grid $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var Escaper $escaper */
+
+/** @var CartViewModel $cartViewModel */
+$cartViewModel = $viewModels->require(CartViewModel::class);
+
+/** @var Modal $modalViewModel */
+$modalViewModel = $viewModels->require(Modal::class);
+
+/** @var ItemOutput $cartItemOutputViewModel */
+$cartItemOutputViewModel = $viewModels->require(ItemOutput::class);
+?>
+<?php $mergedCells = ($cartItemOutputViewModel->isItemPriceDisplayBoth() ? 2 : 1); ?>
+<?= $block->getChildHtml('form_before') ?>
+<div id="custom-loader" class="flex flex-row justify-center items-center w-full h-full fixed select-none z-50 text-xl font-bold hidden"
+     style="left: 50%;top: 50%;transform: translateX(-50%) translateY(-50%);background: rgba(255,255,255,0.7);"
+     x-transition:enter="ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <?= __('Loading...') ?>
+</div>
+<form action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>" x-data="{}"
+      @submit.prevent="setIsLoading(true); hyva.postCart($event.target).finally(() => setIsLoading(false))"
+      method="post"
+      id="form-validate" class="form form-cart w-full float-left">
+    <?= $block->getBlockHtml('formkey') ?>
+    <div class="cart table-wrapper<?= $mergedCells == 2 ? ' detailed' : '' ?>">
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-top toolbar">
+                <?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+        <div class="flex items-center gap-1">
+            <div class="h-12 w-12 border-violet-800 border rounded-lg p-1">
+                <span
+                    class="checkout-cart-icon bg-no-repeat bg-[length:1600%] bg-[position:-50px_-46px] h-full w-full block"></span>
+            </div>
+            <p class="bg-violet-800 rounded-lg pl-4 uppercase text-white h-12 leading-[48px] font-medium flex-1">
+                <?= $escaper->escapeHtml(__('My Bag')) ?>
+            </p>
+        </div>
+        <div class="overflow-auto mt-4 shadow-md rounded-lg">
+            <table id="shopping-cart-table" class="table w-full lg:px-4">
+                <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="align-top text-left text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Image')) ?>
+                    </th>
+                    <th class="align-top text-left text-gray-700 pt-6 pb-3 px-4 sm:whitespace-nowrap" scope="col">
+                        <?= $escaper->escapeHtml(__('Product Description')) ?>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Unit Price')) ?>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <span class="block"><?= $escaper->escapeHtml(__('Quantity')) ?></span>
+                        <span class="block font-normal text-gray-500">
+                                <?= $escaper->escapeHtml(__('(Units)')) ?>
+                            </span>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Amount')) ?>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Edit')) ?>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Wish List')) ?>
+                    </th>
+                    <th class="align-top text-center text-gray-700 pt-6 pb-3 px-4" scope="col">
+                        <?= $escaper->escapeHtml(__('Delete')) ?>
+                    </th>
+                </tr>
+                </thead>
+                <?php foreach ($block->getItems() as $item): ?>
+                    <?= $block->getItemHtml($item) ?>
+                <?php endforeach ?>
+            </table>
+        </div>
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-bottom toolbar">
+                <?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+    </div>
+    <div class="cart actions flex flex-col sm:flex-row justify-end gap-4 items-center my-4">
+        <?php if ($cartViewModel->isClearShoppingCartEnabled()): ?>
+            <script>
+                function initClearShoppingCartModal() {
+                    return Object.assign(
+                        hyva.modal(), {
+                            postData: {
+                                action: '<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>',
+                                data: {
+                                    update_cart_action: 'empty_cart'
+                                }
+                            }
+                        }
+                    );
+                }
+            </script>
+            <div x-data="initClearShoppingCartModal()">
+                <?= /** @noEscape */
+                ($confirmation = $modalViewModel
+                    ->confirm(__('Are you sure?'))
+                    ->withDetails(__('Are you sure you want to remove all items from your shopping cart?'))
+                ) ?>
+                <button @click="<?= /** @noEscape */
+                $confirmation->getShowJs() ?>.then(result => {
+                      if(result) {
+                        setIsLoading(true);
+                        hyva.postForm(postData).finally(() => setIsLoading(false));
+                      }
+                    })" type="button" title="<?= $escaper->escapeHtmlAttr(__('Clear Shopping Cart')) ?>"
+                        class="action clear" id="empty_cart_button">
+                    <span><?= $escaper->escapeHtml(__('Clear Shopping Cart')) ?></span>
+                </button>
+            </div>
+
+        <?php endif ?>
+        <button type="submit" name="update_cart_action" data-cart-item-update="" value="update_qty"
+                title="<?= $escaper->escapeHtmlAttr(__('Update Shopping Cart')) ?>"
+                class="border-2 border-violet-800 text-violet-800 mt-2 rounded-lg px-6 py-3 flex items-center gap-1 hover:shadow-[0px_2px_9px_0px_#777]">
+            <span
+                class="checkout-cart-icon bg-no-repeat bg-[length:1800%] bg-[position:-300px_-40px] h-7 w-7 block"></span>
+            <span class="block font-semibold uppercase"><?= $escaper->escapeHtml(__('Update Shopping Cart')) ?></span>
+        </button>
+    </div>
+</form>
+<?= $block->getChildHtml('checkout.cart.order.actions') ?>
+<?= $block->getChildHtml('shopping.cart.table.after') ?>
+<script>
+    'use strict';
+
+    function setIsLoading(isLoading = false) {
+        let loadingEl = document.getElementById('custom-loader');
+        if (isLoading === false) {
+            loadingEl.classList.add('hidden');
+        } else {
+            loadingEl.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setIsLoading(false);
+
+        document.addEventListener('cart-update-complete', function () {
+            setIsLoading(false);
+        });
+    });
+</script>

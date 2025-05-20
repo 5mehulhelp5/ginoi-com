@@ -1,0 +1,139 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+use Mageplaza\GiftCard\Block\Product\View;
+
+/** @var View $block */
+
+$checkGiftCardUrl = $block->getUrl('mpgiftcard/index/check');
+?>
+<?php if ($block->isEnableCheckForm()): ?>
+    <div class="block block-gift-card-check block-content" aria-labelledby="block-gift-card-heading">
+        <div class="box box-information">
+            <div>
+                <strong><?= $block->escapeHtml(__('Check Gift Card Code Status')) ?></strong>
+            </div>
+            <div class="box-content">
+                <form class="form check-code" action="#" method="post" id="check-code-form"
+                      data-mage-init='{"validation": {}}'>
+                    <div class="field check-code-field">
+                        <div class="control">
+                            <input name="code" type="text" class="required-entry no-whitespace"
+                                   placeholder="<?= $block->escapeHtml(__('Enter your gift code')) ?>">
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="action action-check primary" title="Check" type="submit">
+                            <span><?= $block->escapeHtml(__('Check')) ?></span>
+                        </button>
+                    </div>
+                </form>
+                <div class="check-result">
+                    <div class="check-result-success" style="display: none">
+                        <table class="result-table">
+                            <thead>
+                            <tr>
+                                <th scope="col" class="col code" data-bind="i18n: 'Code'"></th>
+                                <th scope="col" class="col status" data-bind="i18n: 'Status'"></th>
+                                <th scope="col" class="col balance" data-bind="i18n: 'Balance'"></th>
+                                <th scope="col" class="col expired_at" data-bind="i18n: 'Expired Date'"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="result-code"></td>
+                                <td class="result-status"></td>
+                                <td class="result-balance"></td>
+                                <td class="result-date"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="message message-error error" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+        <div class="mp-clear"></div>
+    </div>
+    <style type="text/css">
+        .block-gift-card-check .box-content {
+            margin-top: 15px;
+        }
+
+        .check-result-success {
+            margin-top: 10px;
+        }
+
+        .result-table {
+            font-size: 1.25rem;
+        }
+
+        .result-table thead {
+            border-bottom: 1px solid gray;
+        }
+
+        @media screen and (max-width: 768px) {
+            .check-code-field {
+                width: max-content;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+        require([
+            'jquery',
+            'mage/translate',
+        ], function ($, $t) {
+            var ajaxUrl   = '<?= /** @noEscape */ $checkGiftCardUrl ?>',
+                checkForm = $('#check-code-form'),
+                params;
+            checkForm.submit(function (e) {
+                e.preventDefault();
+                if (!checkForm.valid()) return false;
+                params = '{"code": "' + $('input[name="code"]').val() + '"}';
+                $.ajax({
+                    type: "POST",
+                    url: ajaxUrl,
+                    dataType: 'json',
+                    data: params,
+                    showLoader: true,
+                    success: function (data) {
+                        if (data.errors) {
+                            $('.check-result-success').hide();
+                            $('.message-error').html(data.message);
+                            $('.message-error').show();
+                        } else {
+                            $('.message-error').hide();
+                            $('.result-code').html(data.detail.code);
+                            $('.result-status').html(data.detail.status_label);
+                            $('.result-balance').html(data.detail.balance_formatted);
+                            $('.result-date').html(data.detail.expired_at_formatted);
+                            $('.check-result-success').show();
+                        }
+                    },
+                    error: function (data) {
+                        $('.check-result-success').hide();
+                        $('.message-error').html($t('Invalid gift card code.'));
+                        $('.message-error').show();
+                    }
+                })
+            });
+        });
+    </script>
+<?php endif; ?>

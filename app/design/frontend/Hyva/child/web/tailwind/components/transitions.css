@@ -1,0 +1,10 @@
+a,
+:hover,
+:focus,
+a img,
+button,
+:hover:before,
+.cart.table-wrapper .actions-toolbar > .action,
+.action-gift {
+    @apply transition-all duration-200 ease-in-out;
+}

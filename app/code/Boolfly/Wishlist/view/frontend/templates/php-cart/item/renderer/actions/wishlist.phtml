@@ -1,0 +1,41 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Boolfly\Wishlist\Block\Cart\Item\Renderer\Actions;
+use Magento\Framework\Escaper;
+
+/** @var Actions $block */
+/** @var Escaper $escaper */
+
+$item = $block->getItem();
+$productId = $item->getProduct()->getId();
+$wishlistItemId = $block->getWishlistItemId($productId);
+$isInWishlist = !empty($wishlistItemId);
+
+if ($item->getProductType() === 'configurable') {
+    $productOptions = $item->getProduct()->getTypeInstance()->getOrderOptions($item->getProduct());
+    $productName = $productOptions["simple_name"];
+} else {
+    $productName = $item->getName();
+}
+?>
+<td class="p-4" data-th="<?= $escaper->escapeHtml(__('wishlist')); ?>">
+    <button class="action flex justify-center w-full" x-data="{}"
+            @click.prevent='hyva.postForm(<?= /* @noEscape */
+            $block->getWishlistPostJson($item) ?>)'
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Wishlist action')) ?>"
+            type="button">
+        <span class="checkout-cart-icon bg-no-repeat bg-[length:1800%]
+            <?= $isInWishlist
+            ? 'bg-[position:-131px_-86px] hover:bg-[position:-131px_-46px]'
+            : 'bg-[position:-131px_-46px] hover:bg-[position:-131px_-86px]' ?>
+            hover:transition-none h-8 w-8 inline-block"></span>
+    </button>
+</td>

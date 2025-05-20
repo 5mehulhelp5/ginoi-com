@@ -1,0 +1,157 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package GDPR Cookie Hyva Compatibility (System)
+ */
+
+use Amasty\GdprCookieHyva\ViewModel\CookieGroupInfo;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+
+$groupsInfoPrefix = $block->getData('group_info_prefix');
+$groupInfoBlockName = $block->getData('group_info_block_name');
+$openCookieGroupInfoAction = $groupsInfoPrefix . CookieGroupInfo::OPEN_ACTION;
+
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsSolid $heroiconsSolid */
+
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+?>
+
+<div class="w-full flex flex-col tab-wrapper" id="product-tabs" x-data="initTabs()" x-init="init()">
+    <template x-for="group in $store.AmastyCookieGroups.groupData" :key="group.groupId">
+        <div class="">
+            <div class="header flex items-center w-full border-t border-gray-200">
+                <div class="pr-6 tab-control relative py-4 cursor-pointer flex items-center"
+                    @click="toggleActiveStatus($event)" :id="group.groupId">
+                    <span class="text-purple px-5" x-show="activeTabs.indexOf(group.groupId) < 0">
+                    <?= $heroiconsSolid->plusHtml(
+                        '',
+                        16,16) ?>
+                    </span>
+                    <span class="text-purple px-5" x-show="activeTabs.indexOf(group.groupId) > -1">
+                    <?= $heroiconsSolid->minusHtml(
+                        '',
+                        16,16) ?>
+                    </span>
+                    <strong x-text="group.name" class="ambar-group-title"></strong>
+                </div>
+                <template x-if="group.isEssential">
+                    <div class="ml-auto mr-5">
+                        <label :for="`amcookie-<?= $escaper->escapeHtmlAttr($groupsInfoPrefix) ?>group-${group.groupId}`">
+                            <input type="checkbox"
+                                   name="groups[]"
+                                   :id="`amcookie-<?= $escaper->escapeHtmlAttr($groupsInfoPrefix) ?>group-${group.groupId}`"
+                                   disabled="true"
+                                   :value="group.groupId"
+                                   :aria-label="group.name"
+                                   class="hidden">
+                            <span class="text-purple font-bold"><?= $escaper->escapeHtml(__('Always Active')) ?>
+                        </label>
+                    </div>
+                </template>
+                <template x-if="!group.isEssential">
+                    <div class="ml-auto mr-5">
+                        <label :for="`amcookie-<?= $escaper->escapeHtmlAttr($groupsInfoPrefix) ?>group-${group.groupId}`"
+                               class="inline-flex items-center">
+                            <input type="checkbox"
+                                   class="peer sr-only gdpr-toggle"
+                                   role="switch"
+                                   name="groups[]"
+                                   :id="`amcookie-<?= $escaper->escapeHtmlAttr($groupsInfoPrefix) ?>group-${group.groupId}`"
+                                   :value="group.groupId"
+                                   :aria-label="group.name"
+                                   x-model="group.checked"
+                            />
+                            <div class="relative h-6 w-11 after:h-5 after:w-5 peer-checked:after:translate-x-5 rounded-full
+                            border border-toggle-darker bg-gray-100 after:absolute after:bottom-0 after:left-[0.0625rem]
+                            after:top-0 after:my-auto after:rounded-full after:bg-toggle-darker after:transition-all
+                            after:content-[''] peer-checked:bg-toggle-lighter peer-checked:border-toggle
+                            peer-checked:after:bg-toggle peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                 aria-hidden="true"></div>
+                        </label>
+                    </div>
+                </template>
+            </div>
+            <div x-show="activeTabs.indexOf(group.groupId) > -1"
+                 class="border-t border border-gray-200 p-5 bg-gray-100">
+                <p class="text-sm ambar-group-description" x-html="group.description"></p>
+                <button class="btn btn-secondary px-4 text-xs mt-4 rounded-sm before:content-none after:content-none"
+                        type="button"
+                        title="<?= $escaper->escapeHtml(__('More Information')) ?>"
+                        aria-label="<?= $escaper->escapeHtml(__('More Information')) ?>"
+                        @click="$dispatch('<?= $escaper->escapeJs($openCookieGroupInfoAction) ?>', group)">
+                    <?= $escaper->escapeHtml(__('More Information')) ?>
+                </button>
+            </div>
+        </div>
+    </template>
+</div>
+<script>
+    function initTabs() {
+        return {
+            isMobile: false,
+            activeTabs: [],
+            parentWrapper: document.getElementById("product-tabs"),
+
+            init() {
+                this.checkActiveTabs();
+                this.checkIsMobileResolution();
+                if (this.isMobile) {
+                    this.removeActiveTabs();
+                }
+            },
+
+            checkActiveTabs() {
+                let self = this,
+                    activeElements = self.parentWrapper.getElementsByClassName("tab-control active");
+                for (let i = 0; i < activeElements.length; i++) {
+                    self.activeTabs.push(activeElements[i].id);
+                }
+            },
+
+            checkIsMobileResolution() {
+                this.isMobile = window.matchMedia('(max-width: 767px)').matches;
+            },
+
+            toggleActiveStatus(e) {
+                let element = e.currentTarget,
+                    id = e.currentTarget.id,
+                    self = this;
+                if (element.classList.contains('active')) {
+                    element.classList.remove('active');
+                    let index = self.activeTabs.indexOf(id);
+                    if (index > -1) {
+                        self.activeTabs.splice(index, 1);
+                    }
+                } else {
+                    element.classList.add('active');
+                    self.activeTabs.push(id);
+                }
+            },
+
+            removeActiveTabs() {
+                let self = this,
+                    activeElements = self.parentWrapper.getElementsByClassName("tab-control active");
+                for (let i = 0; i < activeElements.length; i++) {
+                    activeElements[i].classList.remove('active');
+                    let index = self.activeTabs.indexOf(activeElements[i].id);
+                    if (index > -1) {
+                        self.activeTabs.splice(index, 1);
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<?= $block->getChildBlock($groupInfoBlockName ?: 'amasty.cookie.cookiebar.groups.info')
+    ->setData('prefix', $groupsInfoPrefix)
+    ->toHtml()
+?>

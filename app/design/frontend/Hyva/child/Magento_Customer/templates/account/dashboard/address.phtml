@@ -1,0 +1,79 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Customer\Block\Account\Dashboard\Address;
+use Magento\Framework\Escaper;
+
+/** @var Address $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+?>
+<div class="block block-dashboard-addresses my-6 flex flex-col border rounded-2xl">
+    <h2 class="block-title flex justify-between items-center text-primary-purple p-4 border-b">
+        <strong class="text-2xl block"><?= $escaper->escapeHtml(__('Address Book')) ?></strong>
+        <a class="action edit inline-block underline underline-offset-4"
+           href="<?= $escaper->escapeUrl($block->getAddressBookUrl()) ?>"
+        >
+            <strong><?= $escaper->escapeHtml(__('Manage Addresses')) ?></strong>
+        </a>
+    </h2>
+    <div class="block-content">
+        <div class="flex flex-wrap justify-between">
+            <div class="lg:w-1/2 w-full">
+                <div class="flex flex-col h-full">
+                    <div class="p-4">
+                        <h3 class="text-primary-purple text-lg title-font font-medium mb-3">
+                            <span><?= $escaper->escapeHtml(__('Default Billing Address')) ?></span>
+                        </h3>
+                        <address>
+                            <?= $block->getPrimaryBillingAddressHtml() ?>
+                        </address>
+                    </div>
+                    <div class="border-t px-4 py-2">
+                        <a
+                            class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                            href="<?= $escaper->escapeUrl($block->getPrimaryBillingAddressEditUrl()) ?>"
+                            data-ui-id="default-billing-edit-link"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Edit Address - billing default')) ?>"
+                        >
+                            <strong><?= $escaper->escapeHtml(__('Edit Address')) ?></strong>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="lg:w-1/2 w-full mt-4 lg:mt-0">
+                <div class="flex flex-col h-full justify-between">
+                    <div class="p-4">
+                        <h3 class="text-primary-purple text-lg title-font font-medium mb-3">
+                            <span><?= $escaper->escapeHtml(__('Default Shipping Address')) ?></span>
+                        </h3>
+                        <address>
+                            <?= $block->getPrimaryShippingAddressHtml() ?>
+                        </address>
+                    </div>
+                    <div class="border-t px-4 py-2">
+                        <a
+                            class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                            href="<?= $escaper->escapeUrl($block->getPrimaryShippingAddressEditUrl()) ?>"
+                            data-ui-id="default-billing-edit-link"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Edit Address - shipping default')) ?>"
+                        >
+                            <strong><?= $escaper->escapeHtml(__('Edit Address')) ?></strong>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

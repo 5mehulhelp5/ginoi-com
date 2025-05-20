@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sale.reorder.sidebar" remove="true"/>
+        <referenceBlock name="customer-account-navigation-account-link">
+            <arguments>
+                <argument name="template" xsi:type="string">Magento_Customer::account/sidebar/dashboard.phtml
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="customer-account-navigation-account-edit-link">
+            <arguments>
+                <argument name="template" xsi:type="string">Magento_Customer::account/sidebar/profile.phtml
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="customer-account-navigation-address-link">
+            <arguments>
+                <argument name="template" xsi:type="string">Magento_Customer::account/sidebar/address.phtml
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="customer_account_navigation">
+            <block class="Magento\Customer\Block\Account\SortLinkInterface" ifconfig="mpgiftcard/general/enable" name="customer-account-navigation-gift-card-link-reference" cacheable="false">
+                <arguments>
+                    <argument name="template" xsi:type="string">Magento_Customer::account/sidebar/mpgiftcard.phtml</argument>
+                    <argument name="sortOrder" xsi:type="number">40</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Customer\Block\Account\SortLinkInterface" name="stripe-payments-subscriptions-reference">
+                <arguments>
+                    <argument name="template" xsi:type="string">Magento_Customer::account/sidebar/subscriptions.phtml</argument>
+                    <argument name="sortOrder" xsi:type="number">40</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceBlock name="page.main.title" remove="true"/>
+    </body>
+</page>

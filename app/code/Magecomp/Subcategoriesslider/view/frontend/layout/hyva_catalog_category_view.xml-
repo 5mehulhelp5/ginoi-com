@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Magecomp_Subcategoriesslider::css/subcategoriesslider.css"/>
+        <css src="Magecomp_Subcategoriesslider::css/source/subcategoryslider.css"/>
+        <css src="Magecomp_Subcategoriesslider::css/hyvaslider.css"/>
+    </head>
+    <referenceContainer name="columns.top">
+        <block before="-" class="Magecomp\Subcategoriesslider\Block\Showsubcategory"
+               name="subcategoriesslider.general.block.subcategoriesslider"
+               template="Magecomp_Subcategoriesslider::hyva_subcategoriesslider.phtml"
+               ifconfig="subcategoriesslider/general/enable"/>
+    </referenceContainer>
+</page>

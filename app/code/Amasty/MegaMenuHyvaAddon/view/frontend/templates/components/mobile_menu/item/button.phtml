@@ -1,0 +1,70 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var array $item */
+/** @var string $classes */
+/** @var string $fontWeight */
+/** @var string $color */
+/** @var array $attributes */
+
+$attributes = $attributes ?? [];
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$iconBlock = $block->getLayout()->getBlock('ammenu.top.menu.icon');
+
+//phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<button class="<?= $escaper->escapeHtmlAttr($classes); ?>"
+<?php foreach ($attributes as $key => $value): ?>
+    <?= $escaper->escapeHtml($key); ?>="<?= $escaper->escapeHtml($value); ?>"
+<?php endforeach; ?>
+>
+    <?php if ($iconBlock): ?>
+        <?= /* @noEscape */ $iconBlock->setData('item', $item)
+            ->setData('available', ['mobile', 'both'])->toHtml() ?>
+    <?php endif ?>
+
+    <?php if (isset($item['url'])): ?>
+        <template x-if="!hide_view_all_link">
+            <span :style="{
+                'font-weight': '<?= $escaper->escapeHtmlAttr($fontWeight); ?>'
+            }">
+                <?= $escaper->escapeHtml($item['name']) ?>
+            </span>
+        </template>
+
+        <template x-if="hide_view_all_link">
+            <a href="<?= $escaper->escapeHtmlAttr($item['url']); ?>"
+               title="<?= $escaper->escapeHtmlAttr($item['name']); ?>">
+                <span :style="{
+                    'font-weight': '<?= $escaper->escapeHtmlAttr($fontWeight); ?>'
+                }">
+                    <?= $escaper->escapeHtml($item['name']); ?>
+                </span>
+            </a>
+        </template>
+    <?php else: ?>
+        <span :style="{
+            'font-weight': '<?= $escaper->escapeHtmlAttr($fontWeight); ?>'
+        }">
+            <?= $escaper->escapeHtml($item['name']) ?>
+        </span>
+    <?php endif; ?>
+
+    <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+        'item' => $item,
+        'classes' => 'text-center inline-block text-xs font-bold rounded p-1 ml-2 mr-6 overflow-hidden'
+    ]); ?>
+</button>

@@ -1,0 +1,214 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Pro Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $item */
+/** @var array $parentItem */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItemViewModel->setBlock($block);
+
+$elems = $item['elems'] ?? [];
+$content = $item['mobile_content'] ?? '';
+$fontWeight = '400';
+$additionalClass = $item['current'] ? 'text-[var(--ammenu-current-category-color)]'
+    : 'text-[]';
+$showMobileContent = $item['show_mobile_content'] ?? false;
+$iconBlock = $block->getLayout()->getBlock('ammenu.top.menu.icon');
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<template x-if="'<?= $escaper->escapeHtmlAttr($item['id']); ?>' === drillActiveId">
+    <div class="ml-14 mr-5"
+         :class="{
+             'animate-slide_right': isPreviousItem,
+             'animate-slide_left': !isPreviousItem
+         }">
+        <ul>
+            <li class="flex items-center py-2 text-[var(--ammenu-main-menu-text)] cursor-pointer mb-2"
+                @click.prevent="drillTabs = []; drillActiveId = ''"
+                x-cloak>
+                <span class="inline-block font-bold mr-1"
+                      :style="{
+                          'color': '#b258ce'
+                      }">
+                    <?= /** @noEscape */ isset($parentItem) ? $heroIcons->chevronDoubleLeftHtml('', 24, 24, [
+                        'title' => __('Back')
+                    ]) : $heroIcons->chevronLeftHtml('', 24, 24, [
+                        'title' => __('Back')
+                    ]); ?>
+                </span>
+                <span>
+                    <?= $escaper->escapeHtml(__("Back to Main Menu")) ?>
+                </span>
+            </li>
+            <?php if (isset($parentItem)): ?>
+                <li class="flex items-center py-2 text-[var(--ammenu-main-menu-text)] cursor-pointer mb-2"
+                    @click.prevent="drillTabs.pop(); drillActiveId = drillTabs[drillTabs.length - 1]; isPreviousItem = true"
+                    x-cloak>
+                    <span class="inline-block font-bold mr-1"
+                          :style="{
+                              'color': '#b258ce'
+                          }">
+                        <?= /** @noEscape */ $heroIcons->chevronLeftHtml('', 24, 24, [
+                            'title' => __('Back')
+                        ]); ?>
+                    </span>
+                    <span>
+                        <?= $escaper->escapeHtml($parentItem['name']); ?>
+                    </span>
+                </li>
+            <?php endif ?>
+        </ul>
+        <div class="flex items-center text-start py-2 mb-2">
+            <?php if ($iconBlock): ?>
+                <?= /* @noEscape */ $iconBlock->setData('item', $item)
+                    ->setData('additional_class', $additionalClass)
+                    ->setData('available', ['desktop', 'both'])->toHtml() ?>
+            <?php endif ?>
+            <?php if (isset($item['url'])): ?>
+                <template x-if="!hide_view_all_link">
+                    <div>
+                        <span class="text-[var(--ammenu-main-menu-text)] underline font-bold">
+                            <?= $escaper->escapeHtml($item['name']) ?>
+                        </span>
+                        <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                           class="block w-full underline text-md pt-4 mt-2 break-anywhere text-[var(--ammenu-main-menu-text)]"
+                           :style="{'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>}">
+                            <span>
+                                <?= $escaper->escapeHtml(__("View All %1", $item['name'])) ?>
+                            </span>
+                        </a>
+                    </div>
+                </template>
+                <template x-if="hide_view_all_link">
+                    <a class="text-[var(--ammenu-main-menu-text)] underline hover:no-underline"
+                       href="<?= $escaper->escapeHtmlAttr($item['url']); ?>"
+                       title="<?= $escaper->escapeHtmlAttr($item['name']); ?>">
+                        <span class="font-bold">
+                            <?= $escaper->escapeHtml($item['name']); ?>
+                        </span>
+                    </a>
+                </template>
+            <?php else: ?>
+                <span class="text-[var(--ammenu-main-menu-text)] underline font-bold">
+                    <?= $escaper->escapeHtml($item['name']) ?>
+                </span>
+            <?php endif; ?>
+            <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+                'item' => $item,
+                'classes' => 'inline-block text-center text-xs font-bold rounded p-1 ml-2 mr-6 overflow-hidden'
+            ]); ?>
+        </div>
+        <?php if ($showMobileContent === 0 && !empty($content)): ?>
+            <div class="flex justify-between items-center border-b border-inherit" data-content="ammenu-content">
+                <?= /* @noEscape */ $content; ?>
+            </div>
+        <?php endif; ?>
+        <ul :style="{
+                '--ammenu-submenu-text': 'var(--ammenu-third-level-menu)'
+            }">
+            <?php foreach ($elems as $key => $itemChild): ?>
+                <li class="flex items-center py-2 border-0 mb-2">
+                    <?php
+                    $fontChildWeight = '400';
+                    $elemsChild = $itemChild['elems'];
+                    $additionalClass = $itemChild['current'] ? 'text-[var(--ammenu-current-category-color)]' : 'text-[#656565]';
+                    ?>
+                    <?php if (!empty($elemsChild)): ?>
+                        <button class="flex items-center text-start justify-between w-full <?= $escaper->escapeHtmlAttr($additionalClass); ?>"
+                                title="<?= $escaper->escapeHtmlAttr($itemChild['name']); ?>"
+                                @click.prevent="drillTabs.push('<?= $escaper->escapeHtmlAttr($itemChild['id']) ?>'); drillActiveId = '<?= $escaper->escapeHtmlAttr($itemChild['id']); ?>'; isPreviousItem = false">
+                            <span class="flex items-center">
+                                <?php if ($iconBlock): ?>
+                                    <?= /* @noEscape */ $iconBlock->setData('item', $itemChild)
+                                        ->setData('additional_class', $additionalClass)
+                                        ->setData('available', ['desktop', 'both'])->toHtml() ?>
+                                <?php endif ?>
+                                <?php if (isset($itemChild['url'])): ?>
+                                    <template x-if="!hide_view_all_link">
+                                        <div>
+                                            <span :style="'font-weight: <?= $escaper->escapeHtmlAttr($fontChildWeight); ?>'">
+                                                <?= $escaper->escapeHtml($itemChild['name']) ?>
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <template x-if="hide_view_all_link">
+                                        <a href="<?= $escaper->escapeHtmlAttr($itemChild['url']); ?>"
+                                           title="<?= $escaper->escapeHtmlAttr($itemChild['name']); ?>">
+                                            <span :style="'font-weight: <?= $escaper->escapeHtmlAttr($fontChildWeight); ?>'">
+                                                <?= $escaper->escapeHtml($itemChild['name']); ?>
+                                            </span>
+                                        </a>
+                                    </template>
+                                <?php else: ?>
+                                    <span :style="'font-weight: <?= $escaper->escapeHtmlAttr($fontChildWeight); ?>'">
+                                        <?= $escaper->escapeHtml($item['name']) ?>
+                                    </span>
+                                <?php endif; ?>
+
+                                <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+                                    'item' => $itemChild,
+                                    'classes' => 'inline-block text-center text-xs font-bold rounded p-1 ml-2 mr-6 overflow-hidden'
+                                ]); ?>
+                            </span>
+                            <span class="inline-block w-6 h-6 ml-1"
+                                  :style="{
+                                      'color': '#b258ce'
+                                  }">
+                                <?= $heroIcons->chevronRightHtml('', 24, 24, [
+                                    'title' => __('Open')
+                                ]) ?>
+                            </span>
+                        </button>
+                    <?php else: ?>
+                        <a class="flex items-center w-full text-start no-underline <?= $escaper->escapeHtmlAttr($additionalClass); ?>"
+                           href="<?= $escaper->escapeHtmlAttr($itemChild['url']); ?>"
+                           title="<?= $escaper->escapeHtmlAttr($itemChild['name']); ?>">
+                            <?php if ($iconBlock): ?>
+                                <?= /* @noEscape */ $iconBlock->setData('item', $itemChild)
+                                    ->setData('additional_class', $additionalClass)
+                                    ->setData('available', ['desktop', 'both'])->toHtml() ?>
+                            <?php endif ?>
+                            <span :style="'font-weight: <?= $escaper->escapeHtmlAttr($fontChildWeight); ?>'">
+                                <?= $escaper->escapeHtml($itemChild['name']) ?>
+                            </span>
+                            <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+                                'item' => $itemChild,
+                                'classes' => 'inline-block text-center text-xs font-bold rounded p-1 ml-2 mr-6 overflow-hidden'
+                            ]); ?>
+                        </a>
+                    <?php endif ?>
+                </li>
+            <?php endforeach ?>
+        </ul>
+        <?php if ($showMobileContent === 1 && !empty($content)): ?>
+            <div class="flex justify-between items-center border-t border-inherit" data-content="ammenu-content">
+                <?= /* @noEscape */ $content; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</template>
+<?php foreach ($elems as $key => $itemChild): ?>
+    <?php if (!empty($itemChild['elems'])): ?>
+        <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/drill.phtml', [
+            'item' => $itemChild,
+            'parentItem' => $item
+        ], 'Amasty_MegaMenuHyvaAddon::%s'); ?>
+    <?php endif ?>
+<?php endforeach ?>

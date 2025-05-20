@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Extra Fee Hyva
+ */
+/**
+ * @var $block \Magento\Framework\View\Element\Template
+ * @var $escaper Magento\Framework\Escaper
+ */
+?>
+
+<form method="post" id="amexfee-form" aria-labelledby="amexfee-form" class="will-change-transform content mt-2 relative"
+      x-show="isOpen" x-cloak>
+    <fieldset class="fieldset amexfee-fieldset">
+        <legend class="hidden"><?= $escaper->escapeHtmlAttr(__('Additional Fees')) ?></legend>
+
+        <template x-for="fee in getFees()">
+            <div class="field block" :class="{ 'required': fee.required }">
+                <div class="bg-gray-100 border-gray-200 border-y-2 px-5 py-3 mb-2 -mx-5">
+                    <label class="label amexfee-title font-bold m-0" x-text="fee?.name"></label>
+                </div>
+                <p x-text="fee?.description"></p>
+
+                <div class="field amexfee-item-element">
+                    <div class="control">
+                        <template x-if="fee.frontend_type === 'dropdown'">
+                            <?= /* @noEscape */
+                            $block->getChildHtml('am.extrafee.dropdown') ?>
+                        </template>
+
+                        <template x-if="fee.frontend_type === 'checkbox'">
+                            <?= /* @noEscape */
+                            $block->getChildHtml('am.extrafee.checkbox') ?>
+                        </template>
+
+                        <template x-if="fee.frontend_type === 'radio'">
+                            <?= /* @noEscape */
+                            $block->getChildHtml('am.extrafee.radio') ?>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </fieldset>
+</form>

@@ -1,0 +1,601 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var $block Mageplaza\GiftCard\Block\Dashboard */
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+$heroicons = $viewModels->require(\Hyva\Theme\ViewModel\HeroiconsOutline::class);
+$giftCard  = $block->getConfig();
+?>
+
+<script>
+function initGiftCardForm() {
+    return {
+        showGiftCardForm: true,
+        formData: {
+            coupon_code: '<?= $escaper->escapeJs($block->getCouponCode()) ?>',
+
+        },
+        init() {
+            this.showGiftCardForm = JSON.parse(hyva.getBrowserStorage().getItem('hyva.showGiftCardForm'))
+        },
+        toggleShowGiftCard() {
+            this.showGiftCardForm = !this.showGiftCardForm;
+            hyva.getBrowserStorage().setItem('hyva.showGiftCardForm', this.showGiftCardForm);
+        }
+    }
+}
+</script>
+<div id="block-gift-card-discount">
+    <div class="coupon-form bg-white border-b-2 border-gray-200 py-3 shadow-md" x-data="initGiftCardForm()"
+        :class="{'my-4 rounded-lg': showGiftCardForm}">
+        <div class="mx-auto md:mx-0">
+            <button @click="toggleShowGiftCard()" class="flex items-center justify-between w-full px-4"
+                id="discount-form-toggle" :aria-expanded="showGiftCardForm" type="button" aria-expanded="true">
+                <span class="flex items-center">
+                    <span
+                        class="checkout-cart-icon bg-no-repeat bg-[length:1600%] bg-[position:-301px_-60px] h-8 w-11 block"></span>
+                    <span>
+                        <?= $escaper->escapeHtml(__('Gift Cards')) ?>
+                    </span>
+                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="border border-violet-800 w-6 h-6 block"
+                    viewBox="0 0 24 24" stroke="currentColor" focusable="false" style="color: #8b2692;">
+                    <path x-show="!showGiftCardForm" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 9l-7 7-7-7" style="display: none;"></path>
+                    <path x-show="showGiftCardForm" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 15l7-7 7 7"></path>
+                </svg>
+            </button>
+
+            <div x-show="showGiftCardForm">
+                <div id="discount-gift-card-form" class="m-4">
+                    <div class="fieldset coupon">
+                        <input type="hidden" name="remove" id="remove-gift-card" value="0">
+                        <div class="flex flex-col gap-2 justify-center">
+                            <label for="gift_card_code" class="label sr-only">
+                                <?= $escaper->escapeHtml(__('Enter gift card code')) ?>
+                            </label>
+                            <div class="control">
+                                <input type="text"
+                                    class="form-input disabled:opacity-75 disabled:bg-gray-100 disabled:pointer-events-none w-full"
+                                    id="gift_card_code" name="gift_card_code" value=""
+                                    placeholder="<?= $escaper->escapeHtml(__('Enter gift card code')) ?>" required="">
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-outline w-full" type="button" onclick="handleApplySaved(1)"
+                                    value="Apply">
+                                    <span><?= $escaper->escapeHtml(__('Apply')) ?></span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="gift-card-used" data-bind="visible: enableMultiple() && isApplied()">
+
+                    </div>
+                    <?php if($giftCard): ?>
+                    <script>
+                    function initListGiftCard() {
+                        return {
+                            showListGift: true,
+                            init() {
+                                this.showListGift = JSON.parse(hyva.getBrowserStorage().getItem('hyva.showListGift'))
+                            },
+                            toggleShowListGift() {
+                                this.showListGift = !this.showListGift;
+
+                                hyva.getBrowserStorage().setItem('hyva.showListGift', this.showListGift);
+
+
+                            }
+                        }
+                    }
+                    </script>
+                    <div class="coupon-form pt-6" x-data="initListGiftCard()">
+                        <div class="mx-auto md:mx-0">
+                            <div class="text-left">
+                                <button @click="toggleShowListGift()"
+                                    class="inline-block cursor-pointer text-primary-lighter select-none whitespace-nowrap"
+                                    id="discount-form-toggle" :aria-expanded="showListGift" type="button"
+                                    aria-expanded="true">
+                                    <span class="underline">
+                                        <?= $escaper->escapeHtml(__('Choose from saved list')) ?>
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        class="w-4 h-4 inline-block ml-2" viewBox="0 0 24 24" stroke="currentColor"
+                                        focusable="false">
+                                        <path x-show="!showListGift" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M19 9l-7 7-7-7" style="display: none;"></path>
+                                        <path x-show="showListGift" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M5 15l7-7 7 7" style=""></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div x-show="showListGift" class="mt-3">
+                                <div id="discount-gift-card-form" class="my-4">
+                                    <div class="fieldset coupon">
+                                        <div class="flex flex-col sm:flex-row gap-2 justify-center md:justify-start">
+                                            <label for="giftcard-saved-list" class="label sr-only">
+                                                <?= $escaper->escapeHtml(__('Enter gift card code')) ?>
+                                            </label>
+                                            <div class="control flex-1">
+                                                <select name="giftcard-saved-list" id="giftcard-saved-list"
+                                                    class="w-full rounded-lg">
+                                                    <option value="">
+                                                        <?= $escaper->escapeHtml(__('-- Please Select --')) ?></option>
+                                                    <?php foreach ($giftCard['giftCardLists'] as $item) : ?>
+                                                    <option value="<?=  /** @noEscape */ $item['code']?>">
+                                                        <?=  /** @noEscape */ $item['hidden_code']?> (
+                                                        <?=  /** @noEscape */ $item['balance_formatted']?>)
+                                                    </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <div class="primary">
+                                                    <button class="btn btn-primary" type="button"
+                                                        onclick="handleApplySaved(2)" value="Apply">
+                                                        <span><?= $escaper->escapeHtml(__('Apply')) ?></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif ?>
+                    <div class="gift-card-check-code mt-3" style="display: none">
+                        <div>
+                            <div class="field flex">
+                                <label class="label" style="min-width: 100px">
+                                    <span>
+                                        <?= $escaper->escapeHtml(__('Status')) ?>
+                                    </span>
+                                </label>
+                                <div class="control">
+                                    <div class="check-code-status">
+                                        <span><?= $escaper->escapeHtml(__('Active')) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field flex">
+                                <label class="label" style="min-width: 100px">
+                                    <span><?= $escaper->escapeHtml(__('Balance')) ?></span>
+                                </label>
+                                <div class="control">
+                                    <div class="check-code-balance">
+                                        <span>
+                                            <span class="price">$10.00</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field flex">
+                                <label class="label" style="min-width: 100px">
+                                    <span><?= $escaper->escapeHtml(__('Expired At')) ?></span>
+                                </label>
+                                <div class="control">
+                                    <div class="check-code-expired-at">
+                                        <span><?= $escaper->escapeHtml(__('Permanent')) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center my-2">
+                            <div class="flex-grow border-t border-gray-300"></div>
+                            <span class="mx-4 text-gray-600 font-medium"><?= $escaper->escapeHtml(__('or')) ?></span>
+                            <div class="flex-grow border-t border-gray-300"></div>
+                        </div>
+                        <button class="btn btn-orange w-full" type="button" value="Check" onclick="handleCheckGift()">
+                            <span><?= $escaper->escapeHtml(__('Check')) ?></span>
+                        </button>
+                    </div>
+                    <?php if($giftCard): ?>
+                    <div class="pt-6 block " id="gift-credit-apply" x-data="initListGiftCard()">
+                        <div class="mx-auto md:mx-0">
+                            <div class="text-left">
+                                <button @click="toggleShowListGift()"
+                                    class="inline-block cursor-pointer text-primary-lighter select-none whitespace-nowrap"
+                                    id="discount-form-toggle" :aria-expanded="showListGift" type="button"
+                                    aria-expanded="true">
+                                    <span class="underline">
+                                        <?= $escaper->escapeHtml(__('Use Gift Credit')) ?>
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        class="w-4 h-4 inline-block ml-2" viewBox="0 0 24 24" stroke="currentColor"
+                                        focusable="false">
+                                        <path x-show="!showListGift" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M19 9l-7 7-7-7" style="display: none;"></path>
+                                        <path x-show="showListGift" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="M5 15l7-7 7 7" style=""></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div x-show="showListGift" style="margin-top: 50px">
+                                <div class="gift-credit-apply-content" data-role="content"
+                                    data-bind="css: {content: enableGiftCard}">
+                                    <div class="gift-credit-slider">
+                                        <tc-range-slider value1="20" round="2" min="0" max="100" generate-labels="true"
+                                            moving-tooltip="true" moving-tooltip-distance-to-pointer="40"
+                                            moving-tooltip-width="50" moving-tooltip-height="40"
+                                            moving-tooltip-bg="#20b426" moving-tooltip-text-color="#fff"
+                                            slider-bg-fill="#20b426">
+                                        </tc-range-slider>
+                                    </div>
+                                    <div class="gift-credit-label mt-3">
+                                        <span><?= $escaper->escapeHtml(__('You are using')) ?> </span>
+                                        <input type="text" id="gift-card-credit-input" name="credit_input_value" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+const browserStorage = hyva.getBrowserStorage();
+let path = '';
+let pathCredit = '';
+if (browserStorage) {
+    let dataStorage = (JSON.parse(browserStorage.getItem('mage-cache-storage')));
+    let customer = dataStorage.customer;
+    let cart = dataStorage.cart;
+    if (customer && customer?.fullname) {
+        path = '/V1/carts/mine/mpgiftcard/';
+        pathCredit = '/V1/carts/mine/mpgiftcredit/'
+    } else {
+        path = '/V1/guest-carts/' + cart.cartId + '/mpgiftcard/'
+    }
+
+}
+document.addEventListener("DOMContentLoaded", (event) => {
+    let totalCardsEl = document.querySelector('#cart-totals');
+
+    function getGiftCardsUsed(giftCardUsed) {
+        var giftCardsUsed = [];
+        var giftCardsUsedConfig = giftCardUsed || {};
+
+        for (var id in giftCardsUsedConfig) {
+            if (giftCardsUsedConfig.hasOwnProperty(id)) {
+                var amount = (parseFloat(giftCardsUsedConfig[id].amount) * -1);
+
+                giftCardsUsed.push({
+                    id: id,
+                    code: giftCardsUsedConfig[id].code,
+                    amount: amount
+                });
+            }
+        }
+
+        return giftCardsUsed;
+    }
+
+    function fetchGiftCredit(value) {
+        fetch(BASE_URL + 'rest/' + CURRENT_STORE_CODE + pathCredit + value, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => {
+
+                return response.json();
+            })
+            .then(responseData => {
+                if (!responseData?.trace) {
+                    hyva.setCookie('mage-cache-sessid', '', -1, true); // remove the cookie
+                    window.dispatchEvent(new CustomEvent("reload-customer-section-data"));
+                    document.querySelector('#credit-price-cart').innerHTML = hyva.formatPrice(value * -1);
+                    dispatchMessages([{
+                        type: "success",
+                        text: "Your credit was successfully applied."
+                    }], 2000);
+
+                } else {
+                    dispatchMessages([{
+                        type: "error",
+                        text: responseData.message
+                    }], 2000);
+                }
+            })
+            .catch(error => {
+                dispatchMessages([{
+                    type: "error",
+                    text: 'There was a problem with the fetch operation:' + error
+                }], 2000);
+            });
+    }
+    let totalsData = window.checkoutConfig.totalsData;
+    if (totalsData?.extension_attributes?.gift_cards) {
+        let gift_cards = JSON.parse(totalsData.extension_attributes.gift_cards);
+        let wrapperCredit = document.getElementById('gift-credit-apply');
+        let enableGiftCard = gift_cards?.enableGiftCard;
+        let enableGiftCredit = gift_cards?.enableGiftCredit;
+        if (!enableGiftCard) {
+            let wrapperGift = document.getElementById('block-gift-card-discount');
+            wrapperGift.innerHTML = '';
+        }
+        if (!enableGiftCredit) {
+            if (wrapperCredit) {
+                wrapperCredit.style.display = 'none';
+            }
+        } else {
+            let ranSlider = wrapperCredit.getElementsByTagName('tc-range-slider')[0];
+            ranSlider.setAttribute('min', (0));
+            ranSlider.setAttribute('max', (gift_cards.maxUsed));
+            ranSlider.setAttribute('value1', (gift_cards.creditUsed));
+            ranSlider.generateLabelsFormat = (value) => {
+                if (value === undefined) return '';
+                return `${ hyva.formatPrice(value) }`;
+            };
+            ranSlider.formatTooltipValue = (value) => {
+                if (value === undefined) return '';
+                return `${ hyva.formatPrice(value) }`;
+            };
+            ranSlider.addCSS(`
+                    .labels-row{
+                        display: none;
+                    }
+                `);
+            ranSlider.addCSS(`
+                     .min-label {
+                    margin-left: 0;
+                    width: auto !important;
+                `);
+
+            ranSlider.addEventListener('onMouseUp', (evt) => {
+                const value = evt.target.value1;
+                fetchGiftCredit(value);
+
+            });
+
+            let inputCreditEl = wrapperCredit.querySelector('#gift-card-credit-input');
+            inputCreditEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    let creditSend = '';
+                    if (!Number(e.target.value)) {
+                        creditSend = 0;
+                    } else {
+                        if (e.target.value <= 0) {
+                            creditSend = 0;
+                            e.target.value = 0;
+
+                        } else if (e.target.value > gift_cards.maxUsed) {
+                            creditSend = gift_cards.maxUsed;
+                            e.target.value = gift_cards.maxUsed;
+                        } else {
+                            creditSend = e.target.value;
+                        }
+                    }
+                    ranSlider.setAttribute('value1', Number(creditSend));
+                    fetchGiftCredit(creditSend);
+                }
+
+            });
+
+            let creEl = document.createElement('div');
+            creEl.innerHTML = `
+                <div class="flex pb-2 my-2 text-md lg:text-sm md:grid md:grid-cols-2 md:w-full">
+                    <div class="w-7/12 text-left md:w-auto" ><?= $block->escapeHtml(__('Credit')) ?></div>
+                    <div class="w-5/12 text-right md:w-auto" id="credit-price-cart">${hyva.formatPrice(gift_cards.creditUsed * -1)}</div>
+                </div>`;
+            totalCardsEl.prepend(creEl);
+        }
+        let giftCardUsed = getGiftCardsUsed(gift_cards.giftCardUsed);
+        let listGiftCards = [];
+        for (var key in gift_cards.listGiftCard) {
+            if (gift_cards.listGiftCard.hasOwnProperty(key)) {
+                listGiftCards.push(gift_cards.listGiftCard[key]);
+            }
+        }
+        giftCardUsed.forEach(data => {
+            checkAndDisplayCode(data.code, data.amount, data.id);
+            let divEl = document.createElement('div');
+            divEl.innerHTML = `
+                <div class="flex pb-2 my-2 text-md lg:text-sm md:grid md:grid-cols-2 md:w-full">
+                    <div class="w-7/12 text-left md:w-auto" >Gift Cards ( ${data.code} )</div>
+                    <div class="w-5/12 text-right md:w-auto">${hyva.formatPrice(data.amount)}</div>
+                </div>
+                `;
+
+            totalCardsEl.prepend(divEl);
+        })
+    }
+});
+
+function handleApplySaved(type) {
+
+    let selectEl = document.getElementById('giftcard-saved-list');
+    let inputEl = document.getElementById('gift_card_code');
+    let codeSend = '';
+    if (type === 1) {
+        codeSend = inputEl.value;
+    }
+    if (type === 2) {
+        codeSend = selectEl.value;
+    }
+    if (codeSend) {
+        const data = {
+            'code': codeSend
+        };
+        fetch(BASE_URL + 'rest/' + CURRENT_STORE_CODE + path, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+
+                return response.json();
+            })
+            .then(responseData => {
+                if (!responseData?.trace) {
+                    hyva.setCookie('mage-cache-sessid', '', -1, true); // remove the cookie
+                    window.dispatchEvent(new CustomEvent("reload-customer-section-data"));
+                    window.location.reload();
+                    dispatchMessages([{
+                        type: "success",
+                        text: "Your gift card was successfully applied."
+                    }], 2000);
+
+                } else {
+                    dispatchMessages([{
+                        type: "error",
+                        text: responseData.message
+                    }], 2000);
+                }
+            })
+            .catch(error => {
+                dispatchMessages([{
+                    type: "error",
+                    text: 'There was a problem with the fetch operation:' + error
+                }], 2000);
+            });
+    }
+}
+
+function cancelGiftCard(id) {
+    fetch(BASE_URL + 'rest/' + CURRENT_STORE_CODE + path + id, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+        })
+        .then(response => {
+
+            return response.json();
+        })
+        .then(responseData => {
+            if (!responseData?.trace) {
+                hyva.setCookie('mage-cache-sessid', '', -1, true);
+                window.dispatchEvent(new CustomEvent("reload-customer-section-data"));
+                window.location.reload();
+                dispatchMessages([{
+                    type: "success",
+                    text: "Remove gift card successfully."
+                }], 2000);
+
+            } else {
+                dispatchMessages([{
+                    type: "error",
+                    text: responseData.message
+                }], 2000);
+            }
+        })
+        .catch(error => {
+            dispatchMessages([{
+                type: "error",
+                text: 'There was a problem with the fetch operation: ' + error
+            }], 2000);
+        });
+}
+
+function handleCheckGift() {
+    let inputEl = document.getElementById('gift_card_code');
+    if (inputEl.value) {
+        fetch(BASE_URL + 'rest/' + CURRENT_STORE_CODE + '/V1/mpgiftcard/check/' + inputEl.value, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+
+            })
+            .then(response => {
+
+                return response.json();
+            })
+            .then(responseData => {
+                if (!responseData?.trace) {
+                    let checkCodeEl = document.querySelector('.gift-card-check-code');
+
+                    let sttEl = checkCodeEl.querySelector('.check-code-status span');
+
+                    let balanceEl = checkCodeEl.querySelector('.check-code-balance span');
+
+                    let expEl = checkCodeEl.querySelector('.check-code-expired-at span');
+
+                    sttEl.innerHTML = responseData.status_label;
+                    balanceEl.innerHTML = responseData.balance_formatted;
+                    expEl.innerHTML = responseData.expired_at_formatted;
+                    checkCodeEl.style.display = 'block'
+                } else {
+                    dispatchMessages([{
+                        type: "error",
+                        text: responseData.message
+                    }], 2000);
+                }
+            })
+            .catch(error => {
+                dispatchMessages([{
+                    type: "error",
+                    text: 'There was a problem with the fetch operation:' + error
+                }], 2000);
+            });
+    }
+}
+
+function checkAndDisplayCode(code, balance, id) {
+    let giftCardUsedEl = document.querySelector('.gift-card-used');
+    let newGiftUsedEl = document.createElement('div');
+    newGiftUsedEl.innerHTML = `
+         <div class="gift-card-used-item flex align-items-center mt-2">
+                        <span class="inline-flex align-items-center cursor-pointer mr-3 hover:underline remove-gift" onclick="cancelGiftCard(${id})">x</span>
+                        <span class="gift-card-used-item-code">${code} ( ${hyva.formatPrice(balance)} )</span>
+         </div>
+        `;
+    giftCardUsedEl.append(newGiftUsedEl);
+}
+</script>
+<style>
+.align-items-center {
+    align-items: center;
+}
+
+.remove-gift {
+    color: rgb(29 78 216);
+}
+
+.max-label,
+.min-label {
+    margin: 0 !important;
+    width: auto !important;
+}
+</style>

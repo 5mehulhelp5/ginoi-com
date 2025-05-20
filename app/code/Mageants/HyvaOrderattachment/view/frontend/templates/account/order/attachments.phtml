@@ -1,0 +1,499 @@
+<?php if ($block->isOrderAttachmentEnabled()): ?>
+<div x-data="initOrderAttachment()" style="margin-top: -1px;padding: 25px;border: 1px solid #ccc;">
+    <div class="checkout-orderattachment" >
+        <div class="payment-option _collapsible opc-payment-additional order-attachments">
+            <div class="payment-option-content" >
+                <div class="payment-option-inner">
+                    <div class="field">
+                        <div class="border-b border-width border-solid border-stone-300 text-slate-800 text-2xl pt-6 pb-2" x-text="attachmentTitle"></div>
+                        <div class="block md:flex items-center justify-between my-4">
+                            <div class="info italic text-sm w-full md:w-3/4" x-html="getAttachmentInfo()"></div>
+                            <template x-if="isCustomerAllow == '1'">
+                            <button type="button" @click="sendmail()" class="btn btn-primary" title="Send Mail !!">Send Mail !!</button>
+                            </template>
+                        </div>
+
+                        <div class="commentMessage bg-green-500 text-white py-2 px-4 mb-4 rounded-lg" style="display: none;">
+                            Comments for the attachment have been successfully retrieved.
+                        </div>
+
+                        <div class="adminEmailMessageSuccess bg-green-500 text-white py-2 px-4 mb-4 rounded-lg" style="display: none;">
+                            Your Attachments Are Delivered to the Admin Successfully.
+                        </div>
+                        <div class="adminEmailMessageError bg-red-500 text-white py-2 px-4 mb-4 rounded-lg" style="display: none;">
+                            ur Attachments Are Not Delivered to the Admin.
+                        </div>
+
+                        <div class="control">
+                            <input style="display:none;" class="input"
+                                   type="file"
+                                   x-on:change="fileUpload($event)"
+                                   id="order-attachment"
+                                   name="order-attachment[]" >
+
+                            <template x-if="isCustomerAllow == '1'">
+                            <div class="attachment-drag-area bg-slate-100 border-2 border-dotted border-slate-900 cursor-pointer flex flex-col items-center justify-center m-auto mb-3.5 p-10 rounded-xl w-72"
+                                 @click="selectFiles"
+                                 @dragenter="dragEnter"
+                                 @dragover="dragOver"
+                                 @drop="drop">
+                                 <div class="m-auto text-2xl">&#128229;</div>
+                                <h4>Attach Documents here..</h4>
+                            </div>
+                            </template>
+
+                            <div class="fileorderAttachmentallowedMessage bg-red-500 text-white py-2 px-4 mb-4 rounded-lg" style="display:none;">
+                                This file type is not permitted.
+                            </div>
+
+                            <div class="orderAttachmentLimitMessage bg-red-500 text-white py-2 px-4 mb-4 rounded-lg" style="display:none;">
+                                 We have reached the maximum limit for order attachments.
+                            </div>
+
+                            <div class="control">
+                            <div class="attachment-container" x-data="{ attachmentList: []}" x-init="() => { attachmentList = attachmentListDom(); }">
+                                <template x-for="(attachment, index) in attachmentList" :key="attachment.hash">
+                                    <div class="attachment-row-content attachment-row items-center border-dotted border-slate-900 rounded-xl border-2 md:flex justify-between mb-3.5 bg-slate-100 p-4" x-bind:id="'attachment-row-' + attachment.attachment_id">
+                                        <div class="order-attachment-preview w-full rounded-xl md:w-3/12 mb-3.5 md:mb-0"> 
+                                            <template x-if="attachment.type == 'application/pdf'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/pdf.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'application/zip'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/zip.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'text/csv'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/csv1.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'text/plain'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/txt.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'video/mp4' || attachment.type == 'video/webm' || attachment.type == 'video/x-flv' || attachment.type == 'video/x-ms-wmv' || attachment.type == 'video/3gpp' || attachment.type == 'video/x-msvideo' || attachment.type == 'video/x-matroska'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/mp4.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/docx.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'application/msword'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/doc.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'application/vnd.ms-excel'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/xls.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" src="<?= /* @noEscape */ $block->getViewFileUrl('Mageants_Orderattachment/images/xlsx.png') ?>" title="">
+                                            </template>
+                                            <template x-if="attachment.type != 'application/pdf'">
+                                                <img class="thumbnail h-auto w-full rounded-xl" :src="attachment.url" title="">
+                                            </template>
+
+                                            <div class="attachment-file">
+                                                <div class="filename"></div>
+                                            </div>
+                                        </div>
+                                        <div class="order-attachment-content w-full items-center gap-2 block md:flex md:pl-5 md:w-9/12">
+                                        <textarea class="rounded-xl w-full" x-model="attachment.comment"
+                                                  x-on:blur="updateComment(attachment.attachment_id, attachment.hash)"
+                                                  rows="4"
+                                                  class="comment"
+                                                  x-bind:id="'attachment-comment-' + attachment.attachment_id"
+                                                  placeholder="Write comment here"></textarea>
+
+                                            <button x-bind:id="'attachment-download' + attachment.attachment_id"
+                                               class="attachment-download action btn btn-secondary inline-flex mr-2 p-2"
+                                               title="Download Item"
+                                               x-on:click="downloadFile(attachment.url, attachment.attachment_id)">
+                                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-down" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M3.5 10a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 0 0 1h2A1.5 1.5 0 0 0 14 9.5v-8A1.5 1.5 0 0 0 12.5 0h-9A1.5 1.5 0 0 0 2 1.5v8A1.5 1.5 0 0 0 3.5 11h2a.5.5 0 0 0 0-1z"/>
+                                                    <path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708z"/>
+                                                </svg>
+                                            </button>
+
+                                            <button x-bind:id="'attachment-remove' + index"
+                                               class="attachment-remove action btn btn-secondary inline-flex p-2"
+                                               title="Remove Item"
+                                               x-on:click="deleteFile(attachment.attachment_id, attachment.hash)">
+                                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" role="img"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 7-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"></path><title>trash</title></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+    <script>
+    function initOrderAttachment() {
+        return initOrderAttachments(
+            <?= /* @noEscape */ $block->getAttachmentConfig() ?>
+        );
+    }
+
+    function initOrderAttachments(optionConfig) {
+        var self = this;
+        self.attachementData = optionConfig;
+        self.quote = self.attachementData.quoteData;
+        self.allowedExtensions = self.attachementData.AttachmentExt;
+        self.maxFileSize = self.attachementData.AttachmentSize;
+        self.isCustomerAllow = self.attachementData.isCustomerAllow;
+        self.removeItem = self.attachementData.removeItem;
+        self.maxFileLimit = self.attachementData.AttachmentLimit;
+        self.invalidExtError = self.attachementData.AttachmentInvalidExt;
+        self.invalidSizeError = self.attachementData.AttachmentInvalidSize;
+        self.invalidLimitError = self.attachementData.AttachmentInvalidLimit;
+        self.uploadUrl = self.attachementData.AttachmentUpload;
+        self.adminEmail = self.attachementData.adminEmail;
+        self.updateUrl = self.attachementData.AttachmentUpdate;
+        self.removeUrl = self.attachementData.AttachmentRemove;
+        self.comment = self.attachementData.AttachmentComment;
+        self.attachments = self.attachementData.attachments;
+        self.attachmentTitle = self.attachementData.AttachmentTitle;
+        self.attachmentInfromation = self.attachementData.AttachmentInfromation;
+        self.files = self.attachementData.totalCount;
+        return {
+            attachementData: self.attachementData,
+            quote: self.quote,
+            allowedExtensions: self.allowedExtensions,
+            maxFileSize: self.maxFileSize,
+            isCustomerAllow: self.isCustomerAllow,
+            removeItem: self.removeItem,
+            maxFileLimit: self.maxFileLimit,
+            invalidExtError: self.invalidExtError,
+            invalidSizeError: self.invalidSizeError,
+            invalidLimitError: self.invalidLimitError,
+            uploadUrl: self.uploadUrl,
+            adminEmail: self.adminEmail,
+            updateUrl: self.updateUrl,
+            removeUrl: self.removeUrl,
+            comment: self.comment,
+            attachments: self.attachments,
+            attachmentTitle: self.attachmentTitle,
+            attachmentInfromation: self.attachmentInfromation,
+            files: self.files,
+
+
+            sendmail: function() {
+                var self = this;
+                var url1 = self.adminEmail + '?form_key=' + hyva.getFormKey();
+                fetch(url1, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Adjust content type if needed
+                    },
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function() {
+                    window.scroll({
+                        top: 0
+                    });
+
+                 var adminEmailMessageSuccess = document.querySelector('.adminEmailMessageSuccess');
+                  setTimeout(function() {
+                    adminEmailMessageSuccess.style.display = 'block';
+                    setTimeout(function() {
+                        adminEmailMessageSuccess.style.display = 'none';
+                    }, 5000);
+                 }, 1000);
+
+                })
+                .catch(function(error) {
+                    window.scroll({
+                        top: 0
+                    });
+
+                    var adminEmailMessageError = document.querySelector('.adminEmailMessageError');
+                      setTimeout(function() {
+                        adminEmailMessageError.style.display = 'block';
+                        setTimeout(function() {
+                            adminEmailMessageError.style.display = 'none';
+                        }, 5000);
+                    }, 1000);
+
+                    console.error('Error:', error);
+                });
+            },
+
+
+            fileUpload: function(e) {
+                var file    = e.target.files;
+
+                let fileInput = document.getElementById('order-attachment');
+                for (var i = 0; i < file.length; i++) {
+                    this.processingFile(file[i]);
+                }
+
+                if (fileInput.value) {
+                    fileInput.value = '';
+                } else {
+                setTimeout(() => {
+                    fileInput.value = '';
+                    }, 2000);
+                }
+
+            },
+
+              processingFile: function(file) {
+                var error = this.validateFile(file);
+                if (error) {
+                 var fileAllowedMessage = document.querySelector('.fileorderAttachmentallowedMessage');
+                  setTimeout(function() {
+                  fileAllowedMessage.style.display = 'block';
+                  setTimeout(function() {
+                  fileAllowedMessage.style.display = 'none';
+                    }, 5000);
+                 }, 1000);
+
+                } else {
+                const attachmentRows = document.querySelectorAll('div.attachment-row');
+                let nonEmptyAttachmentRowsCount = 0;
+                attachmentRows.forEach(function(element) {
+                    if (element.innerHTML.trim() !== '') {
+                        nonEmptyAttachmentRowsCount++;
+                    }
+                });
+                    if (nonEmptyAttachmentRowsCount >= self.maxFileLimit) {
+                         var orderAttachmentLimitMessage = document.querySelector('.orderAttachmentLimitMessage');
+                            setTimeout(function() {
+                                orderAttachmentLimitMessage.style.display = 'block';
+                                    setTimeout(function() {
+                                        orderAttachmentLimitMessage.style.display = 'none';
+                                    }, 5000);
+                            }, 1000);
+                    } else {
+                        var uniq = Math.random().toString(32).slice(2);
+                        this.upload(file, uniq);
+                    }
+                }
+            },
+
+                validateFile: function(file) {
+                if (!this.checkFileExtension(file)) {
+                    return self.invalidExtError;
+                }
+                if (!this.checkFileSize(file)) {
+                    return self.invalidSizeError;
+                }
+
+                return null;
+            },
+
+             addError: function(error) {
+                var html = null;
+                if(document.querySelector('.attachment-error.danger')) {
+                  document.querySelectorAll('.attachment-error.danger').forEach(function(element) {
+                        element.parentNode.removeChild(element);
+                  });
+
+                 var html = '<div class="attachment-error danger"><strong class="close">X</strong>'+ error +'</div>';
+                 var attachmentContainer = document.querySelector('.attachment-container');
+                     attachmentContainer.insertAdjacentHTML('beforebegin', html);
+                }
+                else{
+                    var html = '<div class="attachment-error danger"><strong class="close">X</strong>'+ error +'</div>';
+                    var attachmentContainer = document.querySelector('.attachment-container');
+                    attachmentContainer.insertAdjacentHTML('beforebegin', html);
+
+                }
+
+                var elements = document.querySelectorAll('.attachment-error.danger');
+                elements.forEach(function(element) {
+                    element.style.transition = 'opacity 5s';
+                    element.style.opacity = '0';
+                    setTimeout(function() {
+                        element.remove();
+                    }, 5000);
+                });
+
+            },
+
+        upload: function(file, pos) {
+            const formKey = hyva.getFormKey();
+            var formAttach = new FormData(),
+                self = this;
+            var fileInput = document.getElementById('order-attachment');
+            formAttach.append(fileInput.name, file);
+            formAttach.append('form_key', formKey);
+            formAttach.append('uenc', hyva.getUenc());
+            fetch(self.uploadUrl, {
+                    "body": formAttach,
+                    "method": "POST",
+                    "mode": "cors",
+                    "credentials": "include",
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success && result.success == true) {
+                        self.attachments.push(result);
+                    } else {
+                        this.addError(result.error);
+                    }
+                    if (result['attachment_count']) {
+                        self.files = result['attachment_count'];
+                    }
+                })
+                .catch(error => {
+                    this.addError(error.message);
+                });
+        },
+              checkFileExtension: function(file) {
+                var fileExt = file.name.split(".").pop().toLowerCase();
+                var allowedExt = self.allowedExtensions.split(",");
+                 if (!allowedExt.includes(fileExt)) {
+                    return false;
+                }
+                return true;
+              },
+
+             checkFileSize: function(file) {
+                if ((file.size / 1024) > self.maxFileSize) {
+                    return false;
+                }
+                return true;
+            },
+
+             getAttachmentInfo: function() {
+                return this.attachmentInfromation;
+            },
+
+            downloadFile: function (url, id) {
+             var downloadId = 'attachment-download' + id;
+             var download = document.getElementById(downloadId);
+                  fetch(url, {
+                    mode : 'no-cors',
+                  })
+                   .then(response => response.blob())
+                    .then(blob => {
+                    let blobUrl = window.URL.createObjectURL(blob);
+                    let a = document.createElement('a');
+                    a.download = url.replace(/^.*[\\\/]/, '');
+                    a.href = blobUrl;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                  })
+            },
+
+             deleteFile: function(id, hash) {
+                var attachParams = {
+                    attachment: id,
+                    hash: hash
+                };
+                var self = this;
+                fetch(self.removeUrl + '?form_key=' + hyva.getFormKey(), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(attachParams)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.attachment_count) {
+                            self.files = data.attachment_count;
+                        }
+                        var deleteId = 'attachment-row-' + id;
+                        var deleteSection = document.getElementById(deleteId);
+                        deleteSection.style.display = 'none';
+                        deleteSection.innerHTML='';
+                     }
+                })
+                .catch(error => {
+                    self.addError(error.message);
+                });
+            },
+
+             updateComment(id, hash) {
+               var textareaId = 'attachment-comment-' + id;
+               var comment = document.getElementById(textareaId).value;
+                if (comment) {
+                    const formKey = hyva.getFormKey();
+                    var attachParams = {
+                        'attachment':id,
+                        'hash':hash,
+                        'comment':comment
+                    };
+                    fetch(self.updateUrl + '?form_key=' + hyva.getFormKey() + '&attachment=' + id + '&hash=' + hash + '&comment=' + comment, {
+                        "body": JSON.stringify(attachParams),
+                        "method": "POST",
+                        "mode": "cors",
+                        "credentials": "include",
+                         "headers": {contentType: 'application/x-www-form-urlencoded; charset=UTF-8'}
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            this.addError(data.error);
+                        } else {
+                            if (data.attachment_count) {
+                                this.files = data.attachment_count;
+                            }
+
+                            var commentMessage = document.querySelector('.commentMessage');
+                            setTimeout(function() {
+                                commentMessage.style.display = 'block';
+                                    setTimeout(function() {
+                                        commentMessage.style.display = 'none';
+                                    }, 5000);
+                            }, 1000);
+                        }
+                        window.scroll({ top: 0 });
+                    })
+                    .catch(error => {
+                        this.addError(error.message);
+                    });
+                }
+            },
+              attachmentListDom: function() {
+                return self.attachments;
+             },
+
+
+             selectFiles: function() {
+                var orderAttachmentInput = document.getElementById('order-attachment');
+                if (orderAttachmentInput) {
+                    orderAttachmentInput.click();
+                }
+            },
+
+            dragEnter: function(event) {
+                event.preventDefault();
+            },
+            dragOver: function(event) {
+                event.preventDefault();
+            },
+            drop: function(event) {
+                event.preventDefault();
+                var droppedFiles = event.dataTransfer.files;
+                for (var i = 0; i < droppedFiles.length; i++) {
+                    this.processingFile(droppedFiles[i]);
+                }
+            },
+        };
+    }
+</script>
+
+
+<?php endif; ?>

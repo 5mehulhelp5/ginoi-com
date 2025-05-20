@@ -1,0 +1,607 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+// @codingStandardsIgnoreFile
+/** @var \Mageplaza\GiftCard\Block\Dashboard $block */
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+
+$heroicons = $viewModels->require(HeroiconsSolid::class);
+$giftCard  = $block->getConfig();
+$modalViewModel = $viewModels->require(\Hyva\Theme\ViewModel\Modal::class);
+
+?>
+
+
+<div id="giftcardContainer" data-bind="scope:'giftcard'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <div class="block block-gift-card" data-bind="blockLoader: isLoading">
+        <div class="block-content" aria-labelledby="block-gift-card-heading">
+            <?php if ($giftCard['isEnableCredit']): ?>
+                <div class="box box-information col-mp mp-6 mp-xs-12">
+                    <strong class="box-title">
+                        <span data-bind="i18n: 'My current balance'"><?= $escaper->escapeHtml(__('My current balance')) ?></span>
+                    </strong>
+                    <div class="box-content">
+                        <p data-bind="html: balance()">
+                            <?= /** @noEscape */
+                            $giftCard['balance'] ?>
+                        </p>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div class="box box-information col-mp mp-6 mp-xs-12">
+                <strong class="box-title">
+                    <span><?= $escaper->escapeHtml(__('Check/Redeem Gift Card')) ?></span>
+                </strong>
+                <div class="box-content">
+                    <form
+                        enctype="multipart/form-data" data-mage-init='{"validation": {}}'
+                        @submit.prevent="submitForm();"
+                        x-data="Object.assign(hyva.formValidation($el), initCheckCode())"
+                        class="form check-code" action="" method="post" id="check-code-form"
+                        name="check-code-form"
+                    >
+                        <div class="field check-code-field flex relative">
+                            <div class="control ">
+                                <input name="code" type="text" id="giftcode"
+                                       data-validate='{"required": true}'
+                                       placeholder="Enter your gift code"
+                                >
+
+                            </div>
+                            <div class="actions ml-3 ">
+                                <div class="flex align-center">
+                                    <button class="action action-check primary btn btn-primary" title="Check"
+                                            type="submit">
+                                        Check
+                                    </button>
+                                    <button class="action action-redeem btn btn-primary" style="display: none"
+                                            title="Redeem" type="button"
+                                            >
+                                        <span>Redeem</span>
+                                    </button>
+                                    <button class="action action-add btn btn-primary ml-1 whitespace-nowrap"
+                                            style="display: none" title="Add to list" type="button"
+                                           >
+                                        <span>Add to list</span>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </form>
+                    <!-- ko foreach: getRegion('check-messages') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <!--/ko-->
+                </div>
+            </div>
+            <div class="mp-clear"></div>
+        </div>
+    </div>
+
+    <div class="block block-gift-card" data-bind="blockLoader: isListLoading">
+        <div class="block-title">
+            <strong id="block-giftcard-list-heading" role="heading" aria-level="2"
+                    data-bind="i18n: 'My Saved Gift Card'"><?= $escaper->escapeHtml(__('My Saved Gift Card'))?></strong>
+        </div>
+        <div class="block-content" aria-labelledby="block-gift-card-heading">
+            <?php if (count($giftCard['giftCardLists']) > 0): ?>
+                <table class="data table_gift_custom table table-giftcard-list history" id="giftcard-list-table">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col code" ><?= $escaper->escapeHtml(__('Code')) ?></th>
+                        <th scope="col" class="col balance"><?= $escaper->escapeHtml(__('Balance')) ?></th>
+                        <th scope="col" class="col status" ><?= $escaper->escapeHtml(__('Status')) ?></th>
+                        <th scope="col" class="col expired_at" ><?= $escaper->escapeHtml(__('Expired Date')) ?></th>
+                        <th scope="col" class="col actions">&nbsp;<?= $escaper->escapeHtml(__('Actions')) ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!--ko foreach: giftCardList() -->
+                    <?php foreach ($giftCard['giftCardLists'] as $key => $gift_card) : ?>
+                        <tr>
+                            <td class="col code" data-display="hidden"
+                                onclick="showHideCode(this,'<?= /** @noEscape */
+                                $gift_card['code'] ?>','<?= /** @noEscape */
+                                $gift_card['hidden_code'] ?>')"
+                            >
+                                <?= /** @noEscape */
+                                $gift_card['hidden_code'] ?>
+                            </td>
+                            <td class="col balance" data-bind="html: balance_formatted">
+                                <?= /** @noEscape */
+                                $gift_card['balance_formatted'] ?>
+                            </td>
+                            <td class="col status" data-bind="text: status_label">
+                                <?= /** @noEscape */
+                                $gift_card['status_label'] ?>
+                            </td>
+                            <td class="col date" data-bind="text: expired_at_formatted">
+                                <?= /** @noEscape */
+                                $gift_card['expired_at_formatted'] ?>
+                            </td>
+                            <td    data-th="Actions" class="col actions">
+
+                                <span x-data="{...hyva.modal()}" class="action view">
+                                     <?php
+                                     $modal = $modalViewModel->createModal()
+                                         ->addDialogClass('w-3/4 max-h-dialog relative')
+                                         ->removeDialogClass('max-h-screen')->withTemplate('Mageplaza_GiftCard::hyva/view_gift.phtml');
+                                     $modalBlock = $modal->getContentRenderer();
+                                     $modalBlock->setData('gift_card', $gift_card);
+                                     ?>
+                                    <?= $modal ?>
+
+                                    <span  @click="<?= $escaper->escapeHtmlAttr($modal->getShowJs()) ?>">
+                                        <span class="cursor-pointer">View</span>
+                                    </span>
+                                </span>
+                                <?php $canPrint = !!$gift_card['template_id'];
+                                if ($gift_card['status'] !== 1) {
+                                    $canPrint = false;
+                                }
+                                if ($gift_card['delivery_method'] !== 3) {
+                                    $canPrint = false;
+                                }
+                                if ($gift_card['delivery_address'] !== $giftCard['customerEmail']) {
+                                    $canPrint = false;
+                                }
+                                ?>
+                                <span class="action print cursor-pointer"
+                                      style="display: <?php /** @noEscape */ echo $canPrint ? 'inline-block' : 'none' ?>"
+                                      onclick="printGiftCard(<?=  /** @noEscape */ $giftCard['baseUrl']?>, <?= /** @noEscape */ $gift_card['giftcard_id'] ?>)"><span>
+                                    Print
+                                </span>
+                                </span>
+
+
+                                <span class="action redeem cursor-pointer"
+                                      x-data="{...hyva.modal()}"
+                                      style="display: <?php echo $gift_card['can_redeem'] ? 'inline-block' : 'none' ?>"
+                                      >
+                                      <?php $confirmation = $modalViewModel->confirm(__('Are you sure?')) ?>
+                                    <?= $confirmation ?>
+                                    <span @click="<?= $confirmation->getShowJs() ?>.then(result =>  result && handleRedeem('<?= /** @noEscape */ $gift_card['code'] ?>') )">
+
+                                    Redeem
+
+                                </span>
+                                </span>
+                                <span class="action remove cursor-pointer"
+                                      data-code="<?php echo $gift_card['code'] ?>">
+                                    <span>
+                                    Remove
+                                </span></span>
+                            </td>
+                        </tr>
+                        <!-- /ko -->
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <span data-bind="i18n: 'You have no saved gift card.'"><?= $escaper->escapeHtml(__('You have no saved gift card.'))?></span>
+            <?php endif; ?>
+
+        </div>
+    </div>
+    <?php if ($giftCard['isEnableCredit']): ?>
+        <div class="block block-gift-card" data-bind="blockLoader: isTransactionLoading">
+            <div class="block-title">
+                <strong id="block-giftcard-transaction-heading" role="heading" aria-level="2"
+                        data-bind="i18n: 'Credit transactions'"><?= $escaper->escapeHtml(__('Credit transactions'))?></strong>
+            </div>
+            <div class="block-content" aria-labelledby="block-gift-card-heading">
+                <?php if (count($giftCard['transactions']) > 0): ?>
+                    <table class="data table_gift_custom table table-giftcard-transaction history"
+                           id="giftcard-transaction-table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col id">#</th>
+                            <th scope="col" class="col date" ><?= $escaper->escapeHtml(__('Date'))?></th>
+                            <th scope="col" class="col action" ><?= $escaper->escapeHtml(__('Action'))?></th>
+                            <th scope="col" class="col amount" ><?= $escaper->escapeHtml(__('Amount'))?></th>
+                            <th scope="col" class="col detail" ><?= $escaper->escapeHtml(__('Detail'))?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <?php foreach ($giftCard['transactions'] as $transaction) : ?>
+                            <tr>
+                                <td class="col id" >
+                                    <?= /** @noEscape */
+                                    $transaction['transaction_id'] ?>
+                                </td>
+                                <td class="col date" >
+                                    <?= /** @noEscape */
+                                    $transaction['created_at_formatted'] ?>
+                                </td>
+                                <td class="col action" >
+                                    <?= /** @noEscape */
+                                    $transaction['action_label'] ?>
+                                </td>
+                                <td class="col amount" >
+                                    <?= /** @noEscape */
+                                    $transaction['amount_formatted'] ?>
+                                </td>
+                                <td class="col detail" >
+                                    <?= /** @noEscape */
+                                    $transaction['action_detail'] ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <span ><?= $escaper->escapeHtml(__('You have no transaction.'))?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($giftCard['notification']['enable']): ?>
+        <div class="block block-gift-card-setting" data-bind="blockLoader: isSettingLoading">
+            <div class="block-title">
+                <strong id="block-giftcard-setting-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Notification Settings'))?></strong>
+            </div>
+            <div class="block-content field choice">
+                <div class="field choice">
+                    <input type="checkbox" name="giftcard_notification"
+                           id="giftcard-notification"
+                           class="checkbox"
+                        <?php echo $giftCard['notification']['giftcardNotification'] ? 'checked' : '' ?>
+                           onchange="changeConfig(this,'giftcard_notification')"
+                    >
+                    <label class="label" for="giftcard-notification"><span><?= $escaper->escapeHtml(__('Gift Card Update Notification'))?></span></label>
+                </div>
+                <div class="field choice" data-bind="visible: creditNotificationEnable">
+                    <input type="checkbox" name="credit_notification"
+                           id="credit-notification"
+                           class="checkbox"
+                        <?php echo $giftCard['notification']['creditNotification'] ? 'checked' : '' ?>
+                           onchange="changeConfig(this,'credit_notification')"
+                    >
+                    <label class="label" for="credit-notification"><span><?= $escaper->escapeHtml(__('Update Balance Notification'))?></span></label>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+<style>
+    #giftcardContainer .block-title {
+        border-bottom: 1px solid #c6c6c6;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+    }
+
+    #giftcardContainer .block-title strong {
+        font-size: 1.4rem;
+        font-weight: 300;
+    }
+
+    #giftcardContainer .block-gift-card {
+        margin-bottom: 50px;
+    }
+
+    .table_gift_custom > tbody > tr > th, .table_gift_custom > tbody > tr > td {
+        border-top: 1px solid #cccccc;
+    }
+
+    .table_gift_custom {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        max-width: 100%;
+    }
+
+    .table_gift_custom > thead > tr > th,
+    .table_gift_custom > tbody > tr > th,
+    .table_gift_custom > tfoot > tr > th,
+    .table_gift_custom > thead > tr > td,
+    .table_gift_custom > tbody > tr > td,
+    .table_gift_custom > tfoot > tr > td {
+        padding: 11px 10px;
+    }
+
+    .table_gift_custom th {
+        text-align: left;
+    }
+
+    .table_gift_custom .col.actions .action:after {
+        border-left: 1px solid #a6a6a6;
+        content: '';
+        display: inline-block;
+        height: 12px;
+        margin: 0 10px;
+        vertical-align: -1px;
+    }
+
+    .gift-card-view .gift-card-view-detail .table-gift-card-detail td:nth-child(2n+1) {
+        width: 150px;
+        font-weight: 600;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+        let addBtn    = document.querySelector('.action.action-add');
+        let redeemBtn = document.querySelector('.action.action-redeem');
+        let checkBtn  = document.querySelector('.action.action-check');
+        let inputEl   = document.querySelector('#giftcode');
+
+        let removeBtns = document.querySelectorAll('.action.remove');
+
+        function handleChangeCode () {
+            checkBtn.style.display  = 'block';
+            addBtn.style.display    = 'none';
+            redeemBtn.style.display = 'none'
+        }
+
+        function handleAddAndRemoveList (code, isRemove) {
+            let dataSend = {
+                code: code,
+                isRemove: isRemove
+            };
+            fetch("<?= $block->escapeHtml($block->getUrl('mpgiftcard/index/addList')) ?>", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(dataSend)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(response => {
+                console.log(response);
+                if (response.errors) {
+                    dispatchMessages([
+                        {
+                            type: "error",
+                            text: response.message
+                        }
+                    ], 3000);
+                    return;
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        }
+
+        inputEl.addEventListener('input', handleChangeCode);
+        addBtn.addEventListener('click', () => {
+            handleAddAndRemoveList(inputEl.value, false);
+        });
+        redeemBtn.addEventListener('click',() => {
+            handleRedeem(inputEl.value);
+        });
+        removeBtns.forEach(rmBtn => {
+            rmBtn.addEventListener('click', () => {
+                let code = rmBtn.getAttribute("data-code");
+                handleAddAndRemoveList(code, true)
+            })
+        })
+    });
+
+    function showHideCode (e, code, hidden_code) {
+        let dataDisplay = (e.getAttribute('data-display'));
+        if (dataDisplay === 'hidden') {
+            e.innerHTML = code;
+            e.setAttribute('data-display', 'show');
+        } else {
+            e.innerHTML = hidden_code;
+            e.setAttribute('data-display', 'hidden');
+        }
+    }
+
+    function changeConfig (e, label) {
+        const data  = {};
+        data[label] = e.checked;
+        fetch("<?= $block->escapeHtml($block->getUrl('mpgiftcard/index/settings')) ?>", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            if (!responseData.error) {
+                dispatchMessages([
+                    {
+                        type: "success",
+                        text: responseData.message
+                    }
+                ], 2000);
+                window.location.reload();
+            } else {
+                dispatchMessages([
+                    {
+                        type: "error",
+                        text: responseData.message
+                    }
+                ], 2000);
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+
+    }
+
+
+    function initCheckCode () {
+        return {
+            errors: 0,
+            hasCaptchaToken: 0,
+            showPassword: false,
+            displayErrorMessage: false,
+            errorMessages: [],
+            setErrorMessages (messages) {
+                this.errorMessages       = [messages];
+                this.displayErrorMessage = this.errorMessages.length
+            },
+            submitForm () {
+                this.validate()
+                .then(() => {
+                    const code = document.querySelector('#giftcode').value;
+                    if (this.errors === 0) {
+                        this.dispatchCheckCode(code.trim());
+                    }
+                })
+                .catch((invalid) => {
+                    if (invalid.length > 0) {
+                        invalid[0].focus();
+                    }
+                });
+            },
+            dispatchCheckCode: function (code) {
+                const dataSend = {'code': code};
+
+                fetch("<?= $block->escapeHtml($block->getUrl('mpgiftcard/index/check')) ?>", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(dataSend)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    const form = document.querySelector('#check-code-form');
+                    if (response.errors) {
+                        let elMess       = document.createElement('div');
+                        elMess.className = 'message error';
+                        elMess.innerHTML = response.message;
+                        form.append(elMess);
+                        setTimeout(() => {
+                            elMess.remove();
+                        }, 8000);
+                        return;
+                    }
+                    let detail = response.detail;
+                    document.querySelector('#giftcode').value = code;
+
+                    response.message += '<table>';
+                    response.message += '<tr><td>' + 'Code' + '</td><td>' + detail.code + '</td></tr>';
+                    response.message +=
+                        '<tr><td>' + 'Active Balance' + '</td><td>' + detail.balance_formatted + '</td></tr>';
+                    response.message += '<tr><td>' + 'Status' + '</td><td>' + detail.status_label + '</td></tr>';
+
+                    if (detail.expired_at) {
+                        response.message +=
+                            '<tr><td>' + 'Expired At' + '</td><td>' + detail.expired_at_formatted + '</td></tr>';
+                    }
+                    response.message += '</table>';
+
+                    let elMess       = document.createElement('div');
+                    elMess.className = 'message success';
+                    elMess.innerHTML = '<span >' + response.message + '</span>';
+                    form.append(elMess);
+                    setTimeout(() => {
+                        elMess.remove();
+                    }, 8000);
+
+                    let addBtn             = document.querySelector('.action.action-add');
+                    let redeemBtn          = document.querySelector('.action.action-redeem');
+                    let checkBtn           = document.querySelector('.action.action-check');
+                    checkBtn.style.display = 'none';
+                    addBtn.style.display   = 'block';
+                    if (response.canRedeem) {
+                        redeemBtn.style.display = 'block'
+                    }
+
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+
+            }
+        }
+    }
+
+    function handleRedeem(code) {
+        const data  = {};
+        data['code'] = code;
+        fetch("<?= $block->escapeHtml($block->getUrl('mpgiftcard/index/redeem')) ?>", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            if (!responseData.error) {
+                dispatchMessages([
+                    {
+                        type: "success",
+                        text: responseData.message
+                    }
+                ], 2000);
+                window.location.reload();
+            } else {
+                dispatchMessages([
+                    {
+                        type: "error",
+                        text: responseData.message
+                    }
+                ], 2000);
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    }
+
+
+    function printGiftCard(baseUrl, id) {
+        var url = baseUrl + 'mpgiftcard/index/printPDF/?id=' + id;
+
+        window.location.assign(url, '_blank');
+    }
+
+</script>

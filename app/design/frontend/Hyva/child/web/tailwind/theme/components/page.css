@@ -1,0 +1,24 @@
+.table-row-items > div.table-row-item {
+    @apply bg-container-darker;
+
+    &:nth-child(2n + 1) {
+        @apply bg-container-lighter;
+    }
+}
+.whatsapp_a {
+    @apply !bottom-14 !right-1;
+}
+.ajax-cart-popup {
+    inset-block-end: auto;
+    inset-inline-start: auto;
+    -moz-box-shadow: 0 3px 10px rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, .5);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .5);
+    &::backdrop {
+         background-color: transparent;
+     }
+}
+.messages .message.success:has(a[href$="/checkout/cart/"]),
+.messages .message.success:has(a[href$="/checkout/cart"]) {
+    @apply hidden;
+}

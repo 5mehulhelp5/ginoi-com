@@ -1,0 +1,202 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Customer;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Hyva\Theme\ViewModel\StoreSwitcher;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Customer $customer */
+$customer = $viewModels->require(Customer::class);
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+
+$storeSwitcherViewModel = $viewModels->require(StoreSwitcher::class);
+
+$storeCode = $storeSwitcherViewModel->getStore()->getCode();
+
+$allDepartments = 'todos-los-departamentos';
+$securepayments = '';
+$shippinganddelivery = '';
+$returnsandrefunds = '';
+$sellonginoi = '';
+$advertwithginoi = '';
+
+switch ($storeCode) {
+    case 'us':
+        $allDepartments = 'all-departments';
+        $securepayments = 'payment-methods-us';
+        $shippinganddelivery = 'shipping-methods-us';
+        $returnsandrefunds = 'returns-refunds-us';
+        $sellonginoi = 'sell-on-ginoi-en';
+        $advertwithginoi = 'advert-ginoi-en';
+        break;
+    case 'co':
+        $securepayments = 'payment-methods-co';
+        $shippinganddelivery = 'shipping-methods-co';
+        $returnsandrefunds = 'returns-refunds-co';
+        $sellonginoi = 'sell-on-ginoi-es';
+        $advertwithginoi = 'advert-ginoi-es';
+        break;
+    case 've':
+        $securepayments = 'payment-methods-ve';
+        $shippinganddelivery = 'shipping-methods-ve';
+        $returnsandrefunds = 'returns-refunds-ve';
+        $sellonginoi = 'sell-on-ginoi-es';
+        $advertwithginoi = 'advert-ginoi-es';
+        break;
+}
+?>
+
+<div class="w-full flex flex-wrap">
+    <div class="w-full flex flex-wrap gap-8">
+        <div class="flex-1 min-w-[200px]">
+            <h2 class="text-md leading-5 font-semibold capitalize text-black interstate">
+                <?= $escaper->escapeHtml(__('Quick Access')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li>
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('customer/account/create')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Create an Account')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('customer/account')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('My Account')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('sales/order/history')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Your Orders')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($allDepartments)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Our Departments')) ?>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <h2 class="text-md leading-5 font-semibold capitalize text-black interstate">
+                <?= $escaper->escapeHtml(__('Shopping Info')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($securepayments)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Secure Payment Options')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($shippinganddelivery)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Shipping & Delivery')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($returnsandrefunds)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Returns & Refunds')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('gift-card.html')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Gift Cards')) ?>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <h2 class="text-md leading-5 font-semibold capitalize text-black interstate">
+                <?= $escaper->escapeHtml(__('Make Money with Us')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($sellonginoi)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Sell your products on Ginoi')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl($advertwithginoi)) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Advertise with Products')) ?>
+                    </a>
+                </li>
+            </ul>
+            <h2 class="mt-4 text-md leading-5 font-semibold capitalize text-black interstate">
+                <?= $escaper->escapeHtml(__('Follow Us')) ?>
+            </h2>
+            <ul class="mt-2 flex gap-4">
+                <li class="rounded-full w-9 h-9 bg-lightpurple p-0 border-0 inline-flex shrink-0 items-center justify-center hover:bg-purple text-white">
+                    <a title="Facebook" href="https://www.facebook.com/ginoimarketplace" target="_blank">
+                        <span class="posh fa fa-facebook icon-social"></span>
+                    </a>
+                </li>
+                <li class="rounded-full w-9 h-9 bg-lightpurple p-0 border-0 inline-flex shrink-0 items-center justify-center hover:bg-purple text-white">
+                    <a title="X, formerly Twitter" href="https://x.com/GinoiJewels" target="_blank">
+                        <svg version="1.1"
+                             id="Layer_1" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality"
+                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512"
+                             style="height:35px;" xml:space="preserve">
+                        <style type="text/css">
+                            .st0-twitter{fill:var(--primary-color);}
+                            .st1-twitter{fill:#FFFFFF;}
+                        </style>
+                        <path class="st0-twitter" d="M256,0c141.4,0,256,114.6,256,256S397.4,512,256,512S0,397.4,0,256S114.6,0,256,0z"/>
+                        <path class="st1-twitter" d="M318.6,157.5H352l-73,83.4l85.9,113.5h-67.2L245,285.6l-60.2,68.8h-33.4l78.1-89.2l-82.4-107.7H216l47.6,62.9
+                            L318.6,157.5L318.6,157.5z M306.9,334.5h18.5l-119.5-158h-19.9L306.9,334.5L306.9,334.5z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li class="rounded-full w-9 h-9 bg-lightpurple p-0 border-0 inline-flex shrink-0 items-center justify-center hover:bg-purple text-white">
+                    <a title="Instagram" href="https://www.instagram.com/ginoimarketplace/" target="_blank">
+                        <span class="posh fa fa-instagram icon-social"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <h2 class="text-md leading-5 font-semibold capitalize text-black interstate">
+                <?= $escaper->escapeHtml(__('Let Us Help You')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('faq')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Frequently Asked Questions')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('faq/article/faq-compras-guia-de-tallas')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Size Guide')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('contact')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Send a Message')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('atencion_cliente')) ?>" class="text-base leading-6 interstatelight">
+                        <?= $escaper->escapeHtml(__('Create a Support Ticket')) ?>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+            <?= $this->getLayout()->createBlock('Magento\Newsletter\Block\Subscribe')->setTemplate('Magento_Newsletter::subscribe.phtml')->toHtml(); ?>
+        </div>
+    </div>
+</div>
+
+

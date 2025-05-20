@@ -1,0 +1,24 @@
+<!--@subject {{trans "%subject." subject=$subject}} @-->
+<!--@vars
+{"var subject":"Subject of mail",
+"var messageVar":"Messaege for mail",
+"var orderLink":"Order link",
+"var orderIdVar":"Entity id",
+"var nameVar":"Name",
+"var emailVar":"Email",
+"store url=\"\"":"Store Url",
+"skin url=\"images/logo_email.gif\" _area='frontend'":"Email Logo Image"
+}
+@-->
+{{template config_path="design/email/header_template"}}
+<div>
+<p><u><b>{{var messageVar}}</b></u></p>
+<p>{{trans "Order Id : "}}<a href="{{var orderLink}}">{{var orderIdVar}}</a></p>
+<p>{{trans "Name : "}}{{var nameVar}}</p>
+<p>{{trans "Email : "}}{{var emailVar}}</p>
+</div>
+<!-- <div style="float: right;">
+    <img src="{{view url='Mageants_ReferAFriend/images/email.png'}}" height="400" width="300"/>
+</div> -->
+
+{{template config_path="design/email/footer_template"}}

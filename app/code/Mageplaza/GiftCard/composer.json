@@ -1,0 +1,29 @@
+{
+  "name": "mageplaza/module-gift-card",
+  "description": "Mageplaza Gift Card Extension",
+  "require": {
+    "mageplaza/module-core": "^1.5.7",
+    "twilio/sdk": "*",
+    "spipu/html2pdf": "*",
+    "picqer/php-barcode-generator": "*"
+  },
+  "type": "magento2-module",
+  "version": "4.5.0",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Mageplaza",
+      "email": "support@mageplaza.com",
+      "homepage": "https://www.mageplaza.com",
+      "role": "Technical Support"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Mageplaza\\GiftCard\\": ""
+    }
+  }
+}

@@ -1,0 +1,9 @@
+type Mutation {
+    whatsappcontact (
+        storeid: Int @doc(description: "Store Id")
+    ): Response @resolver(class: "Magecomp\\WhatsappcontactGraphql\\Model\\Resolver\\Whatsappcontactmanager")
+}
+type Response {
+    response: String @doc(description: "Data or message of api call")
+}
+

@@ -1,0 +1,156 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+// @codingStandardsIgnoreFile
+$modalViewModel = $viewModels->require(\Hyva\Theme\ViewModel\Modal::class);
+?>
+<?php /* @var \Mageplaza\GiftCard\Block\Product\View $block */ ?>
+
+<?php if ($block->isEnabled()) : ?>
+    <?php
+    $config      = $block->getProductConfig();
+    $information = ($config['information']);
+    ?>
+    <div class="giftcard-information-container" id="giftcard-information-container" data-bind="scope:'information'">
+        <div data-bind="afterRender: initEvent">
+            <input type="hidden" name="template" data-bind="value: activeTemplate().id">
+            <input type="hidden" name="image" data-bind="value: activeImage">
+            <input type="hidden" name="amount" data-bind="value: activeAmount().baseValue">
+            <input type="hidden" name="range_amount" data-bind="value: useRangeAmount() ? 1 : 0">
+            <input type="hidden" name="delivery" data-bind="value: activeDelivery().key">
+            <div class="giftcard-information giftcard-information-amount">
+                <div class="giftcard-field-label mt-1 mb-2" data-bind="i18n: 'Amount'"><?= $escaper->escapeHtml(__('Amount')) ?></div>
+                <div class="giftcard-field-wrapper">
+                    <ul class="giftcard-amount flex">
+
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="giftcard-information giftcard-information-delivery">
+                <!-- data-bind="visible: deliveries.length > 1"-->
+                <div class="giftcard-field-label mt-1 mb-2" data-bind="i18n: 'Delivery'"><?= $escaper->escapeHtml(__('Delivery')) ?></div>
+                <div class="giftcard-field-wrapper">
+                    <ul class="giftcard-delivery flex flex-wrap" data-bind="foreach: {data: deliveries, as: 'delivery'}">
+
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="giftcard-information-delivery-content fieldset"
+                 data-bind="foreach: {data: deliveryFields, as: 'field'}">
+
+            </div>
+            <div class="mp-giftcard-preview mt-3" x-data="{...hyva.modal(),init() {
+        window.openDialogPreview = function (event) {
+            this.show('the-modal-preview', event);
+        }.bind(this);
+       window.hideMyDialogPreview = function (event) {
+
+
+        }.bind(this);
+        }}">
+                <button type="button"
+                        class="mp-giftcard-preview-button btn"
+                        onclick="previewGiftCardEmail()"
+                        >
+                    <span> <?= /** @noEscape */ __('Preview Gift Card') ?> </span>
+                </button>
+                <?= $modalViewModel->createModal()
+                    ->withDialogRefName("the-modal-preview")
+                    ->withContent("<div id='dom-element-id' class='mt-2'>{$escaper->escapeHtml(__('Loading preview gift card...'))}</div>")
+                    ->addDialogClass('w-3/4 max-h-dialog relative')
+                    ->withAriaLabelledby('the-label')
+                    ->addDialogClass('border', 'border-1');
+                ?>
+            </div>
+        </div>
+    </div>
+
+<?php endif ?>
+<style>
+    .giftcard-design-button-container button {
+        color: #111;
+        white-space: normal;
+        padding: 5px 10px 5px 11px;
+        line-height: 19px;
+        width: auto;
+        text-align: center;
+        border: 1px solid #cccccc;
+        display: block;
+        font-size: 13px;
+        margin: 0;
+        outline: 0;
+        vertical-align: middle;
+        font-weight: normal;
+    }
+    .giftcard-design-button-container:not(:first-child)  {
+        margin-left: 10px;
+    }
+    .giftcard-design-button-container.active button {
+        border-color: #e77600;
+        background-color: #fef8f2;
+        font-weight: 600;
+    }
+    .giftcard-information-container .giftcard-field-wrapper .active input.giftcard-design-open-amount, .giftcard-information-container .giftcard-field-wrapper input.giftcard-design-open-amount:focus {
+        border-color: #e77600;
+        box-shadow: 0 0 3px 2px rgba(228, 121, 17, 0.5);
+    }
+.giftcard-information-container .giftcard-field-wrapper input.giftcard-design-open-amount {
+    width: 95px;
+    font-size: 12px;
+    background-color: #fff;
+    height: 30px;
+    padding: 3px 7px;
+    line-height: normal;
+    border: 1px solid #a6a6a6;
+    border-top-color: #949494;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.07000000000000001) inset;
+    outline: 0;
+}
+
+    .giftcard-field-wrapper input {
+        background: #ffffff;
+        background-clip: padding-box;
+        border: 1px solid #c2c2c2;
+        border-radius: 1px;
+        font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        height: 32px;
+        line-height: 1.42857143;
+        padding: 0 9px;
+        vertical-align: baseline;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .giftcard-information-container .giftcard-field-wrapper .note {
+        font-style: italic;
+        font-size: 12px;
+    }
+    .fieldset > .field.required > .label:after, .fieldset > .fields > .field.required > .label:after, .fieldset > .field._required > .label:after, .fieldset > .fields > .field._required > .label:after {
+        content: '*';
+        color: #e02b27;
+        font-size: 0.6rem;
+    }
+</style>
+<script>
+</script>

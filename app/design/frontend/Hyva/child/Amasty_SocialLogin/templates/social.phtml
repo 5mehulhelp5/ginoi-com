@@ -1,0 +1,112 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Social Login Hyva Compatibility
+ */
+
+use Amasty\SocialLogin\Block\Social;
+use Amasty\SocialLoginHyva\ViewModel\Logos;
+use Amasty\SocialLoginHyva\ViewModel\Popup as PopupViewModel;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+
+/** @var Social $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Logos $viewModelLogos */
+/** @var PopupViewModel $viewModelPopup */
+/** @var ScriptsViewModel $viewModelScripts */
+/** @var HeroiconsOutline $viewModelIcons */
+
+$viewModelLogos = $viewModels->require(Logos::class);
+$viewModelPopup = $viewModels->require(PopupViewModel::class);
+$viewModelIcons = $viewModels->require(HeroiconsOutline::class);
+$enabledSocials = $block->getEnabledSocials();
+$socialButtonsType = $block->getButtonShapeClass();
+$enabledLabels = $block->getButtonLabelState();
+$hasShowMoreLink = $block->getData('has_showmore_link');
+$isInModal = $block->getData('is_in_modal');
+?>
+<?php if (count($enabledSocials)): ?>
+    <span class="amsl-separator bg-gray-500 hidden text-secondary text-sm font-bold relative w-0.5">
+        <span
+            class="amsl-icon absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+                border border-gray-500 rounded-full bg-white overflow-hidden w-8 h-8
+                min-w-8 flex items-center justify-center pb-[3px]"
+        ><?= $escaper->escapeHtml(__('or'))?></span>
+    </span>
+    <div class="amsl-social-wrapper<?= $escaper->escapeHtmlAttr($enabledLabels ? ' with-labels' : '') ?>"
+        <?php if (!$isInModal): ?>
+            x-data="AmSocialLogin()"
+            x-init="initializeSocialLogin()"
+        <?php endif; ?>
+    >
+        <div class="amsl-social-login <?= ($enabledLabels && $socialButtonsType) ? '-labeled-buttons' : ''?>">
+            <template x-if="socialErrorMessage">
+                <p class="amsl-error -social message error mb-4" x-text="socialErrorMessage"></p>
+            </template>
+            <div class="amsl-buttons flex flex-wrap justify-center <?= ($enabledLabels && $socialButtonsType) ? 'gap-4' : 'gap-7'?>"
+                <?php if ($hasShowMoreLink): ?>
+                    :class="{'-show-all': canShowAllSocialIcons()}"
+                <?php endif; ?>
+            >
+                <?php foreach ($enabledSocials as $social): ?>
+                    <?php $buttonClassNames = '-' . $social['type'] . ' ' . $socialButtonsType; ?>
+                    <div
+                        class="amsl-button-wrapper
+                            <?= $escaper->escapeHtmlAttr($enabledLabels ? 'with-label w-full' : '') ?>"
+                    >
+                        <a
+                            class="amsl-button rounded-full overflow-hidden bg-white
+                                shadow-md hover:shadow-lg transition-amsl-social-button
+                                <?= $enabledLabels ? 'w-full h-12 p-2 flex items-center text-sm text-white' : 'block w-16 h-16 p-4' ?>
+                                <?= $escaper->escapeHtmlAttr($buttonClassNames) ?>"
+                            x-on:click="socialLoginClick($event)"
+                            href="<?= $escaper->escapeUrl($social['url']) ?>"
+                            title="<?= $escaper->escapeHtml(__('Sign in with %1', $social['label'])) ?>"
+                            role="link"
+                        >
+                            <span
+                                class="amsl-social-icon pointer-events-none <?= $enabledLabels ? 'p-1 rounded-sm overflow-hidden mr-3' : '' ?>"
+                                role="img"
+                                aria-label="<?= $escaper->escapeHtml(__('Sign in with %1', $social['label'])) ?>"
+                            >
+                                <?= $viewModelLogos->renderHtml($social['type']) ?>
+                            </span>
+                            <?php if ($socialButtonsType && $enabledLabels): ?>
+                                <span class="amsl-text pointer-events-none">
+                                    <?= $escaper->escapeHtml(__('Continue with %1', $social['label'])) ?>
+                                </span>
+                            <?php endif;?>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <?php if (count($enabledSocials) > 3 && $hasShowMoreLink): ?>
+                <div class="amsl-showmore mt-12 mb-6 text-sm flex justify-center bg-gray-300 h-px"
+                     x-show="!canShowAllSocialIcons()"
+                     x-cloak
+                >
+                    <button
+                        type="button"
+                        class="amsl-showmore-button flex items-center gap-1 text-blue-800 px-4
+                            py-2 bg-container-darker transform -translate-y-1/2"
+                        x-on:click="showAllSocialIcons()"
+                        role="button"
+                        :aria-expanded="socialIconsExpanded"
+                    >
+                        <?= $escaper->escapeHtml(__('Show More')) ?>
+                        <?= $viewModelIcons->chevronUpHtml('w-4 h-4 transform rotate-180') ?>
+                    </button>
+                </div>
+            <?php endif ?>
+        </div>
+    </div>
+    <?php /** if ajax popup enabled, these scripts are already added in authentication popup template */ ?>
+    <?php if (!$viewModelPopup->isPopupEnabled()): ?>
+        <?= $block->getBlockHtml('social-login-scripts.common') ?>
+    <?php endif; ?>
+    <?= $block->getBlockHtml('social-login-scripts.social') ?>
+<?php endif; ?>

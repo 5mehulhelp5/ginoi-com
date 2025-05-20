@@ -1,0 +1,1174 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Ajax Infinity Scroll Hyva Compatibility by Amasty
+ */
+
+use Amasty\Scroll\Block\Init;
+use Amasty\ScrollHyva\ViewModel\Config;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+
+/** @var Init $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+$heroIcons = $viewModels->require(HeroiconsSolid::class);
+$config = $viewModels->require(Config::class);
+?>
+
+<?php if ($block->isEnabled()): ?>
+        <?php
+    $options = $block->getConfig();
+    $object  = json_decode($options);
+    ?>
+    <style>
+        .amscroll-load-button {
+            color: white;
+            font-weight: bold;
+            background-color: <?= /* @noEscape */ $object->buttonColor ?>;
+        }
+
+        .amscroll-load-button:hover {
+            background-color: <?= /* @noEscape */ $object->buttonColorPressed ?>;
+        }
+    </style>
+    <script>
+        'use strict';
+
+        function initAmScroll() {
+            return {
+                options: {
+                    product_container: '.products.products-grid, .products.products-list, .products-grid.grid',
+                    product_link: '.product-item-link',
+                    footerSelector: '.page-footer'
+                },
+                type: 'auto',
+                is_loading: 0,
+                next_data_url: "",
+                prev_data_url: "",
+                next_data_cache: "",
+                flag_next_cache: 0,
+                prev_data_cache: "",
+                flag_prev_cache: 0,
+                pageFirst: 1,
+                pagesCount: 1,
+                pagesLoaded: [],
+                currentPage: 1,
+                last_scroll: 0,
+                disabled: 0,
+                additionalHeight: null,
+                classes: {
+                    loadButton: 'amscroll-load-button',
+                    loadingBlock: 'amscroll-loading-block',
+                    loadingIcon: 'amscroll-loading-icon',
+                    loadingIconSource: '#amscroll-loading-icon-source',
+                    svgPathToFill: 'amscroll-fill-path',
+                    backToTopButton: '#amscroll-back-to-top',
+                    active: '-amscroll-active',
+                    text: 'amscroll-text',
+                    animate: '-amscroll-animate',
+                    pageNumber: 'amscroll-page-num'
+                },
+                pageSelector: '[amscroll-page="%1"]',
+                lastPageSelector: '.amscroll-page, .amscroll-pages',
+                totalAmountSelector: '.toolbar-amount',
+                totalNumberSelector: '.toolbar-number',
+                toolbarSelector: '.toolbar.toolbar-products',
+                amPageCountSelector: '#am-page-count',
+                canShowAfter: false,
+                canShowBefore: false,
+                pagesBeforeButton: 0,
+                isReinitialized: false,
+                afterButton: null,
+                beforeButton: null,
+                insertedPages: 0,
+                afterStepBackData: null,
+                isBackToTopVisible: false,
+                backToTopTriggerHeight: 400,
+                loadingBlock: {
+                    before: {
+                        node: undefined,
+                        visible: false
+                    },
+                    after: {
+                        node: undefined,
+                        visible: false
+                    }
+                },
+                /**
+                 * @returns {void}
+                 */
+                processInit() {
+                    this.options = <?= /* @noEscape */ $block->getConfig() ?>;
+
+                    if (document.querySelectorAll(this.options.product_container).length) {
+                        this._initNodes();
+                        this.initialize();
+                    }
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _initNodes() {
+                    this.loadButtonElement = document.createElement('button');
+                    this.loadButtonElement.setAttribute('class', 'btn  ' + this.classes.loadButton);
+                    this.loadButtonElement.setAttribute('style', this.options['loadNextStyle']);
+
+                    this.loadButtonTextElement = document.createElement('span');
+                    this.loadButtonTextElement.setAttribute('class', this.classes.text);
+
+                    const loader = document.querySelector(this.classes.loadingIconSource);
+                    const productContainer = document.querySelector(this.options.product_container);
+                    if (!productContainer) {
+                        return;
+                    }
+                    const productContainerParent = productContainer.parentElement;
+                    this.loadingBlock.before.node = productContainerParent.insertBefore(
+                        loader.content.firstElementChild.cloneNode(true),
+                        productContainer
+                    );
+                    this.loadingBlock.after.node = productContainerParent.insertBefore(
+                        loader.content.firstElementChild.cloneNode(true),
+                        productContainerParent.lastChild
+                    );
+                },
+                /**
+                 * @returns {void}
+                 */
+                initialize() {
+                    this.next_data_cache = "";
+                    this.pagesLoaded = [];
+                    this._initPagesCount();
+                    this.disabled = 1;
+
+                    if (!this._validate()) {
+                        return;
+                    }
+
+                    this.disabled = 0;
+                    this.type = this.options['actionMode'];
+                    this.pagesBeforeButton = this.options['pages_before_button'];
+
+                    this.currentPage = this._getCurrentPage();
+                    this.pagesLoaded.push(this.currentPage);
+
+                    if (this.type === 'button') {
+                        this._generateButton('before');
+                        this._generateButton('after');
+                    }
+
+                    this._preloadPages();
+                    this._hideToolbars();
+                    this.initPageStepForwardListener(this.currentPage);
+                    this._pagePositionAfterStepBack();
+                },
+                /**
+                 * @private
+                 * @returns {boolean}
+                 */
+                _validate() {
+                    switch (true) {
+                        case !this.options['product_container'] || document.querySelectorAll(this.options['product_container']).length === 0 :
+                            console.warn('Please specify "Products Group" DOM selector in module settings.');
+                            return false;
+                        case !this.options['product_link'] || document.querySelectorAll(this.options['product_link']).length === 0 :
+                            console.warn('Please specify "Product Link" DOM selector in module settings.');
+                            return false;
+                        case !this.options['footerSelector'] || document.querySelectorAll(this.options['footerSelector']).length === 0 :
+                            console.warn('Please specify "Footer Selector" DOM selector in module settings.');
+                            return false;
+                        case this.pagesCount <= 1 :
+                            return false;
+                    }
+
+                    return true;
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _externalAfterAjax() {
+                    this.insertedPages++;
+                    try {
+                        if (document.getElementsByTagName('head')[0].innerHTML.indexOf('Infortis') > -1) {
+                            document.dispatchEvent('last-swatch-found');
+                        }
+
+                        if (this.insertedPages < this.pagesBeforeButton) {
+                            return;
+                        }
+
+                        if (this.type === 'auto' && this.options['origActionMode'] === 'combined') {
+                            this.changeType('button');
+                        }
+
+                        if (this.type === 'button' && this.options['origActionMode'] === 'combined_button_auto') {
+                            this.changeType('auto');
+                        }
+                    } catch (e) {
+                        console.warn(e);
+                    }
+                },
+                /**
+                 * @param {Node} productBlock
+                 * @returns {void}
+                 */
+                beforeInsertProductBlock(productBlock) {
+                    const formKey = hyva.getFormKey();
+                    productBlock.querySelectorAll('[name="form_key"]').forEach((item) => item.value = formKey);
+                },
+                /**
+                 * @param {string} requestUrl
+                 * @param  {callback} successCallback
+                 * @returns {void}
+                 */
+                doAjax(requestUrl, successCallback) {
+                    fetch(requestUrl, {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                        },
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            console.warn("GET request failed", response);
+                            this._stop();
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            this.preprocessRawAjaxResponse(successCallback, data);
+                        }
+                    });
+                },
+                /**
+                 * @param {callback} successCallback
+                 * @param {Object} response
+                 */
+                preprocessRawAjaxResponse(successCallback, response) {
+                    if (typeof response === 'string' || response instanceof String) {
+                        try {
+                            response = JSON.parse(response)
+                        } catch (e) {
+                            return this.handleUnexpectedResponse(response);
+                        }
+                    }
+
+                    if (response !== null
+                        && response.hasOwnProperty('categoryProducts')
+                        && response.hasOwnProperty('currentPage')
+                        && response.categoryProducts.trim().length !== 0
+                    ) {
+                        successCallback.call(this, response);
+                    } else {
+                        this.handleUnexpectedResponse(response);
+                    }
+                },
+                /**
+                 * @param {Object} response
+                 */
+                handleUnexpectedResponse(response) {
+                    console.warn('Amasty_Scroll: invalid response from server.', {response: response});
+                    this._stop();
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _initPagesCount() {
+                    const amPager = document.querySelector(this.amPageCountSelector);
+                    let parent;
+                    let childs;
+                    let limit;
+                    let allProducts;
+                    let result;
+
+                    this.pagesLoaded = [];
+
+                    if (amPager) {
+                        this.pagesCount = parseInt(amPager.innerHTML);
+                        return;
+                    }
+
+                    parent = document.querySelectorAll(this.totalAmountSelector)[0];
+
+                    if (parent) {
+                        childs = parent.querySelectorAll(this.totalNumberSelector);
+
+                        if (parent && childs.length >= 3) {
+                            limit = document.querySelector('.limiter-options').value;
+
+                            if (childs[2].textContent > 0 && limit) {
+                                allProducts = childs[2].textContent;
+                                result = Math.ceil(parseInt(allProducts) / parseInt(limit));
+
+                                if (result > 1) {
+                                    this.pagesCount = result;
+
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    this.pagesCount = 1;
+                },
+                /**
+                 * @param {string} type
+                 */
+                changeType(type) {
+                    if (this.isReinitialized) {
+                        return;
+                    }
+
+                    switch (type) {
+                        case 'button':
+                            this.type = 'button';
+                            this.$nextTick(() => {
+                                this._generateButton('before');
+                                this._generateButton('after');
+                            });
+                            break;
+                        case 'auto':
+                            this.type = 'auto';
+                            break;
+                    }
+
+                    this.isReinitialized = true;
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _preloadPages() {
+                    const productContainer = document.querySelector(this.options['product_container']);
+                    let pageNumEl;
+
+                    productContainer.setAttribute('amscroll-page', this.currentPage);
+                    productContainer.classList.add('amscroll-page');
+
+                    if (this.options['pageNumbers'] === '1') {
+                        pageNumEl = this._generatePageTitle(this.currentPage);
+
+                        if (pageNumEl) {
+                            productContainer.before(pageNumEl);
+                        }
+                    }
+
+                    this._preloadPageAfter(this.currentPage);
+                    this._preloadPageBefore(this.currentPage);
+                },
+                /**
+                 * @returns {number}
+                 * @private
+                 */
+                _getCurrentPage() {
+                    let currentPage = parseInt(this.options['current_page']);
+
+                    if (currentPage > this.pagesCount) {
+                        currentPage = this.pagesCount;
+                    }
+
+                    return currentPage;
+                },
+                /**
+                 * @private
+                 * @param {number} page
+                 * @returns {void}
+                 */
+                _preloadPageAfter(page) {
+                    const nextPage = page + 1;
+
+                    if (nextPage && nextPage <= this.pagesCount) {
+                        this.next_data_url = this._generateUrl(nextPage, 1);
+                        this.pagesLoaded.push(nextPage);
+                        this.flag_next_cache = 1;
+                        this.type !== 'button' && this.loadingBlock.after.node?.classList.remove('hidden');
+
+                        this.doAjax(this.next_data_url, (data) => {
+                            this.flag_next_cache = 0;
+                            this.next_data_cache = data;
+                            this.type !== 'button' && this.loadingBlock.after.node?.classList.add('hidden');
+                            this.showButton(this.afterButton);
+                        });
+
+                        this.next_data_url = '';
+                    }
+                },
+                /**
+                 * @private
+                 * @param {number} page
+                 * @returns {void}
+                 */
+                _preloadPageBefore(page) {
+                    const prevPage = page - 1;
+
+                    if (prevPage && prevPage >= 1) {
+                        this.prev_data_url = this._generateUrl(prevPage, 1);
+                        this.pagesLoaded.unshift(prevPage);
+                        this.flag_prev_cache = 1;
+                        this.type !== 'button' && this.loadingBlock.before.node?.classList.remove('hidden');
+
+                        this.doAjax(this.prev_data_url, (data) => {
+                            this.flag_prev_cache = 0;
+                            this.prev_data_cache = data;
+                            this.type !== 'button' && this.loadingBlock.before.node?.classList.add('hidden');
+                            this.showButton(this.beforeButton);
+                        });
+
+                        this.prev_data_url = '';
+                    }
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _stop() {
+                    this.disabled = 1;
+                    this._showToolbars();
+                    document.querySelector(`.${this.classes.loadingBlock}`).style.display = 'none';
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _getAdditionalBlockHeight() {
+                    if (this.additionalHeight === null) {
+                        let height = 0;
+                        const pageBottom = document.querySelectorAll('.page-bottom');
+                        const blockAfterProducts = document.querySelectorAll('.main .products ~ .block-static-block');
+
+                        if (blockAfterProducts.length) {
+                            height += blockAfterProducts.offsetHeight;
+                        }
+
+                        if (document.querySelectorAll(this.options.footerSelector).length) {
+                            document.querySelectorAll(this.options.footerSelector).forEach((footer) => {
+                                height += footer.offsetHeight;
+                            });
+                        }
+
+                        if (pageBottom.length > 0) {
+                            height += pageBottom[0].offsetHeight;
+                        }
+
+                        this.additionalHeight = height;
+                    }
+
+                    return this.additionalHeight;
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _initPaginator() {
+                    if (this.disabled) {
+                        return;
+                    }
+
+                    let scroll_pos = window.scrollY;
+                    let diff = document.querySelector('body').offsetHeight - window.innerHeight;
+
+                    diff -= this._getAdditionalBlockHeight();
+                    diff = 0.8 * diff;
+
+                    if (scroll_pos < this.lastScrollPos) {
+                        this.isScrolledBack = true;
+                    }
+
+                    this.lastScrollPos = scroll_pos;
+
+                    if (scroll_pos >= diff && this.is_loading === 0) {
+                        this._loadFollowing();
+                    }
+
+                    if (scroll_pos <= this._getTopContainersHeight() && (this.is_loading === 0 && this._isScrolledBack())) {
+                        this._loadPrevious();
+                    }
+
+                    this._calculateCurrentScrollPage(scroll_pos);
+
+                    document.addEventListener("DOMContentLoaded", (event) => {
+                        if (window.innerHeight > document.querySelector(this.options['product_container']).offsetHeight && '' !== this.next_data_url) {
+                            this._loadFollowing();
+                        }
+                    });
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _isScrolledBack() {
+                    return this.isScrolledBack;
+                },
+                /**
+                 * @param {number} scroll_pos
+                 * @private
+                 * @returns {void}
+                 */
+                _calculateCurrentScrollPage(scroll_pos) {
+                    if (Math.abs(scroll_pos - this.last_scroll) > window.innerHeight * 0.1) {
+                        this.last_scroll = scroll_pos;
+                        this._updateUrlAndCurrentPage();
+                    }
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _updateUrlAndCurrentPage() {
+                    const productContainers = document.querySelectorAll(this.options['product_container']);
+
+                    productContainers.forEach((container, index) => {
+                        if (this._mostlyVisible(container, index)) {
+                            var page = parseInt(container.getAttribute('amscroll-page'));
+
+                            if (page && page !== this.currentPage) {
+                                var newUrl = this._generateUrl(page, 0);
+
+                                if (!window.history.state || newUrl !== window.history.state.url) {
+                                    window.history.replaceState({url: newUrl}, '', newUrl);
+                                }
+
+                                this.currentPage = page;
+                            }
+
+                            return false;
+                        }
+                    });
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _loadFollowing() {
+                    if (this.flag_next_cache && this.type !== 'button') {
+                        this.loadingBlock.after.node?.classList.remove('hidden');
+                    }
+
+                    if (this.next_data_url !== "" || this.next_data_cache) {
+                        if (this.type !== 'button') {
+                            this.loadingBlock.after.node?.classList.remove('hidden');
+                        }
+
+                        if (this.next_data_cache) {
+                            this.showFollowing(this.next_data_cache);
+                        } else {
+                            if (!this.flag_next_cache) {
+                                this.is_loading = 1;
+
+                                this.doAjax(this.next_data_url, (data) => {
+                                    this.showFollowing(data);
+                                });
+                            }
+                        }
+                    }
+                },
+                /**
+                 * @param {Object} data
+                 * @returns {void}
+                 */
+                showFollowing(data) {
+                    if (data.categoryProducts) {
+                        if (this.type === 'button') {
+                            if (this.canShowAfter) {
+                                this.is_loading = 0;
+                                this.canShowAfter = false;
+                            } else {
+                                return;
+                            }
+                        }
+
+                        this.next_data_url = '';
+                        this.next_data_cache = false;
+                        this.loadingBlock.after.node?.classList.add('hidden');
+                        this._insertNewProductBlock(data, 'after');
+                        this._afterShowFollowing();
+                    }
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _afterShowFollowing() {
+                    const nextPage = this.pagesLoaded[this.pagesLoaded.length - 1] + 1;
+                    const afterShowFollowingEvent = new CustomEvent("amscroll-after-show-following");
+
+                    if (nextPage && nextPage <= this.pagesCount && this.pagesLoaded.indexOf(nextPage) === -1) {
+                        this.next_data_url = this._generateUrl(nextPage, 1);
+                        this.pagesLoaded.push(nextPage);
+                        this.flag_next_cache = 1;
+
+                        this.doAjax(this.next_data_url, (preview_data) => {
+                            this.flag_next_cache = 0;
+                            this.next_data_cache = preview_data;
+                            window.dispatchEvent(new Event('scroll'));
+                            this.showButton(this.afterButton);
+                        });
+                    }
+
+                    this.is_loading = 0;
+                    window.dispatchEvent(afterShowFollowingEvent);
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _loadPrevious() {
+                    if (this.flag_prev_cache && this.type !== 'button') {
+                        this.loadingBlock.before.node?.classList.remove('hidden');
+                    }
+
+                    if (this.prev_data_url !== "" || this.prev_data_cache) {
+                        if (this.type !== 'button') {
+                            this.loadingBlock.before.node?.classList.remove('hidden');
+                        }
+
+                        if (this.prev_data_cache) {
+                            this.showPrevious(this.prev_data_cache);
+                        } else {
+                            if (!this.flag_prev_cache) {
+                                this.is_loading = 1;
+
+                                this.doAjax(this.prev_data_url, (data) => {
+                                    this.showPrevious(data);
+                                });
+                            }
+                        }
+                    }
+                },
+                /**
+                 * @param {Object} data
+                 * @returns {void}
+                 */
+                showPrevious(data) {
+                    if (data.categoryProducts) {
+                        if (this.type === 'button') {
+                            if (this.canShowBefore) {
+                                this.is_loading = 0;
+                                this.canShowBefore = false;
+                            } else {
+                                return;
+                            }
+                        }
+
+                        this.prev_data_cache = false;
+                        this.prev_data_url = '';
+                        this.loadingBlock.before.node?.classList.add('hidden');
+                        this._insertNewProductBlock(data, 'before');
+                        this._afterShowPrevious();
+                    }
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _afterShowPrevious() {
+                    const prevPage = this.pagesLoaded[0] - 1;
+                    const afterShowPreviousEvent = new CustomEvent("amscroll-after-show-previous");
+
+                    if (prevPage && prevPage <= this.pagesCount && this.pagesLoaded.indexOf(prevPage) === -1) {
+                        this.prev_data_url = this._generateUrl(prevPage, 1);
+                        this.pagesLoaded.unshift(prevPage);
+                        this.flag_prev_cache = 1;
+
+                        this.doAjax(this.prev_data_url, (preview_data) => {
+                            this.flag_prev_cache = 0;
+                            this.prev_data_cache = preview_data;
+                            window.dispatchEvent(new Event('scroll'));
+                            this.showButton(this.beforeButton);
+                        });
+                    }
+
+                    this.is_loading = 0;
+                    window.dispatchEvent(afterShowPreviousEvent);
+                },
+                /**
+                 * @private
+                 * @param {string} position
+                 * @returns {void}
+                 */
+                _generateButton(position) {
+                    if (this.type !== 'button') {
+                        return;
+                    }
+
+                    if ((position === 'before' && this.pagesLoaded.indexOf(1) !== -1
+                        && (document.querySelector(this.pageSelector.replace('%1', this.pageFirst)) || this.currentPage === this.pageFirst))
+                    ) {
+                        return;
+                    }
+
+                    if (position === 'after' && this.pagesLoaded.indexOf(this.pagesCount) !== -1
+                        && (document.querySelector(this.pageSelector.replace('%1', this.pagesCount)) || this.currentPage === this.pagesCount)) {
+                        return;
+                    }
+
+                    const buttonElement = this.loadButtonElement.cloneNode(true);
+                    const textElement = this.loadButtonTextElement.cloneNode(true);
+                    const color = this.options['buttonColor'];
+                    const buttonSelector = `.${this.classes.loadButton}.-${position}`;
+
+                    textElement.textContent = this.options[`loading${position}TextButton`];
+
+                    buttonElement.append(textElement);
+                    // buttonElement.style.color = color;
+                    // buttonElement.style.borderColor = color;
+                    buttonElement.setAttribute('amscroll_type', position);
+                    buttonElement.classList.add(`-${position}`);
+                    buttonElement.style.didplay = 'none';
+
+                    if (position === 'after') {
+                        if (this.afterButton) {
+                            this.afterButton.remove();
+                        }
+                        this._insertBlockInTheEnd(buttonElement.outerHTML);
+                        this.afterButton = document.querySelector(buttonSelector);
+                    } else {
+                        if (this.beforeButton) {
+                            this.beforeButton.remove();
+                        }
+                        this._insertBlockInTheBegin(buttonElement.outerHTML);
+                        this.beforeButton = document.querySelector(buttonSelector);
+                    }
+
+                    this.$nextTick(() => {
+                        const buttons = document.querySelectorAll(`.${this.classes.loadButton}[amscroll_type="${position}"]`);
+
+                        buttons.forEach((button) => {
+                            if (!!button.dataset.amscrollHasEvent) {
+                                return;
+                            }
+
+                            button.addEventListener('click', (event) => {
+                                this.buttonClick(event);
+                            });
+
+                            button.dataset.amscrollHasEvent = true;
+                        });
+                    });
+                },
+                /**
+                 * @param {Node} buttonElement
+                 * @returns {void}
+                 */
+                showButton(buttonElement) {
+                    if (buttonElement) {
+                        buttonElement.style.display = 'block';
+                    }
+                },
+                /**
+                 * @param {Event} event
+                 * @returns {void}
+                 */
+                buttonClick(event) {
+                    const element = event.currentTarget;
+                    const type = element.getAttribute('amscroll_type');
+
+                    element.style.color = this.options['buttonColorPressed'];
+
+                    if (type === 'after') {
+                        this.canShowAfter = true;
+                        this._loadFollowing();
+                    } else {
+                        this.canShowBefore = true;
+                        this._loadPrevious();
+                    }
+
+                    this.$nextTick(() => {
+                        this._updateUrlAndCurrentPage();
+                    });
+                },
+                /**
+                 * @private
+                 * @param {Object} data
+                 * @param {string} position
+                 * @returns {void}
+                 */
+                _insertNewProductBlock(data, position) {
+                    let htmlData = data.categoryProducts;
+                    let tmp = document.createElement('div');
+                    tmp.innerHTML = htmlData;
+                    let html = tmp.querySelector('section');
+
+                    this._removeToolbars(html);
+                    const productContainer = html.querySelector(this.options['product_container']);
+                    productContainer.classList.add('amscroll-pages');
+                    productContainer.setAttribute('amscroll-page', data.currentPage);
+                    this.beforeInsertProductBlock(productContainer);
+
+                    if (this.options['pageNumbers'] == '1') {
+                        var pageNumEl = this._generatePageTitle(data.currentPage);
+                        if (pageNumEl) {
+                            productContainer.before(pageNumEl);
+                        }
+                    }
+
+                    if ('after' === position) {
+                        this.afterButton?.remove();
+                        this._moveScriptToTop(html);
+                        this._insertBlockInTheEnd(html.innerHTML);
+                    } else {
+                        this._moveScriptToTop(html);
+                        const element = this._insertBlockInTheBegin(html.innerHTML);
+                        const itemHeight = element !== undefined ? element.offsetHeight : 0;
+
+                        if (this.type != 'button') {
+                            window.scrollTo(0, window.scrollTop + itemHeight);
+                        }
+                    }
+
+                    this.$nextTick(() => {
+                        const currentProductContainer = document.querySelector(`.amscroll-pages[amscroll-page="${data.currentPage}"]`);
+                        this._addObserverToProductLink(currentProductContainer);
+
+                        if (this.type == 'button') {
+                            this._generateButton(position);
+                        }
+                    });
+
+                    this.initPageStepForwardListener(data.currentPage);
+                },
+                /**
+                 * @private
+                 * @param {Node} productContainer
+                 * @returns {void}
+                 */
+                _addObserverToProductLink(productContainer) {
+                    this._externalAfterAjax();
+                    const links = productContainer.querySelectorAll('.item a');
+
+                    links.forEach((link) => {
+                        link.addEventListener('click', (event) => {
+                            try {
+                                const parent = event.target.closest('.amscroll-pages');
+                                const page = parent ? parent.getAttribute('amscroll-page') : null;
+
+                                if (page) {
+                                    var newUrl = this._generateUrl(page, 0);
+                                    if (!window.history.state || newUrl !== window.history.state.url) {
+                                        window.history.replaceState(
+                                            {
+                                                url: newUrl
+                                            },
+                                            '',
+                                            newUrl
+                                        );
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn(e);
+                            }
+                        });
+                    });
+                },
+                /**
+                 * @private
+                 * @param {number} page
+                 * @param {number} addScroll
+                 * @returns {string}
+                 */
+                _generateUrl(page, addScroll) {
+                    const parameters = addScroll > 0 ? `p=${page}&is_scroll=${addScroll}` : `p=${page}`;
+                    const currentUrl = window.location.origin + window.location.pathname;
+                    const urlHasArgument = currentUrl.includes('?');
+                    const parameterType = urlHasArgument ? '&' : '?';
+                    const currentParameters = new URLSearchParams(window.location.search);
+                    const newParameters = new URLSearchParams(parameters);
+                    const newUrlParams = new URLSearchParams({
+                        ...Object.fromEntries(currentParameters),
+                        ...Object.fromEntries(newParameters)
+                    });
+
+                    return `${currentUrl}${parameterType}${newUrlParams}`;
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _hideToolbars() {
+                    document.querySelector(this.totalAmountSelector).style.display = 'none';
+                    document.querySelector('.products ~ ' + this.toolbarSelector).style.display = 'none';
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _showToolbars() {
+                    document.querySelector(this.totalAmountSelector).style.display = 'block';
+                    document.querySelector(`.products ~ ${this.toolbarSelector}`).style.display = 'block';
+                },
+                /**
+                 * @private
+                 * @param {number} page
+                 * @returns {HTMLDivElement|boolean}
+                 */
+                _generatePageTitle(page) {
+                    if (document.querySelector(`#amscroll-page-num${page}`)) {
+                        return false;
+                    }
+
+                    const pageNumEl = document.createElement('div');
+                    pageNumEl.setAttribute('class', `amscroll-page-num -amscroll-${this.options['pageNumberStyle']}`);
+                    pageNumEl.setAttribute('id', `#amscroll-page-num${page}`);
+                    pageNumEl.textContent = `${this.options['pageNumberContent']}${page}`;
+
+                    return pageNumEl;
+                },
+                /**
+                 * @private
+                 * @param {Node} element
+                 * @param {number} index
+                 * @returns {boolean}
+                 */
+                _mostlyVisible(element, index) {
+                    const visible = element.offsetParent !== null;
+                    const scroll_pos = window.scrollY;
+                    const window_height = window.innerHeight;
+                    const el_top = element.offsetTop;
+                    const el_height = element.offsetHeight;
+                    const el_bottom = el_top + el_height;
+
+                    const isVisible = ((el_bottom - el_height * 0.25 > scroll_pos)
+                        && (el_top < (scroll_pos + 0.5 * window_height))
+                        && visible) || (index == 0 && scroll_pos < el_top);
+
+                    return ((el_bottom - el_height * 0.25 > scroll_pos)
+                        && (el_top < (scroll_pos + 0.5 * window_height))
+                        && visible) || (index == 0 && scroll_pos < el_top);
+                },
+                /**
+                 * @private
+                 * @returns {number}
+                 */
+                _getTopContainersHeight() {
+                    if (!this.topContainersHeight) {
+                        let result = document.querySelector('.page-header').offsetHeight;
+                        if (document.querySelectorAll(".main .block-static-block ~ .products,  .main .block-static-block ~ #amasty-shopby-product-list").length) {
+                            result += document.querySelector(".main .block-static-block").offsetHeight;
+                        }
+                        this.topContainersHeight = 0.9 * result;
+                    }
+
+                    return this.topContainersHeight;
+                },
+                /**
+                 * @returns {void}
+                 */
+                resolveBackToTopVisibility() {
+                    if (this.options?.backToTop?.enabled !== '1') {
+                        return;
+                    }
+
+                    this.isBackToTopVisible = document.body.scrollTop > this.backToTopTriggerHeight
+                        || document.documentElement.scrollTop > this.backToTopTriggerHeight;
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _scrollToTop() {
+                    const items = document.querySelectorAll(`[amscroll-page="${currentPage}"] .product-item a`);
+
+                    items.forEach((item) => {
+                        item.addEventListener('click', (event) => {
+                            var scrollPositionAfterStepBackData = {
+                                pageUrl: this.getCurrentUrl(),
+                                clickedProductLink: event.currentTarget.attributes.href.value
+                            };
+
+                            hyva.getBrowserStorage().setItem('am-scroll-go-back-data', JSON.stringify(scrollPositionAfterStepBackData));
+                        });
+                    });
+                },
+                /**
+                 * @private
+                 * @param {Node} block
+                 * @returns {void}
+                 */
+                _insertBlockInTheEnd(block) {
+                    const productContainer = document.querySelectorAll(this.options['product_container']);
+                    productContainer[productContainer.length - 1].insertAdjacentHTML('afterend', block);
+                },
+                /**
+                 * @private
+                 * @param {Node} block
+                 * @returns {Node}
+                 */
+                _insertBlockInTheBegin(block) {
+                    const element = document.querySelector(`.${this.classes.pageNumber}`)
+                        ?? document.querySelector(this.options['product_container']);
+                    this.beforeButton?.remove();
+                    element.insertAdjacentHTML('beforebegin', block);
+
+                    return element;
+                },
+                /**
+                 * @returns {string}
+                 */
+                getCurrentUrl() {
+                    return location.href.split('?')[0];
+                },
+                /**
+                 * @returns {void}
+                 */
+                getSavedAfterStepBackData() {
+                    let savedData = hyva.getBrowserStorage().getItem('am-scroll-go-back-data');
+
+                    if (savedData) {
+                        savedData = JSON.parse(savedData);
+                        this.afterStepBackData = savedData;
+                        hyva.getBrowserStorage().removeItem('am-scroll-go-back-data');
+                    }
+
+                    return this.afterStepBackData;
+                },
+                /**
+                 * @param {number} currentPage
+                 */
+                initPageStepForwardListener(currentPage) {
+                    const items = document.querySelectorAll(`[amscroll-page="${currentPage}"] .product-item a`);
+
+                    items.forEach((item) => {
+                        item.addEventListener('click', (event) => {
+                            var scrollPositionAfterStepBackData = {
+                                pageUrl: this.getCurrentUrl(),
+                                clickedProductLink: event.currentTarget.attributes.href.value
+                            };
+
+                            hyva.getBrowserStorage().setItem('am-scroll-go-back-data', JSON.stringify(scrollPositionAfterStepBackData));
+                        });
+                    });
+                },
+                /**
+                 * @private
+                 * @returns {void}
+                 */
+                _pagePositionAfterStepBack() {
+                    const savedScrollData = this.getSavedAfterStepBackData();
+
+                    if (savedScrollData) {
+                        const productItem = document.querySelector(`a[href="${savedScrollData.clickedProductLink}"]`);
+                        history.scrollRestoration = 'auto';
+
+                        if (productItem) {
+                            history.scrollRestoration = 'manual';
+                            productItem.scrollIntoView();
+                        }
+                    }
+                },
+                <?php
+                /**
+                 * Extract all the script tags from the content.
+                 * Script tags won't execute when inserted into a dom-element directly,
+                 * therefore we need to inject them to the head of the document.
+                 */
+                ?>
+                /**
+                 * @private
+                 * @param {string} html
+                 */
+                _moveScriptToTop(html) {
+                    const htmlScripts = html.getElementsByTagName('script');
+
+                    if (htmlScripts.length > 0) {
+                        const scripts = [];
+                        for (let i = 0; i < htmlScripts.length; i++) {
+                            scripts.push(htmlScripts[i]);
+                        }
+
+                        for (let i = 0; i < scripts.length; i++) {
+                            let script = document.createElement('script');
+                            script.innerHTML = scripts[i].innerHTML;
+
+                            document.head.appendChild(script);
+                            scripts[i].parentNode.removeChild(scripts[i]);
+                        }
+                    }
+                },
+                /**
+                 * @private
+                 * @param {string} html
+                 */
+                _removeToolbars(html) {
+                    const contentToolbars = html.querySelectorAll(this.toolbarSelector);
+
+                    contentToolbars.forEach((toolbar) => {
+                        toolbar.previousElementSibling.remove();
+                        toolbar.remove();
+                    });
+                },
+                /**
+                 * @param {Node} elem
+                 * @param {string} selector
+                 * @returns {Element|null}
+                 */
+                getNext(elem, selector) {
+                    let nextElem = elem.nextElementSibling;
+
+                    if (!selector) {
+                        return nextElem;
+                    }
+
+                    if (nextElem && nextElem.matches(selector)) {
+                        return nextElem;
+                    }
+
+                    return null;
+                }
+            };
+        }
+    </script>
+
+    <div x-data="initAmScroll()"
+         x-init="processInit"
+         @scroll.window.debounce="_initPaginator()">
+        <div x-cloak
+             x-show="isBackToTopVisible"
+             @scroll.window.debounce="resolveBackToTopVisibility">
+            <button type="button"
+                    id="amscroll-back-to-top"
+                    class="fixed z-50 text-xl -rotate-90 text-white"
+                    :class="{
+                        'bottom-1 right-1 pt-1 pb-[6px] pr-2 pl-3': options.backToTop?.style_mobile !== 'arrow',
+                        'right-1 bottom-1 p-0 h-[44px] w-[44px]': options.backToTop?.style_mobile === 'arrow',
+                        'md:h-auto md:w-auto md:bottom-1 md:-right-1 md:pt-1 md:pb-[6px] md:pr-2 md:pl-3': options.backToTop?.style_desktop !== 'arrow',
+                        'md:right-1 md:bottom-1 md:h-[44px] md:w-[44px] md:p-0': options.backToTop?.style_desktop === 'arrow',
+                        'md:right-1 md:pt-2': options.backToTop?.style_desktop === 'edge'
+                    }"
+                    :style="`background-color: ${options.backToTop?.color ?? '#4776f0'};}`"
+                    @click="window.scrollTo({ top: 0, behavior: 'smooth'})">
+                <span :class="{
+                    'hidden': options.backToTop?.style_mobile === 'arrow',
+                    'inline-block': options.backToTop?.style_mobile !== 'arrow',
+                    'md:hidden': options.backToTop?.style_desktop === 'arrow',
+                    'md:inline-block': options.backToTop?.style_desktop !== 'arrow'
+                }">
+                    <?= $escaper->escapeHtml(__('Back to Top')) ?>
+                </span>
+                <span class="inline-block align-middle rounded-full border h-6 w-6"
+                      :class="{
+                        'relative border': options.backToTop?.style_mobile !== 'arrow',
+                        'border-0 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2': options.backToTop?.style_mobile === 'arrow',
+                        'md:relative md:border md:translate-x-0 md:translate-y-0 md:left-0 md:top-0': options.backToTop?.style_desktop !== 'arrow',
+                        'md:border-0 md:absolute md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2': options.backToTop?.style_desktop === 'arrow'
+                    }">
+                    <?= $heroIcons->chevronRightHtml('inline absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2') ?>
+                </span>
+            </button>
+            <template id="amscroll-loading-icon-source">
+                <div class="amscroll-loading-block hidden">
+                    <div class="amscroll-loading-icon animate-spin"
+                         style="background-image: url('<?= $escaper->escapeUrl($block->getViewFileUrl($config->getLoaderUrl())) ?>')"></div>
+                </div>
+            </template>
+
+        </div>
+    </div>
+<?php endif; ?>

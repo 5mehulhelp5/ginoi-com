@@ -1,0 +1,33 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Checkout\Block\Cart;
+use Magento\Framework\Escaper;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+?>
+
+<div class="w-full">
+    <div class="w-full xl:w-1/4 float-left xl:float-right xl:order-2 top-0 xl:sticky">
+        <h2 class="bg-violet-800 w-full text-center text-white uppercase h-12 leading-[48px] font-medium rounded-lg">
+            <?= $escaper->escapeHtml(__('Summary')) ?>
+        </h2>
+        <div class="my-4">
+            <?= $block->getChildHtml('cart.discount') ?>
+            <?= $block->getChildHtml('cart.summary') ?>
+        </div>
+    </div>
+    <div class="w-full xl:w-3/4 float-left xl:order-1 xl:pr-8">
+        <?= $block->getChildHtml('form_before') ?>
+        <?= $block->getChildHtml('cart-items') ?>
+        <?= $block->getChildHtml('checkout_cart_widget') ?>
+    </div>
+</div>

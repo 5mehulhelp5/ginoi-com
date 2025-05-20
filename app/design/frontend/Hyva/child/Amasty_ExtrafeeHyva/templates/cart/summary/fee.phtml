@@ -1,0 +1,61 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Extra Fee Hyva
+ */
+
+/**
+ * @var $block \Magento\Framework\View\Element\Template
+ */
+?>
+
+<template x-if="segment.code === 'amasty_extrafee'">
+    <div>
+        <?= /* @noEscape */
+        $block->getChildHtml('am.extrafee.summary.constants.js') ?>
+        <?= /* @noEscape */
+        $block->getChildHtml('am.extrafee.summary.js') ?>
+        <?= /* @noEscape */
+        $block->getChildHtml('am.extrafee.summary.collapsible.js') ?>
+
+        <div x-data="totalsComponent()" @update-totals.window="onUpdateHandler($event.detail)" x-show="isShow">
+            <template x-for="feeSection in amexFeeSections" :key="feeSection.id">
+                <template x-if="feeSection.isVisible">
+                    <div class="flex my-2 flex-wrap text-md lg:text-sm md:w-full" x-data="collapsibleComponent()">
+                        <!-- Toggle button -->
+                        <button @click="toggle" type="button" :aria-expanded="isOpen" class="flex justify-between items-center basis-full w-full pb-2 whitespace-nowrap
+                          cursor-pointer select-none">
+                            <h3 class="flex-1 text-left" x-text="feeSection.label"></h3>
+                            <div class="text-right" x-text="hyva.formatPrice(feeSection.amount)"></div>
+                            <span class="ml-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                     class="border border-violet-800 w-6 h-6 block" viewBox="0 0 24 24"
+                                     stroke="currentColor" focusable="false" style="color: #8b2692;">
+                                    <path x-show="!isOpen" stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2" d="M19 9l-7 7-7-7" style="display: none;"></path>
+                                    <path x-show="isOpen" stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <!-- End of Toggle button -->
+
+                        <div x-show="isOpen" x-cloak class="basis-full w-full justify-between pb-2">
+                            <template x-for="feeItem in amexFeeTotalItems">
+                                <div class="flex md:grid md:grid-cols-2 md:w-full">
+                                    <h3 class="w-7/12 text-left md:w-auto" x-html="feeItem.labels"></h3>
+                                    <div class="w-5/12 text-right md:w-auto" x-html="hyva.formatPrice(
+                                            feeSection.id === 'exclTax'
+                                                ? feeItem.amount_excl_tax
+                                                : feeItem.amount_incl_tax
+                                      )"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,198 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+use Hyva\Theme\ViewModel\Currency;
+use Hyva\Theme\ViewModel\StoreConfig;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $item */
+/** @var bool $isFirst */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItemViewModel->setBlock($block);
+
+$itemId = uniqid();
+$isFirst = $isFirst ?? false;
+$elems = isset($item['elems']) ? $item['elems'] : [];
+$fontWeight = '700';
+
+/** @var Currency $currencyViewModel */
+$currencyViewModel = $viewModels->require(Currency::class);
+
+$currencies = $currencyViewModel->getCurrencies();
+$currentCurrencyCode = $currencyViewModel->getCurrentCurrencyCode();
+
+/* MegaMenuAddon custom code */
+$storeConfigViewModel = $viewModels->require(StoreConfig::class);
+$walmartStyleEnabled = $storeConfigViewModel->getStoreConfig('ammegamenu/general/walmart_like_enabled') ?: false;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($walmartStyleEnabled): ?>
+    <li class="flex flex-col relative"
+    x-data="{ itemOpen: false }">
+    <div class="flex justify-between items-center ml-14 mr-5 mb-2">
+        <?php if (empty($elems)): ?>
+            <?php if (!isset($item['data-post']) && isset($item['url'])): ?>
+                <a class="flex items-center py-2 border-0 background-none break-anywhere text-start hover:text-[var(--ammenu-main-menu-text-hover)]"
+                   href="<?= $escaper->escapeHtmlAttr($item['url']); ?>"
+                   title="<?= $escaper->escapeHtmlAttr($item['name']); ?>">
+                    <span class="pr-2"
+                          :style="{
+                              'color': color_settings?.main_menu_text ?? '',
+                              'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>
+                          }">
+                        <?= $escaper->escapeHtml($item['name']) ?>
+                        <?php if ($item['id'] === 'wishlist'): ?>
+                            <span class="text-sm opacity-50" x-text="hyva.str('(%1)', wishlistCounter)"></span>
+                        <?php endif; ?>
+                    </span>
+                    <?php if (isset($item['counter'])): ?>
+                        (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                    <?php endif; ?>
+                </a>
+            <?php elseif (isset($item['data-post'])): ?>
+                <button role="link"
+                        class="flex items-center py-4 border-0 w-full background-none hover:text-[var(--ammenu-submenu-text-hover)]"
+                        aria-describedby="currency-heading"
+                        @click.prevent='hyva.postForm(<?= /* @noEscape */ $item['data-post'] ?>)'
+                >
+                    <span class="pr-2"
+                          :style="{
+                              'color': color_settings?.main_menu_text ?? '',
+                              'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>
+                          }">
+                        <?= $escaper->escapeHtml($item['name']) ?>
+                    </span>
+                    <?php if (isset($item['counter'])): ?>
+                        (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                    <?php endif; ?>
+                </button>
+            <?php else: ?>
+                <div class="flex items-center py-4 border-0 w-full background-none text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-submenu-text-hover)]">
+                    <span class="pr-2"
+                          :style="{'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>}">
+                            <?= $escaper->escapeHtml($item['name']) ?>
+                        </span>
+                    <?php if (isset($item['counter'])): ?>
+                        (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</li>
+<?php else: ?>
+    <li class="flex flex-col relative"
+        x-data="{ itemOpen: false }"
+        :style="{
+        backgroundColor: mobile_class === 'accordion' && itemOpen ? color_settings?.submenu_background_color : null
+    }">
+        <div class="flex justify-between items-center mx-4 <?php if ($isFirst): ?>border-t<?php endif; ?>"
+             <?php if ($isFirst): ?>:style="{ 'border-color': color_settings?.border ?? '' }"<?php endif; ?>
+            <?php if (!empty($elems)): ?>
+                @click.prevent="itemOpen = !itemOpen; if (mobile_class === 'drill' && isMobile) {
+            drillTabs.push('<?= $escaper->escapeJs($item['id']); ?>');
+            drillActiveId = '<?= $escaper->escapeJs($item['id']); ?>'
+            }"
+            <?php endif; ?>>
+            <?php if (empty($elems)): ?>
+                <?php if (!isset($item['data-post']) && isset($item['url'])): ?>
+                    <a class="flex items-center py-4 border-0 background-none break-anywhere text-start hover:text-[var(--ammenu-main-menu-text-hover)]"
+                       href="<?= $escaper->escapeHtmlAttr($item['url']); ?>"
+                       title="<?= $escaper->escapeHtmlAttr($item['name']); ?>">
+                    <span class="pr-2"
+                          :style="{
+                              'color': color_settings?.main_menu_text ?? '',
+                              'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>
+                          }">
+                        <?= $escaper->escapeHtml($item['name']) ?>
+                        <?php if ($item['id'] === 'wishlist'): ?>
+                            <span class="text-sm opacity-50" x-text="hyva.str('(%1)', wishlistCounter)"></span>
+                        <?php endif; ?>
+                    </span>
+                        <?php if (isset($item['counter'])): ?>
+                            (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                        <?php endif; ?>
+                    </a>
+                <?php elseif (isset($item['data-post'])): ?>
+                    <button role="link"
+                            class="flex items-center py-4 border-0 w-full background-none hover:text-[var(--ammenu-submenu-text-hover)]"
+                            aria-describedby="currency-heading"
+                            @click.prevent='hyva.postForm(<?= /* @noEscape */ $item['data-post'] ?>)'
+                    >
+                    <span class="pr-2"
+                          :style="{
+                              'color': color_settings?.main_menu_text ?? '',
+                              'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>
+                          }">
+                        <?= $escaper->escapeHtml($item['name']) ?>
+                    </span>
+                        <?php if (isset($item['counter'])): ?>
+                            (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                        <?php endif; ?>
+                    </button>
+                <?php else: ?>
+                    <div class="flex items-center py-4 border-0 w-full background-none text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-submenu-text-hover)]">
+                    <span class="pr-2"
+                          :style="{'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>}">
+                            <?= $escaper->escapeHtml($item['name']) ?>
+                        </span>
+                        <?php if (isset($item['counter'])): ?>
+                            (<span class="text-xs"><?= $escaper->escapeHtml($item['counter']) ?></span>)
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/item/button.phtml', [
+                    'item' => $item,
+                    'classes' => 'flex items-center py-4 text-start border-0 w-full background-none',
+                    'fontWeight' => $fontWeight,
+                    'attributes' => [
+                        ':class' => "{
+                        'text-[var(--ammenu-submenu-text-hover)]': mobile_class === 'accordion' && itemOpen && isMobile && !Boolean(". $isFirst ."),
+                        'text-[var(--ammenu-main-menu-text-hover)]': mobile_class === 'accordion' && itemOpen && isMobile && Boolean(". $isFirst ."),
+                        'text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-submenu-text-hover)]': !isMobile,
+                        'text-[var(--ammenu-main-menu-text)]': isMobile && !itemOpen
+                    }"
+                    ]
+                ]); ?>
+                <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/item/arrows.phtml', [
+                    'item' => $item
+                ]); ?>
+            <?php endif; ?>
+        </div>
+        <?php if (!empty($elems)): ?>
+            <template x-if="itemOpen && (mobile_class === 'accordion' || !isMobile && is_hamburger)">
+                <div class="flex flex-col flex-nowrap w-full pl-5">
+                    <?php if (isset($item['url'])): ?>
+                        <template x-if="!hide_view_all_link">
+                            <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                               title="<?= $escaper->escapeHtmlAttr(__("View All %1", $item['name'])) ?>"
+                               class="block w-full underline text-md hover:text-[var(--ammenu-submenu-text-hover)] pb-3 pt-6 break-anywhere">
+                                <?= $escaper->escapeHtml(__("View All %1", $item['name'])) ?>
+                            </a>
+                        </template>
+                    <?php endif; ?>
+                    <?php foreach ($item['elems'] as $key => $childItem): ?>
+                        <?= /** @noEscape */ $menuItemViewModel->fetchView('components/account_menu/submenu-item.phtml', ['item' => $childItem, 'isFirst' => false]); ?>
+                    <?php endforeach; ?>
+                </div>
+            </template>
+        <?php endif; ?>
+    </li>
+<?php endif; ?>

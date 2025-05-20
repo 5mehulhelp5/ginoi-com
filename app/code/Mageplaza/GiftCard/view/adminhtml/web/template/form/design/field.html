@@ -1,0 +1,197 @@
+<!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+ -->
+<hr class="mp-title-hr">
+<form class="giftcard-design-field" id="giftcard-design-field-<%- key %>" action="#">
+    <div class="template-design-field design-field-style">
+        <label><%- style_label %></label>
+        <div>
+            <% if (key !== "barcode") { %>
+            <div class="design-field-child">
+                <label class="design-field-label" for="design-field-<%- key %>-backgroundColor"><%- background_color %></label>
+                <input class="mp-color-picker" type="text" name="backgroundColor" id="design-field-<%- key %>-backgroundColor" value="<%- backgroundColor %>"/>
+                <div type="text" class="mpgiffcard-color-picker" id="<%- key %>-backgroundColor"><%- backgroundColor %></div>
+            </div>
+            <% } %>
+            <div class="design-field-child">
+                <input style="display: none" type="text" name="border" id="design-field-<%- key %>-border" value="<%- border %>"/>
+                <label class="design-field-label" for="design-field-<%- key %>-border"><%- border_type %></label>
+                <select name="border-type" id="select-<%- key %>-border" class="border-type">
+                    <option value="Solid">Solid</option>
+                    <option value="Dotted">Dotted</option>
+                    <option value="Dashed">Dashed</option>
+                </select>
+            </div>
+            <div class="design-field-child">
+                <label class="design-field-label" for="design-field-<%- key %>-borderColor"><%- border_color %></label>
+                <input class="mp-color-picker" type="text" name="borderColor" id="design-field-<%- key %>-borderColor" value="<%- borderColor %>"/>
+                <div type="text" class="mpgiffcard-color-picker" id="<%- key %>-borderColor"><%- borderColor %></div>
+            </div>
+            <div class="design-field-child">
+                <span class="input-unit unit-top">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-borderWidth"><%- border_width %></label>
+                <input type="text" name="borderWidth" id="design-field-<%- key %>-borderWidth"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- borderWidth %>"/>
+            </div>
+            <div class="design-field-child">
+                <span class="input-unit unit-top">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-borderRadius"><%- border_radius %></label>
+                <input type="text" name="borderRadius" id="design-field-<%- key %>-borderRadius"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- borderRadius %>"/>
+            </div>
+            <div class="mp-clear"></div>
+        </div>
+    </div>
+    <% if (key !== "giftcard" && key !== "image" && key !== "logo") { %>
+    <hr class="mp-hr">
+    <div class="template-design-field design-field-text">
+        <label><%- text_label %></label>
+        <div>
+            <div class="design-field-child" style="margin-left: 16%;">
+                <div id="design-field-<%- key %>-styleText" title="" role="toolbar" data-alloy-tabstop="true" tabindex="-1" class="tox-toolbar__group" style="min-width: 260px">
+                    <div class="font-style-text" style="display: flex">
+                        <input class="style-bold" style="display: none" type="text" name="bold" id="design-field-<%- key %>-bold" value="<%- bold %>"/>
+                        <button aria-label="Bold" title="Bold" type="button" tabindex="-1" class="bold tox-tbtn" aria-disabled="false" aria-pressed="false">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M7.8 19c-.3 0-.5 0-.6-.2l-.2-.5V5.7c0-.2 0-.4.2-.5l.6-.2h5c1.5 0 2.7.3 3.5 1 .7.6 1.1 1.4 1.1 2.5a3 3 0 01-.6 1.9c-.4.6-1 1-1.6 1.2.4.1.9.3 1.3.6s.8.7 1 1.2c.4.4.5 1 .5 1.6 0 1.3-.4 2.3-1.3 3-.8.7-2.1 1-3.8 1H7.8zm5-8.3c.6 0 1.2-.1 1.6-.5.4-.3.6-.7.6-1.3 0-1.1-.8-1.7-2.3-1.7H9.3v3.5h3.4zm.5 6c.7 0 1.3-.1 1.7-.4.4-.4.6-.9.6-1.5s-.2-1-.7-1.4c-.4-.3-1-.4-2-.4H9.4v3.8h4z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                        <input class="text-italic" style="display: none" type="text" name="italic" id="design-field-<%- key %>-italic" value="<%- italic %>"/>
+                        <button aria-label="Italic" title="Italic" type="button" tabindex="-1" class="italic tox-tbtn" aria-disabled="false" aria-pressed="false">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M16.7 4.7l-.1.9h-.3c-.6 0-1 0-1.4.3-.3.3-.4.6-.5 1.1l-2.1 9.8v.6c0 .5.4.8 1.4.8h.2l-.2.8H8l.2-.8h.2c1.1 0 1.8-.5 2-1.5l2-9.8.1-.5c0-.6-.4-.8-1.4-.8h-.3l.2-.9h5.8z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                        <input class="text-underline" style="display: none" type="text" name="underline" id="design-field-<%- key %>-underline" value="<%- underline %>"/>
+                        <button aria-label="Underline" title="Underline" type="button" tabindex="-1" class="underline tox-tbtn" aria-disabled="false" aria-pressed="false">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M16 5c.6 0 1 .4 1 1v5.5a4 4 0 01-.4 1.8l-1 1.4a5.3 5.3 0 01-5.5 1 5 5 0 01-1.6-1c-.5-.4-.8-.9-1.1-1.4a4 4 0 01-.4-1.8V6c0-.6.4-1 1-1s1 .4 1 1v5.5c0 .3 0 .6.2 1l.6.7a3.3 3.3 0 002.2.8 3.4 3.4 0 002.2-.8c.3-.2.4-.5.6-.8l.2-.9V6c0-.6.4-1 1-1zM8 17h8c.6 0 1 .4 1 1s-.4 1-1 1H8a1 1 0 010-2z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="text-alignment">
+                        <input class="text-align" style="display: none" type="text" name="align" id="design-field-<%- key %>-align" value="<%- align %>"/>
+                        <button aria-label="Align left" title="Align left" type="button" tabindex="-1" class="tox-tbtn left" aria-disabled="false" aria-pressed="false" value="left">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M5 5h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 110-2zm0 4h8c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 110-2zm0 8h8c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 010-2zm0-4h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 010-2z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                        <button aria-label="Align center" title="Align center" type="button" tabindex="-1" class="center tox-tbtn" aria-disabled="false" aria-pressed="false" value="center">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M5 5h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 110-2zm3 4h8c.6 0 1 .4 1 1s-.4 1-1 1H8a1 1 0 110-2zm0 8h8c.6 0 1 .4 1 1s-.4 1-1 1H8a1 1 0 010-2zm-3-4h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 010-2z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                        <button aria-label="Align right" title="Align right" type="button" tabindex="-1" class="right tox-tbtn" aria-disabled="false" aria-pressed="false" value="right">
+                            <span class="tox-icon tox-tbtn__icon-wrap">
+                                <svg width="24" height="24" focusable="false"><path d="M5 5h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 110-2zm6 4h8c.6 0 1 .4 1 1s-.4 1-1 1h-8a1 1 0 010-2zm0 8h8c.6 0 1 .4 1 1s-.4 1-1 1h-8a1 1 0 010-2zm-6-4h14c.6 0 1 .4 1 1s-.4 1-1 1H5a1 1 0 010-2z" fill-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="design-field-child">
+                <span class="input-unit unit-top">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-fontSize"><%- text_size %></label>
+                <input class="fontSize" type="text" name="fontSize" id="design-field-<%- key %>-fontSize"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- fontSize %>"/>
+            </div>
+            <div class="design-field-child">
+                <label class="design-field-label" for="design-field-<%- key %>-textColor"><%- text_color %></label>
+                <input class="mp-color-picker textColorInput" type="text" name="textColor" id="design-field-<%- key %>-textColor" value="<%- textColor %>"/>
+                <div type="text" class="mpgiffcard-color-picker textColor" id="<%- key %>-textColor"><%- textColor %></div>
+            </div>
+            <div class="mp-clear"></div>
+        </div>
+    </div>
+    <% } %>
+    <hr class="mp-hr">
+    <div class="template-design-field design-field-size">
+        <label><%- size_label %></label>
+        <div class="tow-colums">
+            <div class="design-field-child">
+                <span class="input-unit size-position">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-width"><%- width_label %></label>
+                <input type="text" name="width" id="design-field-<%- key %>-width"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- width %>"/>
+            </div>
+            <div class="design-field-child">
+                <span class="input-unit size-position">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-height"><%- height_label %></label>
+                <input type="text" name="height" id="design-field-<%- key %>-height"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- height %>"/>
+            </div>
+            <div class="mp-clear"></div>
+        </div>
+    </div>
+    <% if (key !== "giftcard") { %>
+    <div class="template-design-field design-field-position">
+        <label><%- position_label %></label>
+        <div class="tow-colums">
+            <div class="design-field-child">
+                <span class="input-unit size-position">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-top"><%- top_label %></label>
+                <input type="text" name="top" id="design-field-<%- key %>-top"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- top %>"/>
+            </div>
+            <div class="design-field-child">
+                <span class="input-unit size-position">px</span>
+                <label class="design-field-label" for="design-field-<%- key %>-left"><%- left_label %></label>
+                <input type="text" name="left" id="design-field-<%- key %>-left"
+                       data-validate="{'required-entry':true, 'validate-zero-or-greater': true}" value="<%- left %>"/>
+            </div>
+            <div class="mp-clear"></div>
+        </div>
+    </div>
+    <% } %>
+    <div class="template-design-field design-field-custom-css" style="display: none">
+        <label class="design-field-label" for="design-field-<%- key %>-css"><%- css_label %></label>
+        <textarea name="css" class="design-field-css" id="design-field-<%- key %>-css"><%- typeof(css)!== 'undefined' ?  css : '' %></textarea>
+        <p class="note">Ex: background-color: #FFF; border-radius: 5px</p>
+    </div>
+</form>
+<hr class="mp-title-hr">
+<script type="text/javascript">
+    require(["jquery"], function ($) {
+        $(document).ready(function () {
+            var align = $(".text-align").val() || 'left';
+            $('.text-alignment button.' + align).addClass('selected');
+            var styleText = $('.font-style-text');
+            styleText.find('input').each(function (){
+                if ($(this).val() !== '') {
+                    $(this).next().addClass('selected');
+                }
+            });
+
+            styleText.find("button").each(function () {
+                $(this).click(function () {
+                    let input = $(this).prev();
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        input.val('');
+                    } else {
+                        $(this).addClass('selected');
+                        input.val(input.attr('name'));
+                    }
+                });
+            });
+        });
+    });
+</script>

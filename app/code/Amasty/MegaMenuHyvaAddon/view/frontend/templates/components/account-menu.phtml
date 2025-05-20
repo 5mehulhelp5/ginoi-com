@@ -1,0 +1,136 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Amasty\MegaMenuLiteHyva\ViewModel\ConfigData;
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\Customer;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+use Hyva\Theme\ViewModel\StoreConfig;
+
+/**
+ * @var Container $block
+ * @var Escaper $escaper
+ * @var ViewModelRegistry $viewModels
+ * @var DesktopMenuItem $menuItemViewModel
+ **/
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $item */
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+$customer = $viewModels->require(Customer::class);
+
+/** @var ConfigData $configData */
+$configData = $viewModels->require(ConfigData::class);
+
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItemViewModel->setBlock($block);
+$tabNameAccount = $escaper->escapeHtmlAttr($configData::TAB_NAME_ACCOUNT);
+
+/* MegaMenuAddon custom code */
+$storeConfigViewModel = $viewModels->require(StoreConfig::class);
+$walmartStyleEnabled = $storeConfigViewModel->getStoreConfig('ammegamenu/general/walmart_like_enabled') ?: false;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($walmartStyleEnabled) : ?>
+<aside class="bg-[var(--ammenu-main-menu-background)] font-normal text-base mb-6 pb-3 border-b-2 border-[#c0a1cc]"
+       x-show="isMobile"
+       role="menubar" data-action="amMenuMenubar">
+
+<!--    <div class="flex gap-2 items-center card rounded text-sm ml-14 mb-3 mr-6 p-4 justify-start w-auto bg-amber-100">-->
+<!--        <span class="-rotate-45 -scale-x-100 scale-y-100">--><?php //= /** @noEscape */ $heroIcons->handHtml(); ?><!--</span>-->
+<!--        <template x-if="!settings.account.is_logged_in">-->
+<!--            <span class="font-normal" x-text="welcome_message.message"></span>-->
+<!--        </template>-->
+<!--        <template x-if="settings.account.is_logged_in">-->
+<!--            <span class="font-normal" x-html="hyva.str('Welcome, %1', `<strong>${customerName}</strong>`)"></span>-->
+<!--        </template>-->
+<!--    </div>-->
+
+        <nav class="flex flex-col pl-14 pr-5 mobile-customer-menu mb-2 customer-menu-image"
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Account Menu')); ?>">
+            <?php if ($customer->customerLoggedIn()): ?>
+                <?= $this->getLayout()->getBlock('header.customer.logged.in.links')->toHtml(); ?>
+            <?php else: ?>
+                <?= $this->getLayout()->getBlock('header.customer.logged.out.links')->toHtml(); ?>
+            <?php endif; ?>
+        </nav>
+
+    <!-- Language Selector -->
+    <div class="flex items-center gap-2 w-full pl-14 pr-5">
+        <?= $this->getLayout()->createBlock('Magento\Store\Block\Switcher')
+            ->setTemplate('Amasty_MegaMenuHyvaAddon::components/account_menu/languages.phtml')->toHtml(); ?>
+    </div>
+    <!-- Currency Selector -->
+    <div class="flex items-center gap-2 w-full pl-14 pr-5">
+        <?= $this->getLayout()->createBlock('Magento\Directory\Block\Currency')
+            ->setTemplate('Amasty_MegaMenuHyvaAddon::components/account_menu/currency.phtml')->toHtml(); ?>
+    </div>
+
+</aside>
+<?php else: ?>
+<aside class="bg-[var(--ammenu-main-menu-background)] box-content fixed z-50 font-normal text-base shadow-lg pt-5 top-0 left-0 h-full"
+       :class="{
+           'w-80': !isMobile && is_hamburger,
+           'w-[95vw] max-w-lg overflow-y-auto': isMobile
+       }"
+       x-show="open"
+       x-transition:enter="transition ease-in-out duration-500 transform"
+       x-transition:enter-start="-translate-x-12 opacity-0 duration-700"
+       x-transition:enter-end="translate-x-0 opacity-100"
+       x-transition:leave="transition ease-in-out duration-500"
+       x-transition:leave-start="opacity-100 translate-x-0"
+       x-transition:leave-end="opacity-0 -translate-x-12"
+       role="navigation"
+       x-cloak>
+
+    <h2 class="aside-title p-4 mb-4 flex justify-between items-center text-2xl">
+        <span class="text-[var(--ammenu-main-menu-text)]" x-text="mobile_menu_title"></span>
+        <button @click="open = false" type="button" class="hover:text-black text-[var(--ammenu-toggle-icon-color)]">
+            <?= /** @noEscape */ $heroIcons->xHtml(''); ?>
+        </button>
+    </h2>
+
+    <?= /** @noEscape */ $menuItemViewModel->fetchView('components/tab-menu-wrapper.phtml') ?>
+
+    <div class="flex gap-2 items-center card rounded text-sm m-4 p-4 justify-start w-auto bg-amber-100">
+        <span class="-rotate-45 -scale-x-100 scale-y-100"><?= /** @noEscape */ $heroIcons->handHtml(); ?></span>
+        <template x-if="!settings.account.is_logged_in">
+            <span class="font-normal" x-text="welcome_message.message"></span>
+        </template>
+        <template x-if="settings.account.is_logged_in">
+            <span class="font-normal" x-html="hyva.str('Welcome, %1', `<strong>${customerName}</strong>`)"></span>
+        </template>
+    </div>
+
+    <template x-if="open">
+        <nav class="flex flex-col"
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Account Menu')); ?>">
+
+            <ul class="flex flex-col flex-nowrap mb-6" role="menubar" data-action="amMenuMenubar">
+                <?php foreach ($menuItemViewModel->getAccountWrapperItems() as $item): ?>
+                    <template x-if="isMobile">
+                        <?= /** @noEscape */
+                        $menuItemViewModel->fetchView('components/account_menu/submenu-item.phtml', ['item' => $item, 'isFirst' => true]) ?>
+                    </template>
+                    <template x-if="!isMobile && is_hamburger">
+                        <?= /** @noEscape */
+                        $menuItemViewModel->fetchView('components/account_menu/hamburger_menu/submenu-item.phtml', ['item' => $item]) ?>
+                    </template>
+                <?php endforeach; ?>
+            </ul>
+
+            <!-- Menu Pro / Drill -->
+            <?= /** @noEscape */ $block->getChildHtml('ammenu.menu.account.drill'); ?>
+            <!-- /Menu Pro -->
+        </nav>
+    </template>
+</aside>
+<?php endif; ?>

@@ -1,0 +1,988 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\Search\Helper\Data as SearchHelper;
+use Mirasvit\SearchAutocomplete\Block\Injection;
+use Mirasvit\SearchAutocomplete\Model\ConfigProvider;
+
+/**
+ * @var Escaper           $escaper
+ * @var SearchHelper      $helper
+ * @var Injection         $block
+ * @var ViewModelRegistry $viewModels
+ */
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+$helper             = $this->helper(SearchHelper::class);
+$config             = $block->getJsConfig();
+$layoutFull         = ConfigProvider::LAYOUT_IN_PAGE === $config['layout'];
+$filterOnTop        = ConfigProvider::ON_TOP === $block->getLayeredNavigationPosition();
+$filterInSidebar    = ConfigProvider::IN_SIDEBAR === $block->getLayeredNavigationPosition();
+$layoutTwoColumns   = (ConfigProvider::LAYOUT_2_COLUMNS === $config['layout'])
+    || ((ConfigProvider::LAYOUT_IN_PAGE === $config['layout']) && $filterInSidebar);
+$paginationPosition = $block->getPaginationPosition();
+/** @var HeroiconsOutline $heroicons */
+$heroicons          = $viewModels->require(HeroiconsOutline::class);
+
+$titleCSS = 'text-lg leading-normal transition appearance-none text-gray-800 lg:text-xl border-b border-100 p-2 flex';
+$itemCSS  = 'mst-searchautocomplete__item flex flex-row text-base card p-1';
+?>
+
+<?php /** Main Search Area */ ?>
+<div class="mx-auto text-black" :class="{'card' : layoutFull}" x-data="initMirasvitSearch()" @click.x-show="isContainerOpen">
+    <div class="relative">
+        <form class="form minisearch relative" :class="{'flex justify-between' : layoutFull}" id="search_mini_form" action="<?= $escaper->escapeUrl($helper->getResultUrl()) ?>"
+              method="get" autocomplete="off">
+            <label class="hidden" for="search" data-role="minisearch-label">
+                <span><?= $escaper->escapeHtml(__('Search')) ?></span>
+            </label>
+            <template x-if="layoutFull">
+                <span @click="closeSearch" class="text-gray-400 left-0 p-3">
+                    <?= $heroicons->searchHtml('text-gray-400', 40, 40); ?>
+                </span>
+            </template>
+
+            <input id="search" x-ref="searchInput" type="search"
+                   name="<?= $escaper->escapeHtmlAttr($helper->getQueryParamName()) ?>"
+                   value="<?= $escaper->escapeHtmlAttr($helper->getEscapedQueryText()) ?>"
+                   placeholder="<?= $escaper->escapeHtmlAttr(__('Search entire store here...')) ?>"
+                   maxlength="<?= $escaper->escapeHtmlAttr($helper->getMaxQueryLength()) ?>"
+                   class="w-full p-2 text-lg leading-normal transition appearance-none text-gray-800 focus:outline-none focus:border-transparent lg:text-xl rounded-full"
+                   :class="{'border-0 outline-0 shadow-none ring-0 ring-offset-0 focus:shadow-none': layoutFull}"
+                   x-on:search-open.window.debounce.20="$el.focus(); $el.select()"
+                   x-on:search-open.window.debounce.100="startSearch($refs.searchInput.value)"
+                   x-on:search-open.window.debounce.150="openSearch"
+                   x-on:search-open.window.debounce.300="doSearch($refs.searchInput.value)"
+                   x-on:keydown.debounce.100="startSearch($refs.searchInput.value)"
+                   x-on:click.debounce.150="openSearch"
+                   x-on:keyup.debounce.300="doSearch($refs.searchInput.value)"/>
+                   <div class="search-icon bg-purple absolute top-0 right-0">
+                       <img src="<?= $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/search-icon.png')?>">
+                   </div>
+
+            <template x-if="layoutFull">
+                <div class="right-0 top-0 p-3 flex">
+                    <div class="mstInPage__indexList items-center hidden lg:flex text-base lg:text-lg">
+                        <div>
+                            <a class="mstInPage__viewAll whitespace-nowrap mr-10 text-blue-500 no-underline"
+                               x-show="searchResults['magento_catalog_product']"
+                               :href="numberResultsUrl">
+                                <?= $escaper->escapeHtml(__('View all results →')) ?>
+                            </a>
+                        </div>
+
+                        <div class="flex">
+                            <template x-for="(searchResult, identifier) in searchResults">
+                                <template x-if="!!searchResult.totalItems">
+                                    <div
+                                        class="mstInPage__index flex h-10 mr-1.5 px-2 pt-2 lg:pt-1 text-center align-middle inline-block rounded border border-transparent cursor-pointer whitespace-nowrap"
+                                        @click="activateSection(identifier)"
+                                        :class="{ 'active bg-blue-600 text-white' : activeIndex === identifier }">
+                                        <span x-text="searchResult.title"></span>
+                                        <small class="ml-1"
+                                               :class="activeIndex === identifier ? 'text-gray-50' : 'text-gray-500'">
+                                            (<span x-html="searchResult.totalItems"></span>)
+                                        </small>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <span @click="closeSearch" class="cursor-pointer">
+                    <?= $heroicons->xHtml('text-gray-400', 40, 40); ?>
+                </span>
+                </div>
+            </template>
+
+        </form>
+
+
+        <?php if ($config['popularSearches'] && !$layoutFull) : ?>
+            <template x-if="showHotSearch">
+                <div class="absolute card mt-1 search">
+                    <p class="<?= $titleCSS ?>">
+                        <?= $escaper->escapeHtml(__($config['popularTitle'])) ?>
+                    </p>
+                    <div class="my-3 flex flex-wrap">
+
+                        <?php foreach ($config['popularSearches'] as $search) : ?>
+                            <span x-on:click="hotSearchClickEvent"
+                                  class="m-1 bg-gray-200 hover:bg-gray-300 rounded-full px-2 font-bold text-sm leading-loose cursor-pointer">
+                                    <?= $escaper->escapeHtml(__($search)) ?>
+                                </span>
+                        <?php endforeach; ?>
+
+                    </div>
+                </div>
+            </template>
+        <?php endif; ?>
+        <div x-cloak
+             id="mirasvitSearchResults"
+             class="border-solid w-full p-2 mt-1 text-lg leading-normal transition appearance-none text-gray-800 lg:text-xl z-10 my-1"
+             :class="{'absolute card' : !layoutFull}"
+             x-show="isOpen">
+            <?= $block->getChildHtml('loading.search') ?>
+            <template x-if="hasSearchResults">
+                <div class="flex flex-col">
+                    <!--    Search Results    -->
+                    <div class="overflow-y-auto overflow-x-hidden<?php if ($filterOnTop) : ?> contents<?php endif; ?>"
+                         :class="{
+                             'grid' : layoutTwoColumns,
+                             'gap-1 max-h-[65vh] sm:grid-cols-8' : !layoutFull,
+                             'gap-4 lg:grid-cols-8' : layoutFull
+                         }">
+
+                        <?php if ($layoutTwoColumns) : ?>
+                        <!--    Main Column    -->
+                        <div class="col-span-8"
+                             :class="{
+                            'lg:order-1 max-h-[75vh] overflow-y-auto overflow-x-hidden' : layoutFull,
+                            'sm:order-1' : !layoutFull,
+                            'lg:col-span-6' : layoutFull && (activeIndex === 'magento_catalog_product'),
+                            'sm:col-span-6' : !layoutFull && (activeIndex === 'magento_catalog_product')
+                            }">
+
+                        <?php elseif ($filterOnTop) : ?>
+                        <div class="max-h-[67vh] overflow-y-auto overflow-x-hidden order-1">
+                        <?php endif; ?>
+
+                            <!--    Products    -->
+                            <div class="mstInPage__itemList magento_catalog_product"
+                                 x-show="!layoutFull || activeIndex === 'magento_catalog_product'">
+                                <?php if (!$layoutFull) : ?>
+                                    <p class="<?= $titleCSS ?>">
+                                        <span x-text="searchResults['magento_catalog_product'].title"></span>
+                                        <template x-if="searchResults['magento_catalog_product']">
+                                            <small class="text-gray-500 ml-1">
+                                                (<span
+                                                    x-html="searchResults['magento_catalog_product'].totalItems"></span>)
+                                            </small>
+                                        </template>
+                                    </p>
+                                <?php endif; ?>
+
+                                <?php if ($layoutFull && ($paginationPosition === ConfigProvider::TOP_AND_BOTTOM)): ?>
+                                    <template x-if="searchResults['magento_catalog_product']">
+                                        <div class="mstInPage__pagination w-full pt-2">
+                                            <template x-for="page in searchResults['magento_catalog_product'].pages">
+                                                <?= /* @noEscape */
+                                                $this->fetchView(
+                                                    $block->getTemplateFile(
+                                                        'Hyva_MirasvitSearchAutocomplete::in-page/pagination.phtml'
+                                                    )
+                                                );
+                                                ?>
+                                            </template>
+                                        </div>
+                                    </template>
+                                <?php endif ?>
+                                <div class="container mx-auto grid grid-cols-1 mb-6 p-2 gap-4"
+                                     :class="{ 'gap-1' : !layoutFull, 'md:grid-cols-2 md:pt-6 gap-4' : layoutFull }">
+                                    <template x-if="searchResults['magento_catalog_product']">
+                                        <template x-for="item in searchResults['magento_catalog_product'].items">
+                                            <div
+                                                class="<?= $itemCSS ?>">
+                                                <?php if ($config['isShowImage']): ?>
+                                                    <div class="xl:min-w-32">
+                                                        <a :href="`${item.url}`">
+                                                            <img :src="`${item.imageUrl}`"
+                                                                 :alt="`${item.name}`" class="my-auto p-2"/>
+                                                        </a>
+                                                    </div>
+                                                <?php endif ?>
+                                                <div class="mst__product-meta w-full">
+                                                    <a :href="`${item.url}`"
+                                                       class="flex flex-row flex-wrap w-full">
+                                                        <div class="flex flex-col w-full p-2">
+                                                            <h4 class="text-gray-900 font-bold"
+                                                                :class="{ 'lg:text-lg' : layoutFull }"
+                                                                x-html="item.name">
+                                                            </h4>
+                                                            <?php if ($config['isShowDescription']): ?>
+                                                                <p class="text-gray-600"
+                                                                   :class="layoutFull ?  'mt-2' : 'mt-1'"
+                                                                   x-html="item.sku">
+                                                                </p>
+                                                            <?php endif ?>
+                                                            <?php if ($config['isShowDescription']): ?>
+                                                                <p class="text-gray-600 line-clamp-2"
+                                                                   :class="layoutFull ?  'mt-2 text-sm' : 'mt-1 text-xs'"
+                                                                   x-html="item.description">
+                                                                </p>
+                                                            <?php endif ?>
+                                                            <?php if ($config['isShowRating']): ?>
+                                                                <div class="flex lg:flex-col xl:flex-row"
+                                                                     :class="layoutFull ?  'mt-3' : 'mt-1'">
+
+                                                                    <template x-if="item.rating">
+                                                                        <div class="flex">
+                                                                            <template x-for="i in 5"
+                                                                                      x-data="{
+                                                                                          rate: item.rating/20,
+                                                                                          rateRound: 0,
+                                                                                          fragment: 0,
+                                                                                          brightColor: '#f6e05e',
+                                                                                          shadowColor: '#cbd5e0',
+                                                                                          star: `M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371
+                                                                                                1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54
+                                                                                                1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1
+                                                                                                0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z`,
+                                                                                          init: function() {
+                                                                                              this.rateRound = (Math.ceil(this.rate));
+                                                                                              this.fragment = (this.rate - Math.floor(this.rate))*100 + '%';
+                                                                                          }
+                                                                                      }">
+                                                                                <div>
+                                                                                        <template x-if="i !== rateRound">
+                                                                                            <svg
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                viewBox="3 0 20 20"
+                                                                                                :style="(i < rateRound) ? 'color: ' + brightColor : 'color: ' + shadowColor"
+                                                                                                fill="currentColor"
+                                                                                                class="w-6 h-6"
+                                                                                                aria-hidden="true"
+                                                                                            >
+                                                                                                <path :d="star"/>
+                                                                                            </svg>
+                                                                                        </template>
+                                                                                        <template x-if="i === rateRound">
+                                                                                            <svg
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                viewBox="3 0 20 20"
+                                                                                                class="w-6 h-6"
+                                                                                                aria-hidden="true"
+                                                                                            >
+                                                                                                <defs>
+                                                                                                    <linearGradient :id="'partialFill' + item.sku">
+                                                                                                        <stop offset="0%" :stop-color="brightColor"/>
+                                                                                                        <stop :offset="fragment" :stop-color="brightColor"/>
+                                                                                                        <stop :offset="fragment" :stop-color="shadowColor"/>
+                                                                                                        <stop offset="100%" :stop-color="shadowColor"/>
+                                                                                                    </linearGradient>
+                                                                                                </defs>
+                                                                                                <g :fill="'url(#partialFill' + item.sku + ')'">
+                                                                                                    <path :d="star"/>
+                                                                                                </g>
+                                                                                            </svg>
+                                                                                        </template>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </template>
+                                                                </div>
+                                                            <?php endif ?>
+                                                        </div>
+                                                    </a>
+                                                    <div class="mt-auto px-2 w-full pb-2"
+                                                         :class="layoutFull ?  'text-base' : 'text-sm'">
+                                                        <?php if ($config['isShowStockStatus']): ?>
+                                                            <span class="text-red mb-2"
+                                                                  x-html="item.stockStatus === 2 ? '<?= __('In stock') ?>' : '<?= __('Out of stock') ?>'">
+                                                            </span>
+                                                        <?php endif ?>
+                                                        <div class="flex justify-between">
+                                                        <?php if ($config['isShowPrice']): ?>
+                                                            <div class="flex flex-row text-base mt-2">
+                                                            <span
+                                                                class="text-gray-700 font-semibold justify-end lg:flex-col xl:flex-row"
+                                                                x-html="item.price">
+                                                                </span>
+                                                            </div>
+                                                        <?php endif ?>
+                                                        <?php if ($config['isShowCartButton']): ?>
+                                                            <div
+                                                                class="mst__product-cart text-nowrap text-right justify-self-end">
+                                                                <div class="to-cart">
+                                                                    <a class="action primary btn btn-primary mst__add_to_cart cursor-pointer"
+                                                                       :class="{
+                                                                           'opacity-50 cursor-not-allowed pointer-events-none' : item.stockStatus !== 2,
+                                                                           'text-sm' : !layoutFull
+                                                                       }"
+                                                                       @click="processAddToCart($el, item.addToCartUrl)">
+                                                            <span class="w-full text-center"
+                                                                  :class="{ 'text-base lg:text-lg' : layoutFull }">
+                                                                <?= $escaper->escapeHtml(__('Add To Cart')) ?>
+                                                            </span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template x-if="!searchResults['magento_catalog_product']">
+                                        <p class="text-lg"><?= $escaper->escapeHtml(__('No results found.')) ?></p>
+                                    </template>
+                                </div>
+
+                                <?php if ($layoutFull && ($paginationPosition !== ConfigProvider::DISABLE)): ?>
+                                    <template x-if="searchResults['magento_catalog_product']">
+                                        <div class="mstInPage__pagination w-full pb-2">
+                                            <template x-for="page in searchResults['magento_catalog_product'].pages">
+                                                <?= /* @noEscape */
+                                                $this->fetchView(
+                                                    $block->getTemplateFile(
+                                                        'Hyva_MirasvitSearchAutocomplete::in-page/pagination.phtml'
+                                                    )
+                                                );
+                                                ?>
+                                            </template>
+                                        </div>
+                                    </template>
+                                <?php endif ?>
+                            </div>
+
+                            <!--    Categories, Pages, Posts, Articles (Full page layout)   -->
+                            <?php if ($layoutFull) : ?>
+                                <template x-for="(searchResult, identifier) in searchResults">
+                                    <template
+                                        x-if="!!searchResult.totalItems && ('magento_catalog_product' !== identifier)">
+                                        <div class="mstInPage__itemList"
+                                             :class="`${identifier}`"
+                                             x-show="activeIndex === identifier">
+                                            <?php if ($paginationPosition === ConfigProvider::TOP_AND_BOTTOM): ?>
+                                                <div class="mstInPage__pagination w-full pt-2">
+                                                    <template
+                                                        x-for="page in searchResult.pages">
+                                                        <?= /* @noEscape */
+                                                        $this->fetchView(
+                                                            $block->getTemplateFile(
+                                                                'Hyva_MirasvitSearchAutocomplete::in-page/pagination.phtml'
+                                                            )
+                                                        );
+                                                        ?>
+                                                    </template>
+                                                </div>
+                                            <?php endif ?>
+
+                                            <div class="container mx-auto grid grid-cols-1 mb-6 p-2 gap-4 md:grid-cols-2 md:pt-6">
+                                                <template x-for="item in searchResult.items">
+                                                    <div
+                                                        class="<?= $itemCSS ?>"
+                                                        <div class="mstInPage__item">
+                                                            <a :href="`${item.url}`"
+                                                               class="flex flex-row flex-wrap w-full">
+                                                                <div class="my-2 flex flex-wrap">
+                                                                <span
+                                                                    class="mx-4 font-bold lg:text-lg text-blue-500 leading-loose cursor-pointer"
+                                                                    x-html="('magento_search_query' !== identifier) ? item.name.replaceAll(`<i>`, `<i class='mx-2'>`) : item.query_text">
+                                                                </span>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            <?php if ($paginationPosition !== ConfigProvider::DISABLE): ?>
+                                                <div class="mstInPage__pagination w-full pb-2">
+                                                    <template
+                                                        x-for="page in searchResult.pages">
+                                                        <?= /* @noEscape */
+                                                        $this->fetchView(
+                                                            $block->getTemplateFile(
+                                                                'Hyva_MirasvitSearchAutocomplete::in-page/pagination.phtml'
+                                                            )
+                                                        );
+                                                        ?>
+                                                    </template>
+                                                </div>
+                                            <?php endif ?>
+                                        </div>
+                                    </template>
+                                </template>
+                            <?php endif; ?>
+
+                        <?php if ($layoutTwoColumns) : ?>
+
+                        </div>
+
+                        <!--    Left Column / Main Column Bottom    -->
+                        <div class="col-span-8"
+                             :class="{
+                                 'max-h-[70vh]' : layoutFull,
+                                 'lg:col-span-2' : layoutFull && (activeIndex === 'magento_catalog_product'),
+                                 'sm:col-span-2' : !layoutFull && (activeIndex === 'magento_catalog_product')
+                             }"
+                             x-show="activeIndex === 'magento_catalog_product'">
+
+                        <?php elseif ($filterOnTop) : ?>
+
+                        </div>
+
+                        <!--    Main Column Top    -->
+                        <div x-show="activeIndex === 'magento_catalog_product'">
+
+                        <?php endif; ?>
+
+                            <?php if (!$layoutFull) : ?>
+                                <!--    Categories, Pages, Posts, Articles (1|2-column layout)   -->
+                                <template x-for="(searchResult, identifier) in searchResults">
+                                    <template
+                                        x-if="!!searchResult.totalItems && ('magento_catalog_product' !== identifier)">
+                                        <div class="mb-6">
+                                            <p class="<?= $titleCSS ?>">
+                                                <span x-text="searchResult.title"></span>
+                                                <small class="text-gray-500 ml-1">
+                                                    (<span x-html="searchResult.totalItems"></span>)
+                                                </small>
+                                            </p>
+                                            <div class="px-2">
+                                                <template x-for="item in searchResult.items">
+                                                    <a :href="`${item.url}`">
+                                                        <div class="my-2 flex flex-wrap">
+                                                            <span
+                                                                class="m-1 font-bold text-sm leading-loose cursor-pointer"
+                                                                x-html="item.name">
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                            <?php elseif ($filterInSidebar || $filterOnTop) : ?>
+                                <!--    Layered Navigation    -->
+                                <div class="<?php if ($filterInSidebar): ?>mstInPage__sidebar hidden lg:block max-h-[73vh] overflow-x-hidden<?php elseif ($filterOnTop): ?>mstInPage__top overflow-x-auto my-4<?php endif; ?> overflow-y-auto"
+                                     x-show="activeIndex === 'magento_catalog_product'">
+                                    <?php $rangeInputCSS = 'absolute pointer-events-none appearance-none z-20 h-2 w-full opacity-0 cursor-pointer'; ?>
+                                    <div class="mstInPage__bucketList flex<?php if ($filterInSidebar): ?> flex-col<?php elseif ($filterOnTop): ?> py-1<?php endif; ?>">
+                                        <template x-for="bucket in buckets">
+                                            <div class="mstInPage__bucket text-gray-600 pr-2"
+                                                 :class="{ '_expanded': bucket.isExpanded }">
+                                                <div @click="bucket.expand" class="mstInPage__bucketLabel card p-1">
+                                                    <span class="justify-between items-center font-semibold uppercase text-base p-2 tracking-wider cursor-pointer"
+                                                          x-text="bucket.label">
+                                                    </span>
+                                                    <div class="mstInPage__bucketExpand p-1 transition-transform transform duration-300 ease-in-out rotate-180 float-right"
+                                                         :class="{ 'rotate-180': bucket.isExpanded }"
+                                                    >
+                                                        <?= $heroicons->chevronDownHtml('stroke-gray-400') ?>
+                                                    </div>
+                                                </div>
+                                                <div<?php if ($filterOnTop): ?> class="card absolute min-w-48 max-h-[45vh] overflow-y-auto p-2" <?php endif; ?> x-show="bucket.isExpanded">
+                                                    <template x-if="bucket.code === 'price'">
+                                                        <div class="p-2 pt-4 flex justify-center items-center<?php if ($filterOnTop): ?> w-60<?php endif; ?>">
+                                                            <div class="relative max-w-xl w-full">
+                                                                <div>
+                                                                    <input type="range"
+                                                                           :step="step"
+                                                                           :min="priceMin"
+                                                                           :max="priceMax"
+                                                                           x-on:input="minPriceTrigger"
+                                                                           x-on:mouseup="doSearch(query)"
+                                                                           x-model="priceFrom"
+                                                                           class="<?= $rangeInputCSS ?>">
+                                                                    <input type="range"
+                                                                           :step="step"
+                                                                           :min="priceMin"
+                                                                           :max="priceMax"
+                                                                           x-on:input="maxPriceTrigger"
+                                                                           x-on:mouseup="doSearch(query)"
+                                                                           x-model="priceTo"
+                                                                           class="<?= $rangeInputCSS ?>">
+                                                                    <div class="relative z-10 h-2">
+                                                                        <div class="absolute z-10 left-0 right-0 bottom-0 top-0 rounded-md bg-gray-200">
+                                                                        </div>
+                                                                        <div class="absolute z-20 top-0 bottom-0 rounded-md bg-blue-600"
+                                                                             :style="'right:'+maxThumb+'%; left:'+minThumb+'%'">
+                                                                        </div>
+                                                                        <div class="absolute z-30 w-6 h-6 top-0 left-0 bg-blue-600 rounded-full -mt-2"
+                                                                             :style="'left: '+minThumb+'%'">
+                                                                        </div>
+                                                                        <div class="absolute z-30 w-6 h-6 top-0 right-0 bg-blue-600 rounded-full -mt-2"
+                                                                             :style="'right: '+maxThumb+'%'">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex justify-between items-center py-5">
+                                                                    <div>
+                                                                        <input type="text"
+                                                                               x-on:blur="minPriceTrigger; doSearch(query)"
+                                                                               x-model="priceFrom"
+                                                                               class="p-1 border border-gray-200 rounded w-20 text-center">
+                                                                    </div>
+                                                                    <div>
+                                                                        <input type="text"
+                                                                               x-on:blur="maxPriceTrigger; doSearch(query)"
+                                                                               x-model="priceTo"
+                                                                               class="p-1 border border-gray-200 rounded w-20 text-center">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                    </template>
+
+                                                    <template x-if="bucket.code !== 'price'">
+                                                        <div class="mstInPage__bucketItemList">
+                                                            <template x-for="item in bucket.items">
+                                                                <div @click="selectItem(bucket.code, item.key)"
+                                                                     :class="{ '_active': item.isActive }"
+                                                                     class="mstInPage__bucketItem flex flex-row my-1 flow-root">
+                                                                    <input type="checkbox"
+                                                                           :checked="item.isActive"
+                                                                           class="appearance-none border-b border-gray-300 rounded-sm h-5 w-5 cursor-pointer <?php if ($filterOnTop): ?>mx-2<?php else: ?> mx-4<?php endif; ?>">
+                                                                    <span x-text="item.label"
+                                                                          class="max-w-xs overflow-hidden text-gray-700 truncate cursor-pointer whitespace-nowrap select-none text-base">
+                                                                    </span>
+                                                                    <i x-text="item.count"
+                                                                       class="block bg-gray-100 text-gray-600 font-semibold text-xs text-center rounded-sm mx-2 mt-1 py-0.5 h-5 w-5 float-right">
+                                                                    </i>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($layoutTwoColumns || $filterOnTop) : ?>
+                        </div>
+                    <?php endif; ?>
+
+                    </div>
+
+                    <?php if (!$layoutFull) : ?>
+                        <!--    Bottom    -->
+                        <div class="p-3 w-full h-full order-2 col-span-8 bg-gray-100">
+                            <div class="flex items-center justify-center">
+                                <a :href="numberResultsUrl">
+                                    <p class="text-gray-900 transition duration-300 hover:text-gray-500 font-bold text-sm"
+                                       x-html="numberResults"></p>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </template>
+
+            <template x-if="noResults">
+                <div class="bg-gray-100 p-2">
+                    <p class="text-base leading-normal transition appearance-none text-gray-800 lg:text-lg"
+                       x-html="noResultsText"></p>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+<script>
+    function initMirasvitSearch() {
+        return {
+            //initialize Variables
+            showHotSearch:    false,
+            hasSearchResults: false,
+            noResults:        false,
+            isLoading:        false,
+            isOpen:           false,
+            isContainerOpen:  true,
+            blockConfig:      <?= json_encode($config); ?>,
+            layoutFull:       <?= (int)$layoutFull ?>,
+            layoutTwoColumns: <?= (int)$layoutTwoColumns ?>,
+            page:             1,
+            xhttp:            false,
+            noResultsText:    '',
+            numberResults:    '',
+            numberResultsUrl: '',
+            filterList:       new Map(),
+            buckets:          [],
+            collapses:        [],
+            priceFrom:         -1,
+            priceTo:           -1,
+            priceMin:          -1,
+            priceMax:          -1,
+            minThumb:          0,
+            maxThumb:          0,
+            step:              1,
+            generalUrl:        '',
+            searchResults:     {},
+            activeIndex:       'magento_catalog_product',
+            highlightedParams: ['name', 'sku', 'description'],
+
+            hotSearchClickEvent: function (event) {
+                const hotSearchClick = event.currentTarget.innerText;
+                let searchElement = document.querySelector('#search');
+                searchElement.value = hotSearchClick;
+                searchElement.click();
+                this.doSearch(hotSearchClick);
+                searchElement.focus();
+            },
+
+            openSearch: function () {
+                if (document.getElementById("search").value.length >= this.blockConfig.minSearchLength) {
+                    this.isOpen = true;
+                    this.showHotSearch = false;
+                } else {
+                    this.showHotSearch = true;
+                    this.hasSearchResults = false;
+                }
+
+                if (this.layoutFull) {
+                    document.querySelector('body').classList.add('mstInPage');
+                }
+
+                this.isContainerOpen = true;
+            },
+
+            startSearch: function (e) {
+                this.isOpen = !!e;
+            },
+
+            closeSearch: function () {
+                this.isOpen = false;
+
+                <?php if ($filterOnTop): ?>
+                    this.buckets.forEach(bucket => {this.collapses.push(bucket.code)});
+                    this.setBuckets(this.searchResults, this.activeIndex);
+                <?php endif; ?>
+
+                if (this.layoutFull) {
+                    document.querySelector('body').classList.remove('mstInPage');
+                }
+
+                this.isContainerOpen = false;
+                this.searchOpen = false;
+
+                //const event = new Event("search-open");
+                //window.dispatchEvent(event);
+            },
+
+            setNoResultsText(text) {
+                if (!text) {
+                    return;
+                }
+
+                this.noResultsText = text;
+            },
+
+            goToPage: function (page) {
+                this.page = page;
+                this.doSearch(this.query);
+            },
+
+            doSearch: function (query) {
+
+                // Min search length
+                if (query.length < this.blockConfig.minSearchLength) {
+                    this.showHotSearch = true;
+                    this.isLoading = false;
+                    this.hasSearchResults = false;
+                    this.noResults = false;
+
+                    return;
+                } else {
+                    this.showHotSearch = false;
+                    this.hasSearchResults = true;
+                    this.noResults = false;
+                }
+
+                if (this.query !== query) {
+                    this.query = query;
+                    this.filterList = new Map();
+                }
+
+                let self = this;
+
+                let url = this.blockConfig.url.replace(/\/$/, '')
+                    + '/?q=' + encodeURIComponent(this.query)
+                    + '&store_id=' + this.blockConfig.storeId
+                    + '&cat=false'
+                    + '&limit=' + this.blockConfig.limit
+                    + '&p=' + this.page
+                    + '&buckets[0]=category_ids'
+                    + '&currency=' + this.blockConfig.currency
+                ;
+
+                if ((this.priceFrom !== -1) && (this.priceTo !== -1)) {
+                    url += `&filters[price][]=${this.priceFrom}_${this.priceTo}`;
+                }
+
+                if (this.filterList.size) {
+                    for (const [key, value] of this.filterList) {
+                        value.forEach(filter => {
+                            url += `&filters[${key}][]=${filter}`;
+                        });
+                    }
+                }
+
+                const generalUrl = url;
+
+                if (generalUrl === self.generalUrl) {
+                    this.isLoading = false;
+
+                    return;
+                } else {
+                    this.isLoading = true;
+                    url += '&index=' + this.activeIndex;
+                }
+
+                // AJAX for searchautocomplete/ajax/suggest/
+                if (this.xhttp) {
+                    try {
+                        this.xhttp.abort();
+                    } catch {
+
+                    }
+                }
+                this.xhttp = new XMLHttpRequest();
+                let xhttp = this.xhttp;
+
+                xhttp.open("GET", url, true);
+                xhttp.setRequestHeader("Content-Type", "application/json");
+
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState === 4 && this.status === 200) {
+                        // Response from ajax call in JSON.
+                        const response = JSON.parse(this.responseText);
+
+                        self.searchResults = {};
+
+                        for (const index in response.indexes) {
+                            if (response.indexes[index].items.length > 0) {
+                                const res = response.indexes[index];
+
+                                if ('magento_catalog_product' === res.identifier) {
+                                    res.items.forEach(function (item, index) {
+                                        self.highlightedParams.forEach(param => {
+                                            res.items[index][param] = highlightMatch(item[param], query);
+                                        });
+                                    });
+                                }
+
+                                self.searchResults[res.identifier] = res;
+                            }
+                        }
+
+                        if (
+                            !self.searchResults['magento_catalog_product']
+                            && (Object.values(self.searchResults).length > 0)
+                        ) {
+                            self.activateSection(Object.keys(self.searchResults)[0]);
+                        }
+
+                        self.setBuckets(self.searchResults, self.activeIndex);
+                        <?php if ($filterOnTop): ?>
+                            self.buckets.forEach(bucket => {
+                                self.collapses.push(bucket.code);
+                            });
+                            self.setBuckets(self.searchResults, self.activeIndex);
+                        <?php endif; ?>
+
+                        self.isLoading = false;
+                        self.noResults = false;
+                        self.numberResults = response.textAll;
+                        self.numberResultsUrl = response.urlAll;
+                        self.generalUrl = generalUrl;
+
+                        if (response.noResults) {
+                            self.setNoResultsText(response.textEmpty);
+                            self.hasSearchResults = false;
+                            self.noResults = true;
+                        }
+                    }
+                };
+                xhttp.send();
+            },
+
+            setBuckets(indexes, indexIdentifier) {
+                this.buckets = [];
+
+                for (const key in indexes) {
+                    if (key !== indexIdentifier) {
+                        continue;
+                    }
+
+                    const idx = indexes[key];
+
+                    for (const bucketKey in idx.buckets) {
+                        const bucket = idx.buckets[bucketKey]
+                        let bucketItems = [];
+
+                        if (bucket.code === 'price') {
+                            this.priceMin = this.priceMin === -1 || this.priceMin > bucket.min ? bucket.min : this.priceMin;
+                            this.priceMax = this.priceMax === -1 || this.priceMax < bucket.max ? bucket.max : this.priceMax;
+                            this.priceFrom = this.priceFrom === -1 ? this.priceMin : this.priceFrom;
+                            this.priceTo = this.priceTo === -1 ? this.priceMax : this.priceTo;
+                            this.minPriceTrigger();
+                            this.maxPriceTrigger();
+                        }
+
+                        for (const itemKey in bucket.items) {
+                            const item = bucket.items[itemKey];
+
+                            let isActive = this.filterList.get(bucket.code)?.includes(item.key) || false;
+
+                            bucketItems.push({...item, isActive, select: () => this.selectItem(bucket.code, item.key)});
+                        }
+
+                        if (bucketItems.length > 0 || bucket.code === 'price') {
+                            this.buckets.push({
+                                ...bucket,
+                                items:      bucketItems,
+                                isExpanded: !this.collapses.includes(bucket.code),
+                                expand:     () => this.toggleCollapse(bucket.code)
+                            });
+                        }
+                    }
+                }
+            },
+
+            selectItem(bucketCode, key) {
+                let filterList = this.filterList;
+                let filterItems = filterList.get(bucketCode) || [];
+
+                if (bucketCode === 'price') {
+                    filterList.set(bucketCode, [key]);
+                } else {
+                    let index = filterItems.indexOf(key);
+
+                    if (index >= 0) {
+                        filterItems.splice(index, 1);
+                        filterItems.length > 0 ? filterList.set(bucketCode, filterItems) : filterList.delete(bucketCode);
+                    } else {
+                        filterItems.push(key);
+                        filterList.set(bucketCode, filterItems);
+                    }
+                }
+
+                this.filterList = new Map(filterList);
+                this.doSearch(this.query);
+            },
+
+            toggleCollapse(code) {
+                <?php if ($filterOnTop): ?>
+                    this.buckets.forEach(bucket => {
+                        if (bucket.code !== code) {
+                            this.collapses.push(bucket.code);
+                        }
+                    });
+                <?php endif; ?>
+
+                if (this.collapses.includes(code)) {
+                    this.collapses = this.collapses.filter(c => c !== code);
+                } else {
+                    this.collapses.push(code);
+                }
+
+                this.setBuckets(this.searchResults, this.activeIndex);
+            },
+
+            minPriceTrigger() {
+                if (!this.isNumeric(this.priceFrom) || (this.priceFrom < this.priceMin)) {
+                    this.priceFrom = this.priceMin;
+                }
+                this.priceFrom = Math.min(this.priceFrom, this.priceTo - this.step);
+                this.minThumb = ((this.priceFrom - this.priceMin) / (this.priceMax - this.priceMin)) * 100;
+            },
+
+            maxPriceTrigger() {
+                if (!this.isNumeric(this.priceTo) || (this.priceTo > this.priceMax)) {
+                    this.priceTo = this.priceMax;
+                }
+                this.priceTo = Math.max(this.priceTo, this.priceFrom + this.step);
+                this.maxThumb = 100 - (((this.priceTo - this.priceMin) / (this.priceMax - this.priceMin)) * 100);
+            },
+
+            isNumeric(obj) {
+                return !isNaN(parseFloat(obj)) && isFinite(obj);
+            },
+
+            activateSection(identifier) {
+                if (identifier !== this.activeIndex) {
+                    this.activeIndex = identifier;
+                    this.goToPage(1);
+                }
+            },
+
+            processAddToCart(addToCartElement, linkToCart) {
+                if (this.blockConfig.isAjaxCartButton) {
+                    fetch(linkToCart + '?isAjax=1', {
+                        method:  'GET',
+                        headers: {
+                            'Accept':       'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            let messageElement = document.createElement('div');
+                            messageElement.className = `to_cart_message message ${data.success ? 'success' : 'error'} text-sm p-2`;
+                            messageElement.innerHTML = data.message;
+
+                            addToCartElement.closest('.mst__product-meta').prepend(messageElement);
+
+                            setTimeout(() => {
+                                let messageElement = addToCartElement.closest('.mst__product-meta').querySelector('.to_cart_message');
+                                if (messageElement) {
+                                    messageElement.remove();
+                                }
+                            }, 5000);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    addToCartElement.setAttribute('href', linkToCart);
+                    addToCartElement.click();
+                }
+
+                return false;
+            }
+        }
+    }
+</script>
+
+<?= $block->getChildHtml('mst.highlight.search') ?>
+
+<style>
+    input[type=range]::-webkit-slider-thumb {
+        pointer-events: all;
+        width: 24px;
+        height: 24px;
+        -webkit-appearance: none;
+        /* @apply w-6 h-6 appearance-none pointer-events-auto; */
+    }
+
+    body.mstInPage {
+        position: absolute;
+        overflow-y: hidden;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    body.mstInPage #search {
+        --tw-ring-shadow: none;
+    }
+
+    body.mstInPage #search::-webkit-search-cancel-button,
+    body.mstInPage #search::-webkit-search-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    body.mstInPage #search-content {
+        position: fixed;
+        left: 0;
+        top: 0;
+        background: rgba(240, 243, 246, 0.7);
+        width: 100%;
+        height: 100%;
+        padding-top: 2rem;
+        z-index: 1000;
+    }
+
+    @media screen and (max-width: 768px) {
+        body.mstInPage #search-content {
+            padding-top: 0;
+        }
+    }
+</style>

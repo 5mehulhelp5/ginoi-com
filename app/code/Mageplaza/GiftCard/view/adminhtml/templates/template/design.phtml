@@ -1,0 +1,286 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+/** @var \Mageplaza\GiftCard\Block\Adminhtml\Template\Edit\Tab\Design $block */
+$designFields           = $block->getDesignFields();
+$designFieldsEncode     = \Mageplaza\GiftCard\Helper\Data::jsonEncode($designFields);
+$initDesignFields       = $block->getInitDesignFields();
+$initDesignFieldsEncode = $block->escapeHtml(\Mageplaza\GiftCard\Helper\Data::jsonEncode($initDesignFields));
+$templates              = $block->getExistTemplates();
+$templatesEncode        = $block->escapeHtml(\Mageplaza\GiftCard\Helper\Data::jsonEncode($templates));
+?>
+
+<?php if ($block->getFonts()): ?>
+    <link href="https://fonts.googleapis.com/css?family=<?= /** @noEscape */ $block->getFonts() ?>" rel="stylesheet">
+<?php endif; ?>
+
+<div class="entry-edit form-inline">
+    <?php if (count($templates)): ?>
+        <fieldset class="fieldset admin__fieldset" id="base_fieldset">
+            <legend class="admin__legend legend">
+                <span><?= /** @noEscape */ __('Load From Exist Template') ?></span>
+            </legend>
+            <br>
+            <div class="admin__field">
+                <label class="admin__field-label" for="template_select"><?= /** @noEscape */ __('Template') ?></label>
+                <div class="admin__field-control">
+                    <select id="template_select" name="code" class="admin__control-select required-entry">
+                        <?php foreach ($templates as $key => $template): ?>
+                            <option value="<?= /** @noEscape */ $key ?>"><?= /** @noEscape */ $template['name'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="admin__field required">
+                <span class="admin__field-label"></span>
+                <div class="admin__field-control">
+                    <button id="template-load" title="Load Template" type="button" class="action-default scalable save"
+                            data-role="template-load" data-ui-id="template-edit-load-button">
+                        <span><?= /** @noEscape */ __('Load Template') ?></span>
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    <?php endif; ?>
+    <fieldset class="fieldset admin__fieldset" id="preview_fieldset">
+        <legend class="admin__legend legend">
+            <span><?= $block->escapeHtml(__('Preview')) ?></span>
+            <span style="float: right;">
+                <a data-type="img" class="preview <?= /* @noEscape */ $block->getTypeActive('img') ?>" href="#"><?= /* @noEscape */__('Image') ?></a>
+                <a data-type="pdf" class="preview <?= /* @noEscape */ $block->getTypeActive('pdf') ?>" href="#"><?= /* @noEscape */__('PDF') ?></a>
+            </span>
+            <input type="hidden" name="is_image" id="preview_type" value="<?= /* @noEscape */ $block->getType()  ?>">
+        </legend>
+        <br>
+        <div class="admin__field">
+            <span class="admin__field-label"></span>
+            <div class="admin__field-control">
+                <button id="advance-design" title="<?= $block->escapeHtmlAttr(__('Advance Design')) ?>"
+                        type="button"
+                        class="action-default scalable save"
+                        data-role="advance-design" data-ui-id="advance-design-button">
+                    <span><?= $block->escapeHtml(__('Advance Design')) ?></span>
+                </button>
+            </div>
+        </div>
+        <div class="admin__field giftcard-template-preview">
+        </div>
+    </fieldset>
+    <input type="hidden" id="giftcard-design-input" name="design" value="<?= /** @noEscape */ $designFieldsEncode ?>"/>
+    <fieldset class="fieldset admin__fieldset" id="design_fieldset">
+        <legend class="admin__legend legend">
+            <span><?= /** @noEscape */ __('Design Template') ?></span>
+        </legend>
+        <br>
+        <div class="admin__field giftcard-template-design"
+             data-mage-init='{"giftCard/design":{"fields": <?= /** @noEscape */ $designFieldsEncode ?>, "initFields": <?= /** @noEscape */ $initDesignFieldsEncode ?>, "existDesign": <?= /** @noEscape */ $templatesEncode ?>, "previewUrl": "<?= /** @noEscape */ $block->getUrl('*/*/preview', ['form_key' => $block->getFormKey()]) ?>"}}'>
+            <div class="giftcard-drag-drop-left">
+                <?php $topPosition = 0; ?>
+                <?php foreach ($initDesignFields as $key => $field): ?>
+                    <?php if ($key !== 'giftcard'): ?>
+                        <div id="design-field-<?= /** @noEscape */ $key ?>"
+                             data-id="<?= /** @noEscape */ $key ?>"
+                             data-label="<?= /** @noEscape */ $field['label'] ?>"
+                            <?php if (isset($field['sampleContent'])): ?>
+                                data-sample-content="<?= /** @noEscape */ $field['sampleContent'] ?>"
+                            <?php endif; ?>
+                            <?php if (isset($field['img'])): ?>
+                                data-sample-content="<img src='<?= /** @noEscape */ $field['img'] ?>'>"
+                            <?php endif; ?>
+                             class="draggable drag-drop drag-out drag-<?= /** @noEscape */ $key ?>"
+                             style="top: <?= /** @noEscape */ $topPosition += 35 ?>px; overflow: hidden;">
+                            <div class="label-content">
+                                <img class="icon-group" src="<?= /** @noEscape */ $block->getViewFileUrl('Mageplaza_GiftCard::css/image/icon_group.png') ?>"/>
+                                <span class="sample-content"><?= /** @noEscape */ $field['label'] ?></span>
+                                <img class="design-field-edit" data-id="<?= /** @noEscape */ $key ?>"
+                                     src="<?= /** @noEscape */ $block->getViewFileUrl('Mageplaza_GiftCard::css/image/icon_edit.png') ?>"/>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+            <div class="giftcard-drag-drop-right">
+                <div class="btn-design-giftcard">
+                    <button id="reset-giftcard">Reset</button>
+                    <button id="apply-giftcard">Apply</button>
+                </div>
+                <div id="design-field-giftcard" class="dropzone" data-id="giftcard"
+                     data-label="<?= /** @noEscape */ __('Gift Card') ?>">
+                    <img class="design-field-edit" data-id="giftcard"
+                         src="<?= /** @noEscape */ $block->getViewFileUrl('Mageplaza_GiftCard::css/image/icon_edit.png') ?>"/>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<style>
+    .giftcard-drag-drop-left .drag-out{
+        background-color: #007DBD !important;
+        border-radius: 5px !important;
+        border: unset !important;
+    }
+    .giftcard-drag-drop-left .drag-out .label-content{
+        background-color: #007DBD !important;
+        border: unset !important;
+        display: flex;
+        align-items: center;
+        width: 128px;
+        font-weight: unset !important;
+        font-style: unset !important;
+        text-decoration: unset !important;
+    }
+    .giftcard-drag-drop-left .drag-out .label-content .sample-content{
+        color: #fff !important;
+    }
+    .label-content div {
+        display: flex;
+        align-items: center;
+    }
+    .drag-out .label-content img.icon-group, .drag-out .sample-content {
+        padding-left: 5px;
+        font-size: 1.4rem;
+    }
+    .drag-in .label-content {
+        border: solid 1px #fff;
+    }
+    .drag-in .label-content img.icon-group {
+        display: none;
+    }
+    .giftcard-template-design{
+        background-color: #fff;
+        border-radius: 6px;
+    }
+    .giftcard-drag-drop-right {
+        background-color: #eee;
+    }
+    #design-field-giftcard {
+        margin-top: 40px;
+    }
+    #design-field-giftcard .design-field-edit {
+        top: 30px;
+        right: 30px;
+    }
+    .btn-design-giftcard {
+        display: flex;
+        justify-content: center;
+    }
+    button#apply-giftcard {
+        background: rgba(51, 51, 51, 1);
+        color: #fff;
+        border: unset;
+        border-radius: 3px;
+    }
+    .giftcard-drag-drop-right {
+        padding: 15px 40px 60px 40px;
+    }
+    button#reset-giftcard {
+        background: unset;
+        border: unset;
+        color: background: rgba(51, 51, 51, 1);
+    }
+    aside.modal-popup.confirm._show .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 30px 25px 30px;
+    }
+    aside.modal-popup.confirm._show .modal-footer button {
+        align-items: center;
+        display: flex;
+        color: rgba(51, 51, 51, 1);
+        height: 35px;
+        font-size: 14px;
+    }
+    aside.modal-popup.confirm._show .action-accept {
+        border: 1px solid rgba(227, 227, 227, 1);
+        border-radius: 5px;
+        background-color: rgba(227, 227, 227, 1);
+        color: rgba(51, 51, 51, 1);
+        height: 35px;
+    }
+    aside.modal-popup.confirm._show .modal-content {
+        margin: 0 30px;
+        padding: 20px 0;
+        border-top: 1px solid rgba(217, 217, 217, 1);
+        border-bottom: 1px solid rgba(217, 217, 217, 1);
+    }
+    .modal-popup.confirm .modal-inner-wrap {
+        max-width: 85rem;
+    }
+    .font-style-text button {
+        margin: 4px;
+    }
+    .modal-inner-wrap .modal-popup .modal-footer button {
+        position: absolute;
+        top: 30px;
+        right: 50px;
+    }
+    .modal-inner-wrap .giftcard-design-field input {
+        padding: 0 30px 0 10px;
+    }
+    span.input-unit {
+        background-color: #fff;
+        margin-top: 2px;
+        height: 22px;
+        padding-left: 4px;
+        position: absolute;
+    }
+    span.input-unit.unit-top {
+        width: 22px;
+        left: 49.5%;
+    }
+    span.input-unit.size-position {
+        width: 26px;
+        margin-left: 16%;
+    }
+    .design-field-child label.mage-error {
+        width: 160px;
+        margin-left: 30.5%;
+    }
+    div.tow-colums {
+        display: flex;
+        justify-content: center;
+    }
+    .design-field-position .design-field-child {
+        margin: unset;
+        width: 30% !important;
+    }
+    .design-field-size .design-field-child {
+        margin: unset;
+        width: 30% !important;
+    }
+    div.mpgiffcard-color-picker:hover {
+        cursor: not-allowed;
+    }
+    .preview {
+        border: 1px solid #ADADAD;
+        padding: 4px 15px !important;
+        color: black;
+        border-radius: 3px;
+    }
+    .preview.active {
+        background-color: #1979C3;
+        color: #FFFFFF;
+    }
+    #preview_fieldset .border {position: relative;display: inline-block;border-radius:6px;border:2px dashed #CCC;background: #FFF;min-width:100%;width: auto;padding-left: 20px;padding-right: 20px}
+    #preview_fieldset #advance-design{margin: 25px 0 25px 35%;;}
+    #preview_fieldset .down-load{zoom: 2;position: absolute;left: 90%;top: 3px;}
+
+</style>

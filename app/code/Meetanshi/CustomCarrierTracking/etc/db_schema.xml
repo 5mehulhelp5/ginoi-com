@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="meetanshi_custom_carrier" resource="default" engine="innodb" comment="Meetanshi Custom Carrier">
+        <column xsi:type="int" name="id" unsigned="false" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Carrier Title"/>
+        <column xsi:type="text" name="url" nullable="false" comment="Carrier Url"/>
+        <column xsi:type="varchar" name="active" nullable="false" length="20" comment="Active"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="MEETANSHI_CUSTOM_CARRIER_TITLE" indexType="fulltext">
+            <column name="title"/>
+        </index>
+        <index referenceId="MEETANSHI_CUSTOM_CARRIER_URL" indexType="fulltext">
+            <column name="url"/>
+        </index>
+    </table>
+</schema>

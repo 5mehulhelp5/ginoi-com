@@ -1,0 +1,62 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+.checkout-payment-method .payment-option-content .primary .action.action-apply {
+    margin-right: 0;
+}
+
+.checkout-payment-method .payment-option-content .gift-card-apply .actions-toolbar {
+    margin-bottom: 20px;
+    display: block;
+}
+
+@media only screen and (max-device-width: 768px) {
+    .abs-discount-code .form-discount .actions-toolbar .primary, .checkout-payment-method .payment-option-content .form-discount .actions-toolbar .primary{
+        float: none !important;
+    }
+}
+
+.checkout-payment-method .payment-option-content .gift-card-apply .form-discount {
+    display: block;
+}
+
+.gift-card-check-code > .fieldset > .field {
+    display: block;
+    margin-bottom: 10px;
+    clear: both;
+}
+
+.opc-wrapper .form-discount .gift-card-check-code > .fieldset > .field > label {
+    width: 30%;
+    float:left;
+    display: block;
+    height: unset;
+    position: unset;
+}
+
+.gift-card-check-code > .fieldset > .field > .control {
+    width: 60%;
+    float:left;
+    margin-left: 5%;
+    display: block;
+}
+.product-image-container .product-image-wrapper img {
+    height: 100%!important;
+}

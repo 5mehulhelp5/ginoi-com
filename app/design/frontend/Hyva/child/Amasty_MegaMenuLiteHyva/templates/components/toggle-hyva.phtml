@@ -1,0 +1,87 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLite\ViewModel\Store\Menu;
+use Amasty\MegaMenuLiteHyva\ViewModel\ConfigData;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Menu $viewModelMenu */
+$viewModelMenu = $viewModels->require(Menu::class);
+/** @var ConfigData $configData */
+$configData = $viewModels->require(ConfigData::class);
+/** @var HeroiconsOutline $heroIcons */
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+$tabNameMenu = $escaper->escapeHtmlAttr($configData::TAB_NAME_MENU);
+$tabNameAccount = $escaper->escapeHtmlAttr($configData::TAB_NAME_ACCOUNT);
+$toggleMenuText = $escaper->escapeHtml($block->getToggleMenuText());
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<div class="flex items-center sm:pb-0 megamenuhover">
+     <div>
+        <!-- Menu Content -->
+        <div id="ammenu-menu-content-<?= $escaper->escapeHtmlAttr($tabNameMenu); ?>"
+             x-show="activeTab === '<?= $escaper->escapeHtmlAttr($tabNameMenu); ?>'"
+             aria-labelledby="tab-<?= $escaper->escapeHtmlAttr($tabNameMenu); ?>"
+             role="tabpanel"
+             x-cloak>
+            <template x-if="isMobile">
+                <?= $block->getChildHtml('amasty.menu.mobile.hyva') ?>
+            </template>
+            <template x-if="!isMobile && is_hamburger">
+                <?= $block->getChildHtml('amasty.menu.hamburger.hyva') ?>
+            </template>
+        </div>
+
+        <!-- Account Content -->
+        <div id="ammenu-account-content-<?= $escaper->escapeHtmlAttr($tabNameAccount); ?>"
+             x-show="activeTab === '<?= $escaper->escapeHtmlAttr($tabNameAccount); ?>'"
+             aria-labelledby="tab-<?= $escaper->escapeHtmlAttr($tabNameAccount); ?>"
+             role="tabpanel"
+             x-cloak>
+            <template x-if="isMobile || is_hamburger">
+                <?= $block->getChildHtml('amasty.menu.account.hyva') ?>
+            </template>
+        </div>
+    </div>
+
+    <!-- Hamburger Button -->
+    <button class="-hamburger -trigger pr-2 h-10 flex items-center"
+            x-show="is_hamburger || isMobile"
+            aria-controls="ammenu-sidebar"
+            aria-haspopup="menu"
+            type="button"
+            @click="open = !open"
+            title="<?= $escaper->escapeHtmlAttr($toggleMenuText); ?>"
+            :style="{'color': color_settings?.hamburger_icon_color ?? ''}">
+            <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/DEPTT_HOOVER.svg'); ?>' alt="icon">
+            <div class="vertical-menu-title hidden items-center flex gap-1" style="padding: 8px 8px;background: unset;color: black;">
+                <span><?= __('Departments') ?></span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4 svg-menu" style="fill: gray;"><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg>
+            </div>
+    </button>
+
+    <!-- Background Overlay -->
+    <div x-cloak x-show="open" @click="open = false"
+         class="amblog-bg-overflow fixed z-40 top-0 left-0 right-0 bottom-0 bg-black bg-opacity-25"
+         x-transition:enter="ease-in-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in-out duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"></div>
+</div>

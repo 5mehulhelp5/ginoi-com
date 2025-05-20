@@ -1,0 +1,51 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Amasty\MegaMenuLite\Api\Data\Menu\ItemInterface;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var array $item */
+
+$label = !empty($item[ItemInterface::LABEL]) ? $item[ItemInterface::LABEL] : false;
+$fontWeight = '400';
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+
+$additionalClass = $item['current'] ? 'text-[var(--ammenu-current-category-color)]'
+    : 'text-[var(--ammenu-third-level-menu)]';
+$bgClass = $item['current'] ? 'bg-[var(--ammenu-current-category-color)]'
+    : 'bg-[var(--ammenu-third-level-menu)]';
+
+$iconBlock = $block->getLayout()->getBlock('ammenu.top.menu.icon');
+
+//phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<a href="<?= $escaper->escapeUrl($item['url']) ?>"
+   title="<?= $escaper->escapeHtmlAttr($item['name']) ?>"
+   class="flex items-center py-2 border-0 background-none break-anywhere text-start <?= $escaper->escapeHtmlAttr($additionalClass); ?>">
+
+    <?php if ($iconBlock): ?>
+        <?= /* @noEscape */ $iconBlock->setData('item', $item)
+            ->setData('additional_class', $bgClass)
+            ->setData('available', ['mobile', 'both'])->toHtml() ?>
+    <?php endif ?>
+
+    <span :style="{ 'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?> }">
+        <?= $escaper->escapeHtml($item['name']); ?>
+    </span>
+
+    <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+        'item' => $item,
+        'classes' => 'text-center inline-block text-xs font-bold rounded p-1 ml-2 mr-6 overflow-hidden'
+    ]); ?>
+</a>

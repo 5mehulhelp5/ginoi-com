@@ -1,0 +1,38 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Cart;
+use Magento\Wishlist\Model\Item;
+use Magento\Wishlist\ViewModel\AllowedQuantity;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Item $item */
+$item = $block->getItem();
+$product = $item->getProduct();
+/** @var AllowedQuantity $viewModel */
+$viewModel = $viewModels->require(AllowedQuantity::class);
+$allowedQty = $viewModel->setItem($item)->getMinMaxQty();
+?>
+<?php if ($item->canHaveQty() && $product->isVisibleInSiteVisibility()): ?>
+        <div class="control">
+            <input type="number"
+                   x-ref="product-qty-<?= $escaper->escapeHtmlAttr($item->getId()) ?>"
+                   data-role="qty"
+                   id="qty[<?= $escaper->escapeHtmlAttr($item->getId()) ?>]"
+                   class="form-input qty w-full lg:w-3/5 p-2"
+                   name="qty[<?= $escaper->escapeHtmlAttr($item->getId()) ?>]"
+                   value="<?= /* @noEscape */ $block->getAddToCartQty($item) * 1 ?>"
+                <?= $product->isSaleable() ? '' : 'disabled' ?>
+            >
+        </div>
+<?php endif; ?>

@@ -1,0 +1,35 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\View\Element\Template;
+
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroicons */
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+?>
+<li class="nav item <?= $this->isCurrent() ? 'current' : '' ?>">
+    <a class="flex justify-start items-center " href="<?= $this->isCurrent() ? 'javascript:void(0)' : $this->getUrl('newsletter/manage') ?>" >
+        <img src="<?= $this->getViewFileUrl('images/account/newsletter.svg') ?>" alt="">
+        <?php if ($this->isCurrent()): ?>
+            <strong class=""><?= $escaper->escapeHtml(__('Newsletter Subscriptions')) ?></strong>
+        <?php else: ?>
+            <p class=""><?= $escaper->escapeHtml(__('Newsletter Subscriptions')) ?></p>
+        <?php endif; ?>
+        <?= $heroicons->chevronRightHtml(
+            'ml-auto',
+            24,
+            24,
+            [
+                'aria-hidden' => 'true',
+                'focusable' => 'false'
+            ]
+        ); ?>
+    </a>
+</li>

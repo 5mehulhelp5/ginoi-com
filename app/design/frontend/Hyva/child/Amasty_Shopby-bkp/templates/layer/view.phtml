@@ -1,0 +1,284 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Shop By Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Amasty\ShopbyHyvaCompatibility\ViewModel\JsInit;
+use Amasty\ShopbyHyvaCompatibility\ViewModel\ProductListAjax;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Navigation $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var JsInit $jsInitViewModel */
+$jsInitViewModel = $viewModels->require(JsInit::class);
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+/** @var ProductListAjax $productListAjax */
+$productListAjax = $viewModels->require(ProductListAjax::class);
+
+$isSidebar = $block->getData('isSidebar');
+?>
+<?php if ($block->canShowBlock()): ?>
+    <?php if ($productListAjax->isOneColumn()): ?>
+        <div class="<?= $isSidebar ? 'sidebar sidebar-main' : '' ?> one-column-wrapper relative">
+    <?php endif ?>
+    <div class="block-filter flex flex-col<?= $isSidebar ? ' md:block' : '-top md:block' ?> border border-container bg-container-darker p-0 md:p-4 md:border-0 md:bg-transparent md:py-0 md:px-0 my-6 justify-center"
+        <?php if ($isSidebar): ?>
+         x-data="initLayeredNavigation()"
+         x-init="checkIsMobileResolution($el)"
+         @resize.window.debounce="checkIsMobileResolution($el)"
+         @visibilitychange.window.debounce="checkIsMobileResolution($el)"
+        <?php else: ?>
+         id="layered-filter-block"
+         x-data="initLayeredNavigationTop()"
+         x-init="checkIsMobileResolution($el)"
+         @resize.window.debounce="checkIsMobileResolution($el)"
+        <?php endif; ?>
+    >
+        <div class="block-title h-10 flex items-center justify-between"
+            <?php if ($isSidebar): ?>
+             :class="{'mb-4' : isApplySticy }"
+             @click="blockOpen = !blockOpen"
+             :aria-expanded="blockOpen ? 'true' : 'false' "
+             role="button"
+             tabindex="0"
+            <?php endif; ?>
+        >
+            <span class="text-primary text-md text-xl md:text-2xl font-semibold uppercase">
+                <?= $escaper->escapeHtml(__('Shop By')) ?>
+            </span>
+            <span class="py-1 px-1 bg-container-lighter rounded border border-container-darker hidden"
+                <?php if ($isSidebar): ?>:class="{ 'block' : isMobile, 'hidden': !isMobile }"<?php endif; ?>>
+                <?php if ($isSidebar): ?>
+                    <?= $heroicons->chevronDownHtml(
+                        'transition-transform transform duration-300 ease-in-out',
+                        24,
+                        24,
+                        [":class" => "{ 'rotate-180': blockOpen }"]
+                    ); ?>
+                <?php endif; ?>
+            </span>
+        </div>
+        <?= $block->getChildHtml('state') ?>
+        <div class="block-content filter-content md:block items-center justify-between" <?php if ($isSidebar): ?>id="layered-filter-block-content" :class="{ 'hidden' : isMobile && !blockOpen, 'overflow-y-auto pr-2' : isApplySticy }"<?php endif; ?>>
+            <?php
+                $filterIndex = 1;
+            ?>
+            <?php if (!$isSidebar): ?>
+            <div class="flex" style="padding-left: 25%;">
+            <?php endif; ?>
+            <?php foreach ($block->getFilters() as $filter): ?>
+                <?php if ($filter->getItemsCount()): ?>
+                    <div
+                         class="filter-option card relative <?php if (!$isSidebar): ?>hidden<?php endif; ?> md:block "
+                        <?php if ($isSidebar): ?>
+                            x-data="{ open: false }"
+                            @filter-open-state="open = true"
+                        <?php endif; ?>
+                    >
+                        <div
+                            class="filter-options-title flex justify-start items-center cursor-pointer hover:text-secondary-darker border-container py-2 px-3 rounded-full <?= $filter->getName(); ?>"
+                            <?php if ($isSidebar): ?>
+                             :class="{ 'pb-4': open }"
+                             @click.prevent.stop="open = !open"
+                             :aria-expanded="open ? 'true' : 'false' "
+                            <?php else: ?>
+                             @click.prevent.stop="setOpenedFilter('<?= $escaper->escapeJs($filterIndex) ?>', $event.currentTarget)"
+                            <?php endif; ?>
+                            role="button"
+                            tabindex="0"
+                        >
+                        <?php if($filter->getName() == 'Color'):?>
+                        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/color_filter.svg'); ?>' alt="icon" class="color_filter w-6 h-6 mr-1">
+                        <?php elseif($filter->getName() == 'Price'):?>
+                        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/price_filter.svg'); ?>' alt="icon" class="price_filter w-6 h-6 mr-1">
+                        <?php elseif($filter->getName() == 'Stock'):?>
+                        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/In_store_filter.svg'); ?>' alt="icon" class="In_store_filter w-6 h-6 mr-2">
+                        <?php endif; ?>
+                            <span class="title text-md md:text-lg"
+                            <?php if ($isSidebar): ?>
+                             :class="{ 'font-semibold': open }"
+                             <?php endif; ?>
+                            >
+                                <?= $escaper->escapeHtml(__($filter->getName())) ?>
+                                </span>
+                            <span class="py-1 px-1 order-2 ml-auto">
+                                <svg <?php if ($isSidebar): ?>
+                                     :class="{ 'rotate-180': open }"
+                                     <?php else: ?>
+                                      :class="{ 'rotate-180': isFilterOpened('<?= $escaper->escapeJs($filterIndex) ?>') }"
+                                     <?php endif; ?>
+                                     aria-hidden="true" focusable="false" class="transition-transform transform duration-300 ease-in-out" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" <?php if ($isSidebar): ?>stroke="#802E8D"<?php else: ?>stroke="currentColor"<?php endif; ?> viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </div>
+                        
+                        <div class="filter-options-content pt-3 rounded-lg <?= $filter->getName(); ?>"
+                            <?php if ($isSidebar): ?>
+                             x-show="open"
+                             <?php else: ?>
+                             x-show="isFilterOpened('<?= $escaper->escapeJs($filterIndex) ?>')"
+                             <?php endif; ?>
+                             x-cloak>
+                             <?php if (!$isSidebar): ?>
+                        <div class="pin"></div>
+                        <?php endif; ?>
+                            <?= /* @noEscape */ $block->getChildBlock('renderer')->render($filter) ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <?php $filterIndex ++ ?>
+            <?php endforeach; ?>
+            <?php if (!$isSidebar): ?>
+        </div>
+        <?php endif; ?>
+        <div>
+            <?= $this->getLayout()->createBlock('Magento\Catalog\Block\Product\ProductList\Toolbar')->setTemplate('Magento_Catalog::product/list/toolbar.phtml')->toHtml(); ?></div>
+
+        </div>
+    </div>
+    <?php if ($isSidebar): ?>
+        <script>
+            function initLayeredNavigation() {
+                return {
+                    selectors: {
+                        sidebar: '.sidebar-main',
+                        filterContent: '.filter-content',
+                        columns: '.columns',
+                        body: '#html-body',
+                        filterItem: '.am-filter',
+                        filterOption: '.filter-option',
+                        selectedClass: '.amshopby-link-selected',
+                        showMore: '.am-show-more > button'
+                    },
+                    filtersOverflowOffset: 25,
+                    isMobile: false,
+                    blockOpen: false,
+                    isStickyEnabled: Boolean(<?= /** @noEscape  */ $jsInitViewModel->getEnableStickySidebarDesktop(); ?>),
+                    isApplySticy: false,
+                    openedFilter: null,
+
+                    checkIsMobileResolution(element) {
+                        this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+                        this.$nextTick(() => {
+                            if (this.isStickyEnabled && !this.isMobile) {
+                                this.isApplySticy = true;
+
+                                this.enableStikySidebar(element);
+                            }
+                            this.openFiltersByDefault(element);
+                        })
+                    },
+                    enableStikySidebar(element) {
+                        const bodyElement = document.querySelector(this.selectors.body);
+                        const filtersBlock = document.querySelector(this.selectors.filterContent);
+                        const filtersMaxHeight = element.offsetHeight - filtersBlock.offsetHeight + this.filtersOverflowOffset;
+
+                        // add classes
+                        bodyElement.classList.add('-amshopby-sticky');
+                        element.classList.add('-amshopby-sticky');
+                        // set container max-height
+                        filtersBlock.style.maxHeight = 'calc(100vh - ' + filtersMaxHeight + 'px)'
+                    },
+
+                    openFiltersByDefault(element) {
+                        let filters = element.querySelectorAll(this.selectors.filterItem);
+                        filters.forEach((filter) => {
+                            let filterOPtion = filter.closest(this.selectors.filterOption);
+                            let hasSelectedOption = filter.querySelector(this.selectors.selectedClass);
+                            switch (parseInt(filter.dataset.amshopbyExpanded)) {
+                                case 1:
+                                    this._openFilterEvent(filterOPtion);
+                                    break;
+                                case 2:
+                                    if (!this.isMobile || hasSelectedOption) {
+                                        this._openFilterEvent(filterOPtion);
+                                    }
+                                    break;
+                                default:
+                                    if(hasSelectedOption) {
+                                        this._openFilterEvent(filterOPtion);
+                                    }
+                            }
+                        })
+                    },
+
+                    /**
+                     * Create event for open filter
+                     * @param target element for creating event
+                     * @returns {*}
+                     * @private
+                     */
+                    _openFilterEvent(target) {
+                        return target.dispatchEvent(new CustomEvent('filter-open-state', {}));
+                    },
+
+                    setOpenedFilter(index, element) {
+                        if (!this.isMobile) {
+                            return;
+                        }
+                        const collapseComponent = element.closest(this.selectors.filterOption);
+                        const  showMoreEls = collapseComponent.querySelectorAll(this.selectors.showMore);
+                        this.openedFilter !== parseInt(index) ? this.openedFilter = parseInt(index) : this.openedFilter = null;
+                        this._clearShowMoreElements(showMoreEls);
+                    },
+
+                    _clearShowMoreElements(elements) {
+                        if (!elements) {
+                            return;
+                        }
+                        elements.forEach((el, i) => {
+                            if (i > 0) {
+                                el.remove();
+                            }
+                        })
+                    },
+
+                    isFilterOpened(index) {
+                        return this.openedFilter === parseInt(index);
+                    }
+                }
+            }
+        </script>
+    <?php else: ?>
+        <script>
+            function initLayeredNavigationTop() {
+                return {
+                    openedFilter: null,
+                    isMobile: false,
+                    checkIsMobileResolution(element) {
+                        this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+                    },
+                    setOpenedFilter(index, element) {
+                        if (this.isMobile) {
+                            return;
+                        }
+                        this.openedFilter !== parseInt(index) ? this.openedFilter = parseInt(index) : this.openedFilter = null;
+                    },
+                    isFilterOpened(index) {
+                        return this.openedFilter === parseInt(index);
+                    }
+                }
+            }
+        </script>
+    <?php endif; ?>
+    <?php if ($productListAjax->isOneColumn()): ?>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+

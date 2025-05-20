@@ -1,0 +1,142 @@
+<?php
+/** @var Mageants\ExtensionVersionInformation\Block\Adminhtml\Extensions $block */
+
+$installedModules = $block->getModulesList();
+$countInstallModules = count($block->getModulesList());
+?>
+<div class="support-container-wrapper">
+    <div class="support-container installed-extensions">
+        <div class="support-header support-container-header">
+            <img class="mageants-logo" src="<?php echo $this->getViewFileUrl('Mageants_ExtensionVersionInformation::images/images.png'); ?>" alt="money-bag" />
+
+            <div class="support-header-title-wrapper" >
+                <p class="support-header-title" ><?= $block->escapeHtml(__($installedModules[0]['supportContainerHeader']['ContainerHeader']['service_header_title'])) ?></p>
+                <span class="support-header-subtitle" ><?php echo __($installedModules[0]['supportContainerHeader']['ContainerHeader']['service_header_subtitle'])?></span>
+            </div>
+            <a class="support-header-link" href="<?=$installedModules[0]['supportContainerHeader']['ContainerHeader']['support_header_link']; ?>" target="_blank" >
+                <?= $block->escapeHtml(__($installedModules[0]['supportContainerHeader']['ContainerHeader']['service_header_label'])) ?>
+            </a>
+        </div>
+
+        <?php  if ($installedModules[0]['name'] == 'Mageants ExtensionVersionInformation' && $countInstallModules ==1) { ?>
+            <div class="support-container-main support-container-dis">
+        <?php } else if ($countInstallModules <= 2) { ?>
+            <div class="support-container-main">
+        <?php  } else { ?>
+            <div class="support-container-main scroll-bar">
+        <?php } ?>
+            <?php foreach($installedModules as $module): ?>
+                <?php if ($module['name'] == 'Mageants ExtensionVersionInformation') { ?>
+                    <div class="support-card support-card-dis" style="display: none;">
+                <?php } else { ?>
+                    <div class="support-card">
+                <?php } ?>
+                    <div class="support-card-left">
+                        <a href="<?= 'https://mageants.com/'.$module['data']['url_key'].'.html'; ?>" target="_blank" class="support-card-img-link">
+                            <img class="support-card-img" src="<?= $module['data']['small_image']; ?>" alt="extension" />
+                        </a>
+                    </div>
+
+                    <div class="support-card-right">
+                        <div class="support-card-card-top">
+                            <p class="support-card-right-title">
+                                    <a href="<?= 'https://mageants.com/'.$module['data']['url_key'].'.html'; ?>" target="_blank" class="support-card-name-link">
+                                    <?php echo $module['name']; ?>        
+                                </a>                                
+                            </p>
+                            
+                            <div class="support-user-card-links">
+                                <a href="<?= $module['data']['user_guide']; ?>" target="_blank" ><?php echo __("User Guide") ?></a>
+                            </div>
+                        </div>
+
+                        <div class="support-card-card-bottom">
+                            <span class="extension-card-version" style="color:#008000;" > <?php echo __("Current Version - ".$module['current_version']); ?></span><br>
+                            <span class="extension-card-version" style="color:#ff0315;"> <?php echo __("Available version - ".$module['data']['extension_version']); ?></span> <br>
+                            <a href="<?= 'https://mageants.com/'.$module['data']['url_key'].'.html#changelog.tab'; ?>" target="_blank" class="extension-card-changelog"><?php echo __("See What's New!")?></a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            </div>
+
+    </div>
+    <br>
+
+    <div class="support-container show-performing-extensios">
+        <div class="extension-container-header extension-performnce-container">
+            <img class="mageants-logo" src="<?php echo $this->getViewFileUrl('Mageants_ExtensionVersionInformation::images/images.png'); ?>" alt="top-perform" />
+            <div class="performing-header-title-wrapper">
+                <p class="performing-header-title">
+                    <?= $block->escapeHtml(__($installedModules[0]['topContainerHeader']['topHeader']['top_header_title'])) ?>
+                </p>
+                <span class="performing-header-subtitle">
+                    <?= $block->escapeHtml(__($installedModules[0]['topContainerHeader']['topHeader']['top_header_subtitle'])) ?>
+                </span>
+            </div>
+        </div>
+        <div class="support-container-main scroll-bar">
+            <?php foreach ($installedModules[0]['topfive'] as $key => $value) { ?>
+            <div class="support-card mt-10">
+                <div class="support-card-left">
+                    <a href="<?= 'https://mageants.com/'.$value['url_key'].'.html'; ?>" target="_blank" class="support-card-img-link">
+                        <img class="performing-card-img" src="<?= $value['small_image']; ?>" alt="free-gift" />
+                    </a>
+                </div>
+                <div class="support-card-right">
+                    <h4 class="support-card-right-title-wrapper">
+                        <a href="<?= 'https://mageants.com/'.$value['url_key'].'.html'; ?>" target="_blank" class="support-card-name-link">
+                            <p class="performing-card-ttl"><?= $value['name']; ?></p>
+                        </a>
+                    </h4>
+                    <span class="performing-card-price"><?= $value['price']; ?></span>
+                    <p class="performing-card-description"><?= $value['extension_description']?></p>
+                    <a href="<?= 'https://mageants.com/'.$value['url_key'].'.html'; ?>" target="_blank" class="support-card-img-link">
+                        <span class="performing-card-btn"> Buy Now </span>
+                    </a>
+                </div>
+            </div>
+        <?php } ?>
+
+        </div>
+    </div>
+
+    <div class="support-container extension-service-container">
+        <img class="header-img" src="<?php echo $this->getViewFileUrl('Mageants_ExtensionVersionInformation::images/images.png'); ?>" alt="image-logo" />
+
+        <div class="support-header-title-wrapper" >
+            <p class="service-title" ><?= $block->escapeHtml(__($installedModules[0]['extensionServiceContainer']['serviceContainer']['service_title'])) ?></p>
+            <span class="service-subtitle" ><?php echo __($installedModules[0]['extensionServiceContainer']['serviceContainer']['service_subtitle']) ?></span>
+        </div>
+
+        <a class="support-header-link" href="<?=$installedModules[0]['extensionServiceContainer']['serviceContainer']['support_header_link'].'.html'; ?>" target="_blank" >
+            <?= $block->escapeHtml(__($installedModules[0]['extensionServiceContainer']['serviceContainer']['service_label'])) ?>
+        </a>
+    </div><br>
+
+    <div class="support-container extension-service-button">
+        <div  class="support-header support-container-header">
+            <div class="btns-block">
+                <a href="<?=$installedModules[0]['supportContain']['support_button_1']['url_key'].'.html'; ?>"
+                class="mageants-btn -orange" target="_blank" title="<?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_1']['name'])) ?>">
+                    <?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_1']['name'])) ?>
+                </a>
+
+                <a href="<?=$installedModules[0]['supportContain']['support_button_2']['url_key'].'.html'; ?>"
+                class="mageants-btn -blue" target="_blank" title="<?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_2']['name'])) ?>">
+                    <?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_2']['name'])) ?>
+                </a>
+
+                <a href="<?=$installedModules[0]['supportContain']['support_button_3']['url_key'].'.html'; ?>"
+                class="mageants-btn -orange btn-hire" target="_blank" title="<?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_3']['name'])) ?>">
+                    <?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_3']['name'])) ?>
+                </a>
+
+                <a href="<?=$installedModules[0]['supportContain']['support_button_4']['url_key'].'.html'; ?>"
+                class="mageants-btn -blue" target="_blank" title="<?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_4']['name'])) ?>">
+                    <?= $block->escapeHtml(__($installedModules[0]['supportContain']['support_button_4']['name'])) ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

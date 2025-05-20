@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+ -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="amasty.menu.hamburger.hyva"
+                        template="Amasty_MegaMenuHyvaAddon::components/hamburger-menu.phtml" />
+        <referenceBlock name="amasty.menu.mobile.hyva"
+                        template="Amasty_MegaMenuHyvaAddon::components/mobile-menu.phtml" />
+        <referenceBlock name="amasty.menu.account.hyva"
+                        template="Amasty_MegaMenuHyvaAddon::components/account-menu.phtml" />
+        <referenceBlock name="amasty.store.menu"
+                        template="Amasty_MegaMenuHyvaAddon::container.phtml" />
+        <referenceBlock name="amasty.menu.toggle.hyva"
+                        template="Amasty_MegaMenuHyvaAddon::components/toggle-hyva.phtml" />
+        <referenceBlock name="mega.menu.js">
+            <block name="mega.menu.walmart.style"
+                   ifconfig="ammegamenu/general/walmart_like_enabled"
+                   template="Amasty_MegaMenuHyvaAddon::js/walmart-style.phtml" />
+        </referenceBlock>
+        <referenceBlock name="mega.menu.js.wrapper">
+            <arguments>
+                <argument name="expand" xsi:type="array">
+                    <item name="walmart-style" xsi:type="string">amMegaMenuWalmartStyle</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="ammenu.menu.mobile.drill"
+               template="Amasty_MegaMenuHyvaAddon::components/mobile-menu-drill.phtml"/>
+    </body>
+</page>

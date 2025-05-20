@@ -1,0 +1,72 @@
+<?php
+namespace Magecomp\Whatsapppro\Observer\Customer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class CreditmemoSaveObserver implements ObserverInterface
+{
+    protected $helperapi;
+    protected $helpercreditmemo;
+    protected $emailfilter;
+    protected $customerFactory;
+
+    public function __construct(
+        \Magecomp\Whatsapppro\Helper\Apicall $helperapi,
+        \Magecomp\Whatsapppro\Helper\Creditmemo $helpercreditmemo,
+        \Magento\Email\Model\Template\Filter $filter,
+        \Magento\Customer\Model\CustomerFactory $customerFactory
+    ) {
+        $this->helperapi = $helperapi;
+        $this->helpercreditmemo = $helpercreditmemo;
+        $this->emailfilter = $filter;
+        $this->customerFactory = $customerFactory;
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        $creditmemo = $observer->getCreditmemo();
+        $order      = $creditmemo->getOrder();
+        if (!$this->helpercreditmemo->isEnabledWhatsapp($order->getStoreId())) {
+            return $this;
+        }
+        if ($creditmemo) {
+            $storeId= $order->getStoreId();
+            $billingAddress = $order->getBillingAddress();
+            $mobilenumber = $billingAddress->getTelephone();
+
+            if ($order->getCustomerId() > 0) {
+                $customer = $this->customerFactory->create()->load($order->getCustomerId());
+                $mobile = $customer->getMobilenumber();
+                if ($mobile != '' && $mobile != null) {
+                    $mobilenumber = $mobile;
+                }
+
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'creditmemo' => $creditmemo,
+                    'customer' => $customer,
+                    'mobilenumber' => $mobilenumber
+                ]);
+            } else {
+                $this->emailfilter->setVariables([
+                    'order' => $order,
+                    'creditmemo' => $creditmemo,
+                    'mobilenumber' => $mobilenumber
+                ]);
+            }
+
+            if ($this->helpercreditmemo->isCreditmemoNotificationForUser($storeId)) {
+                $message = $this->helpercreditmemo->getCreditmemoNotificationUserTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($mobilenumber, $finalmessage,$storeId);
+            }
+
+            if ($this->helpercreditmemo->isCreditmemoNotificationForAdmin($storeId) && $this->helpercreditmemo->getAdminNumber($storeId)) {
+                $message = $this->helpercreditmemo->getCreditmemoNotificationForAdminTemplate($storeId);
+                $finalmessage = $this->emailfilter->filter($message);
+                $this->helperapi->callApiUrl($this->helpercreditmemo->getAdminNumber($storeId), $finalmessage,$storeId);
+            }
+        }
+        return $this;
+    }
+}

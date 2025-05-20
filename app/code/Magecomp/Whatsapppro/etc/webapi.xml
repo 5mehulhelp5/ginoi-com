@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <route method="POST" url="/V1/whatsapppro/sendordernotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendOrderNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route method="POST" url="/V1/whatsapppro/sendinvoicenotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendInvoiceNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route method="POST" url="/V1/whatsapppro/sendshipmentnotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendShipmentNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route method="POST" url="/V1/whatsapppro/sendcreditmemonotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendCreditmemoNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route method="POST" url="/V1/whatsapppro/sendcontactnotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendContactNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <route method="POST" url="/V1/whatsapppro/sendregnotification">
+        <service class="Magecomp\Whatsapppro\Api\WhatsappproInterface" method="sendRegNotification"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>

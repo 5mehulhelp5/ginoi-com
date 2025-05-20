@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Boolfly. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="checkout.cart.item.renderers.default.actions">
+            <block class="Boolfly\Wishlist\Block\Cart\Item\Renderer\Actions" name="checkout.cart.item.renderers.default.actions.wishlist"
+                   after="checkout.cart.item.renderers.default.actions.edit"
+                   template="Boolfly_Wishlist::php-cart/item/renderer/actions/wishlist.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.simple.actions">
+            <block class="Boolfly\Wishlist\Block\Cart\Item\Renderer\Actions" name="checkout.cart.item.renderers.simple.actions.wishlist"
+                   after="checkout.cart.item.renderers.simple.actions.edit"
+                   template="Boolfly_Wishlist::php-cart/item/renderer/actions/wishlist.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.configurable.actions">
+            <block class="Boolfly\Wishlist\Block\Cart\Item\Renderer\Actions" name="checkout.cart.item.renderers.configurable.actions.wishlist"
+                   after="checkout.cart.item.renderers.configurable.actions.edit"
+                   template="Boolfly_Wishlist::php-cart/item/renderer/actions/wishlist.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.virtual.actions">
+            <block class="Boolfly\Wishlist\Block\Cart\Item\Renderer\Actions" name="checkout.cart.item.renderers.virtual.actions.wishlist"
+                   after="checkout.cart.item.renderers.virtual.actions.edit"
+                   template="Boolfly_Wishlist::php-cart/item/renderer/actions/wishlist.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.default.actions.move_to_wishlist" remove="true"/>
+        <referenceBlock name="checkout.cart.item.renderers.simple.actions.move_to_wishlist" remove="true"/>
+        <referenceBlock name="checkout.cart.item.renderers.configurable.actions.move_to_wishlist" remove="true"/>
+        <referenceBlock name="checkout.cart.item.renderers.virtual.actions.move_to_wishlist" remove="true"/>
+    </body>
+</page>

@@ -1,0 +1,116 @@
+<?php
+define('PHONE_INPUT_ELEMENT', 'input[name="telephone"]');
+?>
+<input type="hidden" value="" id="mobilenumber" name="mobilenumber">
+<input type="hidden" value="" id="countryreg" name="countryreg">
+<script type="text/javascript">
+    var int_phone_input_element = '<?php /* @noEscape */ echo PHONE_INPUT_ELEMENT; ?>';
+</script>
+<script>
+    require([
+            'jquery',
+            'Magecomp_Wappcountryflag/js/intlTelInput.min'
+        ],
+        function($) {
+            function Smsresetdata()
+            {
+                if(jQuery(int_phone_input_element).val()==""){
+                    $(".field-note").css('color','black');
+                    $(".field-note").text('Enter Your WhatsApp Number.');
+                }
+                
+                jQuery(int_phone_input_element).removeClass('mage-error');
+                jQuery('#smserror').html('');
+            }
+
+            function Smstoggeldata(Elementid)
+            {
+                jQuery(Elementid).toggle();
+            }
+            var checkPhoneInputExist = setInterval(function () {
+                if (jQuery(int_phone_input_element).length) {
+                   <?php if ($block->isEnabled()): ?>
+                        var country_flag = "<?php /* @noEscape */ echo $block->getDefualtCountry();?>";
+                        <?php if ($block->getDetectByIp()):
+                            ?>
+                            country_flag = "<?php /* @noEscape */ echo $block->getCustomerIPDetails();?>";
+                        <?php endif; ?>
+                    
+                    jQuery(int_phone_input_element).intlTelInput({
+                        initialCountry: country_flag
+                    });
+                    jQuery(int_phone_input_element).removeAttr('placeholder');
+
+                    jQuery(int_phone_input_element).keyup(function(){
+                        Smsresetdata();
+                        var str = jQuery(".selected-flag").attr("title");
+                        var countrycodeval =  str.split('+')[1];
+                        var mobilelength=jQuery(int_phone_input_element).val().length;
+                        jQuery("#mobilenumber").val(jQuery(int_phone_input_element).val());
+                        var mobile = countrycodeval+jQuery(int_phone_input_element).val();
+                        jQuery("#countryreg").val(countrycodeval);
+                        var temp=true;
+                        if(mobile == null || mobile == '')
+                        {
+                            temp=false;
+                            jQuery(int_phone_input_element).addClass('mage-error');
+                            $(".field-note").text('<?php /* @noEscape */ echo __('This is a required field.') ?>');
+                        }
+                        if(!$.isNumeric(mobile) || mobile.substring(0,1)=='+' || mobile.substring(0,1)=='-')
+                        {
+                            temp=false;
+                            jQuery(int_phone_input_element).addClass('mage-error');
+                            $(".field-note").text('<?php /* @noEscape */ echo __('Please, Enter Valid Mobile Number.') ?>');
+                        }
+                        var countrycode = jQuery(".flag-container > .country-list > .active").attr("data-country-code");
+
+                        $.ajax({
+                            type: "POST",
+                            url: '<?php /* @noEscape */ echo $block->getUrl('wappcountryflag/customer/validatephone')?>',
+                            data:{'mobile':mobile,'countrycode':countrycode,'mobilelength':mobilelength,'country_id':countrycodeval},
+                            success: function(data)
+                            {
+                                if(data.validate==true){
+                                    $(".field-note").css('color','black');
+                                    $(".field-note").text('Enter Your WhatsApp Number.');
+                                    jQuery('#shipping-method-buttons-container .button.action.continue.primary').prop("disabled", false);
+                                    jQuery('.action-save-address').prop("disabled", false);
+                                }
+                                else{
+                                    $(".field-note").css('color','red');
+                                    if(temp==true){
+                                        $(".field-note").text(data.message);
+                                    }
+                                    jQuery('#shipping-method-buttons-container .button.action.continue.primary').prop("disabled", true);
+                                    jQuery('.action-save-address').prop("disabled", true);
+                                    
+                                }
+                            },
+                            error: function(data) {
+                                $(".field-note").html('<?php /* @noEscape */ echo __('Something went wrong, Try again later.') ?>');
+                            }
+                        });
+                    });
+                    jQuery('.country-list li').click(function(){
+                        jQuery(int_phone_input_element).val('');
+                    });
+                    jQuery(int_phone_input_element).blur(function(){
+                        var str = jQuery(".selected-flag").attr("title");
+                        var countrycodeval =  str.split('+')[1];
+                        var mobile = jQuery(int_phone_input_element).val();
+                        var strFirstThree = mobile.substring(0,countrycodeval.length);
+                        if(mobile.indexOf(countrycodeval) != -1){
+                            mobile.replace(countrycodeval,'');
+                        }
+                        if(countrycodeval!=strFirstThree){
+                             jQuery(int_phone_input_element).val(countrycodeval+mobile);
+                        }
+                    });
+                     <?php endif; ?>
+                    clearInterval(checkPhoneInputExist);
+                }
+            }, 100); 
+
+        }
+    );
+</script>

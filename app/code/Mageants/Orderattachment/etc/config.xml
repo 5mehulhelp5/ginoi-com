@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        
+        <orderattachments>
+            <general>
+                <enabled>1</enabled>
+                <attachment_title>Order Attachments</attachment_title>
+                <attachment_information>* You can Add Attachments like PNG,JPG,JPEG,PDF </attachment_information>
+                <display_attachment>no</display_attachment>
+                <count>3</count>
+                <size>2048</size>
+                <extension>jpg,jpeg,png,gif,pdf,mp4</extension>
+                <Fenabled>1</Fenabled>
+                <admin_email>admin@gmail.com</admin_email>
+            </general>
+        </orderattachments>
+    </default>
+</config>

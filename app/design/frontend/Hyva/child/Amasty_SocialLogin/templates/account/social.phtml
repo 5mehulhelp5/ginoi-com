@@ -1,0 +1,114 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Social Login Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Amasty\SocialLogin\Block\Account\SocialAccounts;
+use Amasty\SocialLoginHyva\ViewModel\Logos;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var Logos $viewModelLogos */
+/** @var SocialAccounts $block */
+/** @var Escaper $escaper */
+
+$viewModelLogos = $viewModels->require(Logos::class);
+$socialButtonsType = $block->getButtonShapeClass();
+$linked = $block->getLinkedAccountsData();
+$enabledLabels = $block->getButtonLabelState();
+?>
+<h1 id="my-orders-title" class="mb-6 text-2xl block-title font-bold border-l-4 border-[#3E06B0] text-primary-purple pl-4 py-2">
+    <?= $escaper->escapeHtml(__('My Social Accounts')) ?>
+</h1>
+<div class="amsl-accounts lg:flex lg:justify-between gap-x-4">
+    <?php if ($linked): ?>
+        <div class="amsl-accounts-block w-full lg:w-1/2">
+            <div class="flex flex-col border rounded-2xl p-4">
+            <legend class="legend text-primary-purple mb-2">
+                <span><?= $escaper->escapeHtml(__('Linked accounts')); ?></span>
+            </legend>
+            <div class="amsl-linked-wrapper amsl-social-login">
+                <?php foreach ($block->getLinkedAccountsData() as $key => $data): ?>
+                    <?php $buttonClassNames = '-' . $data['type'] . ' ' . $socialButtonsType; ?>
+                    <div class="amsl-button-wrapper mb-4 last:mb-0 ml-4">
+                        <div class="amsl-linked -social-small flex items-center -ml-4
+                        <?= $escaper->escapeHtmlAttr($socialButtonsType); ?>">
+                            <span
+                                class="amsl-button rounded-full overflow-hidden bg-white
+                                    shadow-md hover:shadow-lg transition-amsl-social-button
+                                    <?= $enabledLabels ? 'w-full h-12 p-2 flex items-center text-sm text-white' : 'block w-16 h-16 p-4' ?>
+                                    <?= $escaper->escapeHtmlAttr($buttonClassNames) ?>"
+                            >
+                                <span class="amsl-social-icon <?= $enabledLabels ? 'p-1 rounded-sm overflow-hidden mr-3' : '' ?>"
+                                      role="img"
+                                      aria-label="<?= $escaper->escapeHtml(__('Unlink  %1', $data['label'])); ?>"
+                                >
+                                    <?= $viewModelLogos->renderHtml($data['type']) ?>
+                                </span>
+                            </span>
+                            <span class="amsl-name ml-2 text-gray-800">
+                                <?= $escaper->escapeHtml($data['name']); ?>
+                            </span>
+                            <form action="<?= $escaper->escapeUrl($data['url']); ?>"
+                                  class="ml-auto mr-2"
+                                  method="post">
+                                <input name="form_key"
+                                       type="hidden"
+                                       value="<?= $escaper->escapeHtml($block->getFormKey()); ?>"/>
+                                <button type="submit"
+                                        title="<?= $escaper->escapeHtml(__('Unlink  %1', $data['label'])); ?>"
+                                        class="amsl-unlink btn btn-primary py-1">
+                                    <span><?= $escaper->escapeHtml(__('Unlink')); ?></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if ($block->getUnLinkedAccountsData()): ?>
+        <div class="amsl-accounts-block w-full lg:w-1/2 mt-4 lg:mt-0">
+            <div class="flex flex-col border rounded-2xl p-4">
+                <legend class="legend text-primary-purple mb-2">
+                    <span><?= $escaper->escapeHtml(__('Link new accounts')); ?></span>
+                </legend>
+                <div class="amsl-social-login">
+                    <div class="amsl-buttons flex flex-wrap justify-start gap-7">
+                        <?php foreach ($block->getUnLinkedAccountsData() as $key => $data): ?>
+                            <?php $buttonClassNames = '-' . $data['type'] . ' ' . $socialButtonsType; ?>
+                            <div class="amsl-button-wrapper
+                            <?= $escaper->escapeHtmlAttr($enabledLabels ? 'with-label w-full' : '') ?>">
+                                <a class="amsl-button <?= $escaper->escapeHtmlAttr($buttonClassNames) ?> flex gap-3 p-2.5 rounded-full"
+                                   title="<?= $escaper->escapeHtml(__('Link  %1', $data['label'])); ?>"
+                                   href="<?= $escaper->escapeUrl($data['url']); ?>"
+                                   role="link"
+                                >
+                                <span class="amsl-social-icon"
+                                      role="img"
+                                      aria-label="<?= $escaper->escapeHtml(__('Link  %1', $data['label'])); ?>">
+                                    <?= $viewModelLogos->renderHtml($data['type']) ?>
+                                </span>
+                                    <?php if ($socialButtonsType && $enabledLabels): ?>
+                                        <span class="amsl-text">
+                                        <?= $escaper->escapeHtml(__('Link  %1', $data['label'])); ?>
+                                    </span>
+                                    <?php endif; ?>
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    <?php endif; ?>
+</div>
+

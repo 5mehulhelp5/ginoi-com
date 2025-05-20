@@ -1,0 +1,83 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Customer\Block\Account\Dashboard\Info;
+use Magento\Framework\Escaper;
+
+/** @var Info $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+?>
+<h1 class="mb-6 text-2xl block-title font-bold border-l-4 border-[#3E06B0] text-primary-purple pl-4 py-2">
+    <?= $escaper->escapeHtml(__('My Account')) ?>
+</h1>
+<div class="flex flex-wrap justify-between -m-4">
+    <div class="w-full p-4 lg:w-1/2">
+        <div class="h-full flex flex-col border rounded-2xl">
+            <div class="p-4 h-full">
+                <h3 class="mb-3 text-lg font-medium text-primary-purple title-font">
+                    <strong><?= $escaper->escapeHtml(__('Profile & Password')) ?></strong>
+                </h3>
+                <p>
+                    <?= $escaper->escapeHtml($block->getName()) ?><br>
+                    <?= $escaper->escapeHtml($block->getCustomer()->getEmail()) ?><br>
+                </p>
+                <?= $block->getChildHtml('customer.account.dashboard.info.extra'); ?>
+            </div>
+            <div class="px-4 py-2 border-t">
+                <a
+                    class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                    href="<?= $escaper->escapeUrl($block->getUrl('customer/account/edit')) ?>"
+                    aria-label="<?= $escaper->escapeHtml(__('Edit contact information')) ?>"
+                >
+                    <strong><?= $escaper->escapeHtml(__('Edit')) ?></strong>
+                </a>
+                <a
+                    class="items-center w-full md:text-sm text-primary-purple underline border-l ml-2 pl-2 underline-offset-4"
+                    href="<?= $escaper->escapeUrl($block->getChangePasswordUrl()) ?>"
+                >
+                    <strong><?= $escaper->escapeHtml(__('Change Password')) ?></strong>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php if ($block->isNewsletterEnabled()): ?>
+        <div class="w-full p-4 lg:w-1/2">
+            <div class="h-full flex flex-col border rounded-2xl">
+                <div class="p-4 h-full">
+                    <h3 class="mb-3 text-lg font-medium text-primary-purple title-font">
+                        <strong><?= $escaper->escapeHtml(__('Newsletters')) ?></strong>
+                    </h3>
+                    <p>
+                        <?php if ($block->getIsSubscribed()): ?>
+                            <?= $escaper->escapeHtml(__('You are subscribed to "General Subscription".')) ?>
+                        <?php else: ?>
+                            <?= $escaper->escapeHtml(__('You aren\'t subscribed to our newsletter.')) ?>
+                        <?php endif; ?>
+                    </p>
+
+                </div>
+                <div class="px-4 py-2 border-t">
+                    <a
+                        class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                        href="<?= $escaper->escapeUrl($block->getUrl('newsletter/manage')) ?>"
+                        aria-label="<?= $escaper->escapeHtml(__('Edit newsletters')) ?>"
+                    >
+                        <strong><?= $escaper->escapeHtml(__('Edit')) ?></strong>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?= $block->getChildHtml('additional_blocks'); ?>
+</div>

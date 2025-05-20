@@ -1,0 +1,153 @@
+Departments,Departamentos
+All Departments,Todos los Departmentos
+Previous,Anterior
+Next,Siguiente
+slide {{index}} of {{slidesLength}} slide,slide {{index}} of {{slidesLength}} slide
+This is a slide for a brand,This is a slide for a brand
+Compare Products,Comparar Productos
+%1 Articles,%1 Productos
+%1 Article,%1 Producto
+Toggle search form,Toggle search form
+Compras & Listas,Compras & Listas
+Toggle minicart,Toggle minicart
+View cart,View cart
+Cart is empty,Cart is empty
+%1 items,%1 items
+%1 item,%1 item
+My Account,Mi Cuenta
+Account,Cuenta
+Create an Account,Crear una Cuenta
+Sign In,Iniciar Sesión
+Currency,Moneda
+Keep in touch!,Mantente En Contacto!
+Email Address,Correo Electrónico
+Email,Correo Electrónico
+Enter your email address,Introduce tu correo electrónico
+Subscribe,Suscribirme
+Country,País
+Terms,Términos & Condiciones
+Privacy and Cookie Policy,Política de Privacidad
+Enable Cookies,Habilitar Cookies
+Aid,Ayuda
+Help,Ayuda
+Gift Cards,Gift Cards
+Sell products with us,Sell products with us
+Go to Home page,Ir al Home Page
+Store logo,Store logo
+Quick Access,Accesos Rápidos
+My Account,Tu Cuenta
+Your Orders,Tus Pedidos
+Shopping Info,Información De Compras
+Secure Payment Options,Opciones de Pago Seguro
+Shipping & Delivery,Envíos & Entrega
+Returns & Refunds,Devoluciones & Reembolsos
+Make Money with Us,Haz Dinero Con Nosotros
+Sell your products on Ginoi,Vende tus productos en Ginoi
+Advertise with Products,Publicita con Productos
+Follow Us,Síguenos
+Let Us Help You,Deja Que Te Ayudemos
+Frequently Asked Questions,Preguntas Frecuentes
+Size Guide,Guía de Tallas
+Send a Message,Enviar un Mensaje
+Create a Support Ticket,Crear un Ticket de Soporte
+Search,Buscar
+Search entire store here...,Busca algo chévere...
+View all results →,View all results →
+popularTitle,popularTitle
+In stock,Disponible
+Out of stock,Agotado
+Add To Cart,Agregar a Cesta
+No results found.,No se encontraron resultados.
+Watches,Relojes
+Popular Products,Products Populares
+Skip to Content,Skip to Content
+Address Book,Libreta de Direcciones
+Sign Out,Cerrar Sesión
+Articles,Productos
+Results per page,Mostrar por página
+Need help?,¿Necesitas ayuda?
+Help Area,Sección de Ayuda
+or,o
+Contact Us,Contáctanos
+Visit,Visita la
+Shop by Category / ,Comprar por Categoría /
+Items %1-%2 of %3,Productos %1-%2 de %3
+Articles %1-%2 of %3,Productos %1-%2 de %3
+Article %1,Producto %1
+What are you shopping for today?,¿Qué estas comprando el día de hoy?
+Watches,Relojes
+Enter your destination to get a shipping estimate.,Ingrese el destino para obtener un precio estimado de envío.
+Shopping Cart,Cesta de Compras
+Religions & Beliefs,Religiones & Creencias
+Featured Brands,Marcas Destacadas
+Enter your email address,Introduce tu correo electrónico
+Subscribe,Suscribirme
+Country,País
+Currency,Moneda
+Our Departments,Nuestros Departamentos
+Bag,Cesta
+Returns & Refunds,Devoluciones & Reembolsos
+Enable Cookies,Habilitar Cookies
+Sell products with us,Vende productos con nosotros
+Sell ,Vende
+products with us,productos con nosotros
+Forgot Your Password?,¿Olvidaste tu Contraseña?
+New on Ginoi ?,¿ Nuevo en Ginoi ?
+New on,¿ Nuevo en
+Already a Ginoi Member ?,¿ Ya tienes cuenta en Ginoi ?
+Already,¿ Ya tienes
+a Ginoi Member ?,cuenta en Ginoi ?
+Has your email changed?,¿ Ha cambiado tu correo electrónico ?
+Customer Login,Inicio de Sesión
+Create New Customer Account,Crear Nueva Cuenta
+My Cart,Mi Cesta
+My Cart is Empty,Mi Cesta está Vacía
+Cart is empty,Mi Cesta está Vacía
+Add to Cart,Añadir a Cesta
+Profile,Perfil & Contraseña
+Order Tracking,Seguimiento de Pedidos
+Repeat Order,Repetir Pedido
+Lists,Listas
+Discount Coupon,Cupón de Descuento
+Sub-Total:,Sub-Total:
+Total:,Total:
+State/Province,Estado/Departamento
+Delete,Eliminar
+Proceed to Checkout,Pasar por Caja
+Accepted Payment Methods,Métodos de Pago Aceptados
+Please select a region, state or province.,Por favor seleccione estado, departamento o provincia.
+Wish List,Lista de Deseos
+Amount,Monto
+or,o
+Check,Verificar
+My Bag,Mi Cesta
+Product Description,Descripción del Producto
+Estimate Shipping and Tax,Estimación de Envío e Impuestos
+Update Shopping Cart,Actualizar Cesta
+Sign Up for Newsletter,Suscribirme al Boletín
+Allow remote shopping assistance,Permitir asistencia de compra remota
+Create New Customer Account,Crear Nueva Cuenta en Ginoi
+Confirm Password,Confirmar contraseña
+Has your email changed ?,¿Ha cambiado tu correo electrónico?
+"If you no longer use the email address associated with your Ginoi account, you may contact ","Si ya no usa la dirección de correo electrónico asociada a su cuenta de Ginoi, puedes contactar a "
+for help restoring access to your account.,para obtener ayuda y restablecer el acceso a su cuenta.
+Back,Regresar
+Go Back,Regresar
+We can help you,Nosotros podemos ayudarte
+We can,Nosotros podemos
+help you,ayudarte
+Password Recovery,Recuperar Contraseña
+Ginoi Group LLC or its affiliates,Ginoi Group LLC o sus afiliados
+Shop All,Ver más
+with Your Social Profile,con Mi Perfil Social
+Sign up,Registrarme
+Profile & Password,Perfil & Contraseña
+Additional Registered Addresses,Direcciones Adicionales Registradas
+Add a New Address,Agregar Nueva Dirección
+Add a New Address Book,Agregar Nueva Dirección
+View / Edit Cart,Ver / Editar Cesta
+"You have signed out and will be redirected to our homepage in 5 seconds.","Usted ha cerrado la sesión y irá a su página de inicio en 5 segundos.",module,Magento_Customer
+"You have signed out","Has Cerrado la Sesión",module,Magento_Customer
+"Thank you for your visit, we're looking forward to see you again soon.","Gracias por tu visita, esperamos verte nuevamente pronto.",module,Magento_Customer
+"Product added","Producto añadido"
+"View Cart","Ver Cesta"

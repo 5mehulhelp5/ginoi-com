@@ -1,0 +1,110 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_FreeGifts
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+$gift_card = ($block->getData('gift_card'));
+$heroicons = $viewModels->require(\Hyva\Theme\ViewModel\HeroiconsOutline::class);
+?>
+
+<div>
+    <div class="block-title">
+        <strong id="block-gift-card-history-heading" role="heading">
+            <?= /** @noEscape */ $gift_card['code'] ?>
+        </strong>
+        <div @click="hide"
+             style="position: absolute;right: 10px;top: 5px;cursor: pointer">
+            <?=/* @noEscape */ $heroicons->xHtml('w-5 h-5') ?>
+        </div>
+
+    </div>
+    <div>
+        <div class="gift-card-view" data-role="gift-card-view">
+            <div class="gift-card-view-detail">
+                <table class="data table table-gift-card-detail" id="gift-card-view-detail">
+                    <tbody>
+                    <tr>
+                        <td class="col">Balance</td>
+                        <td class="col">
+                        <span class="price">
+                           <?= /** @noEscape */$gift_card['balance_formatted'] ?>
+                        </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col">Status</td>
+                        <td class="col"><?= /** @noEscape */$gift_card['status_label'] ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col">Expired Date</td>
+                        <td class="col"><?= /** @noEscape */ $gift_card['expired_at_formatted'] ?>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="block block-history">
+                <div class="block-title mt-3">
+                    <strong id="block-gift-card-history-heading" role="heading"><?= $block->escapeHtml(__('History')) ?></strong>
+                </div>
+                <div class="block-content">
+                    <table class="data table_gift_custom table table-giftcard-history history" id="giftcard-history-table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="col date"><?=/* @noEscape */ __('Date') ?></th>
+                            <th scope="col" class="col actions"><?=/* @noEscape */ __('Action') ?></th>
+                            <th scope="col" class="col amount"><?=/* @noEscape */ __('Amount') ?></th>
+                            <th scope="col" class="col status"><?=/* @noEscape */ __('Status') ?></th>
+                            <th scope="col" class="col detail"><?=/* @noEscape */__('Detail') ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($gift_card['histories'] as $history) : ?>
+                            <tr>
+                                <td class="col date">
+                                    <?= /** @noEscape */ $history['created_at_formatted'] ?>
+                                </td>
+                                <td class="col ">
+                                    <?= /** @noEscape */ $history['action_label'] ?>
+                                </td>
+                                <td class="col amount">
+                                <span class="price">
+                                 <?= /** @noEscape */ $history['amount_formatted'] ?>
+                                </span>
+                                </td>
+                                <td class="col status">
+                                    <?= /** @noEscape */ $history['status_label'] ?>
+                                </td>
+                                <td class="col detail">
+                                    <?= /** @noEscape */ $history['action_detail'] ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

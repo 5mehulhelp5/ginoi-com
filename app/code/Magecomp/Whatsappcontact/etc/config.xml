@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <whatsappcontact>
+            <general>
+                <enable>0</enable>
+                <bottom>10</bottom>
+                <right>0</right>
+                <supporttype>0</supporttype>
+                <btncolor>#25d366</btncolor>
+                <iconcolor>#ece5dd</iconcolor>
+                <msg>Hello Admin, I need your Help.</msg>
+            </general>
+        </whatsappcontact>
+    </default>
+</config>

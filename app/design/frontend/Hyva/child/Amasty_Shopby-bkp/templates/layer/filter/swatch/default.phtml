@@ -1,0 +1,246 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Shop By Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Amasty\Shopby\Block\Navigation\State;
+use Amasty\Shopby\Block\Navigation\SwatchRenderer;
+use Amasty\Shopby\Model\Source\DisplayMode;
+use Magento\Swatches\Model\Swatch;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Swatches\ViewModel\Product\Renderer\Configurable as ConfigurableViewModel;
+use Amasty\ShopbyHyvaCompatibility\ViewModel\ProductListAjax;
+
+/** @var Escaper $escaper */
+/** @var SwatchRenderer $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ConfigurableViewModel $configurableViewModel */
+$configurableViewModel = $viewModels->require(ConfigurableViewModel::class);
+
+/** @var ProductListAjax $productListAjax */
+$productListAjax = $viewModels->require(ProductListAjax::class);
+
+$swatchData = $block->getSwatchData();
+$isSwatchBlock = $block instanceof \Amasty\Shopby\Block\Navigation\State\Swatch;
+$filterSetting = $block->getFilterSetting();
+$filterCode = $filterSetting ? $escaper->escapeHtml($filterSetting->getAttributeCode()) : '';
+$extraClass = $filterSetting ? 'am-filter-items-' . $filterCode : '';
+$attributeCode = $escaper->escapeHtml($swatchData['attribute_code']);
+$attributeFilter = $block->getFilter() ? $block->getFilter()->getRequestVar() : '';
+$displayMode = $filterSetting ? $filterSetting->getDisplayMode() : false;
+$displayMode = $displayMode ?: $block->getDisplayModeByAttributeCode($attributeCode);
+$showImagesLabel = $displayMode == DisplayMode::MODE_IMAGES_LABELS;
+$relNofollow = $filterSetting ? $filterSetting->isAddNofollow() : false;
+$showProductQuantities = $filterSetting ? $filterSetting->getShowProductQuantities() : 0;
+$expandedMode = $filterSetting->getData('is_expanded');
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<script>
+    function dataLayeredSwatch_<?= $escaper->escapeJs($swatchData['attribute_code']) ?>() {
+        return {
+            getSwatchType(typeNumber) {
+                switch ("" + typeNumber) {
+                    case "1":
+                        return "color"
+                    case "2":
+                        return "image"
+                    case "<?= /** @noEscape */ SwatchRenderer::SWATCH_TYPE_OPTION_IMAGE; ?>":
+                        return "<?= /** @noEscape */ SwatchRenderer::SWATCH_TYPE_OPTION_IMAGE; ?>"
+                    case "0":
+                    default:
+                        return "text"
+                }
+            },
+            getSwatchBackgroundStyle(type, value, image) {
+                if (this.getSwatchType(type) === "color") {
+                    return 'background-color:' + value + ';background-size: 30px 30px;height: 30px;width: 30px;';
+                } else if (this.getSwatchType(type) === "image") {
+                    return "background: #ffffff url('" + image + "') no-repeat center;background-size: 30px 30px;height: 30px;width: 30px;";
+                } else if (this.getSwatchType(type) === "<?= /** @noEscape */ SwatchRenderer::SWATCH_TYPE_OPTION_IMAGE; ?>") {
+                    return "background: #ffffff url('" + image + "') no-repeat center; background-size: contain;";
+                } else {
+                    return '';
+                }
+            },
+            activeTooltipItem: false,
+            tooltipPositionElement: false,
+            isTooltipVisible() {
+                return this.activeTooltipItem
+            },
+            getTooltipImageStyle() {
+                const type = this.activeTooltipItem.type;
+
+                if (this.getSwatchType(type) === "color") {
+                    return 'background-color:' + this.activeTooltipItem.value + '; width: 110px; height: 90px;';
+                } else if (this.getSwatchType(type) === "image") {
+                    return "background: #ffffff url('" + this.activeTooltipItem.thumb +
+                        "') center center no-repeat; width: 110px; height: 90px;";
+                } else if (this.getSwatchType(type) === "<?= /** @noEscape */ SwatchRenderer::SWATCH_TYPE_OPTION_IMAGE; ?>") {
+                    return "background: #ffffff url('" + this.activeTooltipItem.value +
+                        "') center center no-repeat; background-size: contain; width: 110px; height: 90px;";
+                } else {
+                    return 'display:none';
+                }
+            },
+            getTooltipPosition() {
+                return this.tooltipPositionElement ?
+                    (
+                        `top: ${this.tooltipPositionElement.offsetTop + 5}px;` +
+                        `left: ${this.tooltipPositionElement.offsetLeft}px;`
+                    ) : ''
+            },
+            getTooltipLabel() {
+                return this.activeTooltipItem.label || ''
+            },
+            isVisualSwatch() {
+                return this.getSwatchType(this.activeTooltipItem.type) !== 'text'
+            },
+            isFirstItemCol() {
+                const left = this.tooltipPositionElement.offsetLeft;
+                const leftParent = this.tooltipPositionElement.parentNode.offsetLeft;
+                const width = this.tooltipPositionElement.offsetWidth;
+                return left - leftParent < width;
+            }
+        }
+    }
+</script>
+
+<?php if ($filterSetting && $showImagesLabel && $filterSetting->isShowSearchBox(count($swatchData['options']))): ?>
+    <?= /* @noEscape */ $block->getSearchForm() ?>
+<?php endif; ?>
+
+<form class="am-filter am-shopby-form swatch-attribute swatch-layered <?= $escaper->escapeHtmlAttr($swatchData['attribute_code']) ?> <?= $showImagesLabel ? 'swatch-label-view' : ''; ?>"
+      x-data="dataLayeredSwatch_<?= $escaper->escapeJs($swatchData['attribute_code']) ?>()"
+      aria-label="<?= $escaper->escapeHtmlAttr($attributeFilter) ?>"
+      data-amshopby-filter="<?= /* @noEscape */ $attributeFilter ?>"
+      <?= $expandedMode ? "data-amshopby-expanded=" . $escaper->escapeHtml($expandedMode) : "data-amshopby-expanded='0'"; ?>
+    <?php if ($filterSetting && $block->getEnableOverflowScroll($filterSetting) > 0): ?>
+        style="max-height:<?= /* @noEscape */ $block->getOverflowScrollValue($filterSetting) ?>px;"
+    <?php endif; ?>>
+    <div class="<?= /* @noEscape */ $extraClass ?> swatch-attribute swatch-layered justify-center clearfix
+        <?= /* @noEscape */ $attributeCode ?> <?= $showImagesLabel ? 'am-swatch-options swatch-attribute-options swatch-label' : 'swatch-attribute-options'; ?> grid grid-cols-4"
+        data-attribute-code="<?= /* @noEscape */ $attributeCode ?>"
+        data-attribute-id="<?= /* @noEscape */ $swatchData['attribute_id'] ?>"
+        data-am-js="swatch-options"
+        aria-label="<?= $escaper->escapeHtmlAttr($attributeFilter) ?>"
+        role="radiogroup"
+    >
+        <?php foreach ($swatchData['options'] as $option => $label): ?>
+        <div class="am-swatch-wrapper item swatch-option-link-layered
+            <?= (array_key_exists(SwatchRenderer::VAR_COUNT, $label)
+            && !$label[SwatchRenderer::VAR_COUNT]) ? '-empty-value' : '' ?>"
+            data-label="<?= $escaper->escapeHtmlAttr($label['label']) ?>">
+            <?php
+                $filterItem = $label[SwatchRenderer::VAR_FILTER_ITEM] ?? null;
+                $selected = $filterItem ? $block->isFilterItemSelected($filterItem) : false;
+                $extraSwatchClass = $selected ? 'border-container-lighter ring ring-primary ring-opacity-50' : 'border-container-darker';
+            ?>
+            <?php if ($isSwatchBlock): ?>
+                <span class="swatch-option-link-layered am-swatch-link">
+            <?php else: ?>
+                <?php if ($filterSetting && $block->isMultiselect($filterSetting)):
+                    $inputType = "checkbox";
+                elseif ($filterSetting && !in_array($filterCode, ['rating', 'stock'])):
+                    $inputType = "radio";
+                endif;?>
+                <?php if (isset($inputType)): ?>
+                    <label>
+                        <input  class="input hidden"
+                                name="amshopby[<?= /* @noEscape */ $block->getFilter()->getRequestVar() ?>][]"
+                                id="amswatch-id-<?= $escaper->escapeHtmlAttr($label['label']) ?>-<?= $escaper->escapeHtmlAttr($swatchData['attribute_code']) ?>-<?= $escaper->escapeHtmlAttr(uniqid()) ?>"
+                                value="<?= /* @noEscape */ $option ?>"
+                                type="<?= /* @noEscape */ $inputType ?>"
+                        <?= /* @noEscape */ $selected ? 'checked' : ''; ?>
+                        />
+                        <span class="sr-only">
+                            <?= $escaper->escapeHtml($label['label']) ?>
+                        </span>
+                    </label>
+                <?php endif; ?>
+
+                <a href="<?= $escaper->escapeUrl($label['link']) ?>"
+                    <?= $relNofollow ? ' rel="nofollow"' : '' ?>
+                    data-label="<?= $escaper->escapeHtmlAttr($label['label']) ?>"
+                    class="swatch-option-link-layered swatch-option border-2 cursor-pointer bg-container-lighter select-none <?= ($displayMode === 5) ? 'label-image-view' : '' ?>
+                    <?= /* @noEscape */ $extraSwatchClass?> <?= /* @noEscape */ $showImagesLabel ? 'swatch-attribute-options image-label' : 'swatch-attribute-options'; ?> <?= $selected ? 'amshopby-link-selected' : ''; ?>"
+                    :class="{
+                        'w-6 h-6' : getSwatchType('<?= (string) $swatchData['swatches'][$option]['type'] ?>') !== 'text',
+                    }"
+                    <?php if ($productListAjax->canShowBlock()): ?>
+                    @click.prevent.stop="
+                        window.dispatchEvent(new CustomEvent('amSwatchClick', {detail: {element: $event.currentTarget }}));
+                    "
+                    <?php endif ?>
+                >
+            <?php endif; ?>
+                <span class="am-swatch-image relative inline-block align-middle border-2 cursor-pointer border-container-darker px-2.5 <?= (string)$swatchData['swatches'][$option]['type'] === "0" ? 'h-auto' : 'h-6'  ?> rounded-full"
+                      :style="getSwatchBackgroundStyle(
+                        '<?= (string) $swatchData['swatches'][$option]['type'] ?>',
+                        '<?= (string) $swatchData['swatches'][$option]['value'] ?>',
+                        <?php if ($swatchData['swatches'][$option]['type'] === SwatchRenderer::SWATCH_TYPE_OPTION_IMAGE): ?>
+                            '<?= $escaper->escapeUrl($swatchData['swatches'][$option]['value']); ?>'
+                        <?php else: ?>
+                            '<?= $escaper->escapeUrl($block->getSwatchPath('swatch_image', $swatchData['swatches'][$option]['value'])) ?>'
+                        <?php endif; ?>
+                        )"
+                        <?php if ($configurableViewModel->getShowSwatchTooltip()): ?>
+                            <?php $swatchThumbPath = $block->getSwatchPath('swatch_thumb', $swatchData['swatches'][$option]['value']); ?>
+                            @mouseenter.self="activeTooltipItem = {
+                                attribute: '<?= $escaper->escapeJs($swatchData['swatches'][$option]['value']) ?>',
+                                type: '<?= $escaper->escapeJs($swatchData['swatches'][$option]['type']) ?>',
+                                id: '<?= $escaper->escapeJs($option) ?>',
+                                label: '<?= $escaper->escapeJs($label['label']) ?>',
+                                thumb: '<?= $escaper->escapeUrl($swatchThumbPath) ?>',
+                                value: '<?= $escaper->escapeJs($swatchData['swatches'][$option]['value']) ?>'
+                            }; tooltipPositionElement = $event.target;"
+                            @mouseleave.self="activeTooltipItem = false"
+                        <?php endif; ?>
+                    >
+                        <?php if ((string)$swatchData['swatches'][$option]['type'] === "0"): ?>
+                            <span class="block align-center text-center py-1">
+                                <?= $escaper->escapeHtml($label['label']) ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="sr-only"><?= $escaper->escapeHtml($label['label']) ?></span>
+                        <?php endif; ?>
+                    </span>
+                <span class="swatch-image-label inline-block">
+                    <?php if ($showImagesLabel): ?>
+                        <span class="am-shopby-swatch-label">
+                            <?php if ((string)$swatchData['swatches'][$option]['type'] !== "0"): ?>
+                                <span class="label"><?= $escaper->escapeHtml($label['label']) ?></span>
+                            <?php endif; ?>
+                            <?php if ($filterSetting && $block->isShowProductQuantities($showProductQuantities)): ?>
+                                <span class="count text-black">
+                                    <?= /* @noEscape */ "(" . $filterItem->getCount() . ")"; ?>
+                                    <span class="filter-count-label sr-only">
+                                    <?php $title = ($filterItem->getCount() == 1) ? __('item') : __('items');?>
+                                    <?= $escaper->escapeHtml($title) ?>
+                                </span>
+                            </span>
+                        </span>
+                        <?php endif; ?>
+                    </span>
+                    <?php endif; ?>
+                </span>
+            <?php if ($isSwatchBlock): ?>
+                </span>
+            <?php else: ?>
+                </a>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="tooltip-wrapper am-navigation-tooltip">
+        <?php if ($configurableViewModel->getShowSwatchTooltip()): ?>
+            <?= /* @noEscape */ $block->getBlockHtml('product.swatch.tooltip'); ?>
+        <?php endif; ?>
+    </div>
+</form>

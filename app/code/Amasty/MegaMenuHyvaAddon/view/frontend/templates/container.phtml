@@ -1,0 +1,69 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLite\ViewModel\Store\Menu;
+use Hyva\Theme\ViewModel\StoreConfig;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Menu $viewModelMenu */
+$viewModelMenu = $viewModels->require(Menu::class);
+$items = $viewModelMenu->isHamburger() ? $block->getHamburgerNodesData() : $block->getAllNodesData();
+
+/* MegaMenuAddon custom code */
+$storeConfigViewModel = $viewModels->require(StoreConfig::class);
+$walmartStyleEnabled = $storeConfigViewModel->getStoreConfig('ammegamenu/general/walmart_like_enabled') ?: false;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<?= $block->getBlockHtml('mega.menu.js') ?>
+
+<?php if ($walmartStyleEnabled) : ?>
+    <div class="flex items-center flex-shrink-0"
+         x-data="amMegaMenu()"
+         @private-content-loaded.window="processPrivateData($event.detail.data)"
+         @resize.window.debounce="isMobile = isMobileResolution()">
+        <?= $block->getChildBlock('ammenu.robots.data')->setItems($block->getAllNodesData())->toHtml() ?>
+        <?= $block->getChildHtml('amasty.menu.toggle.hyva') ?>
+    </div>
+    <div class="flex items-center">
+        <?= $block->getChildHtml('logo') ?>
+        <?php if (!empty($items)): ?>
+            <div class="z-20 order-2 navigation flex lg:ml-4 relative"
+                 :class="{ 'lg:flex-1': !isMobile }">
+                <?= $block->getChildBlock('ammenu.top.menu')->setItems($items)->toHtml() ?>
+            </div>
+        <?php endif ?>
+    </div>
+<?php else: ?>
+    <div class="flex items-center"
+         x-data="amMegaMenu()"
+         @private-content-loaded.window="processPrivateData($event.detail.data)"
+         @resize.window.debounce="isMobile = isMobileResolution()">
+        <?= $block->getChildBlock('ammenu.robots.data')->setItems($block->getAllNodesData())->toHtml() ?>
+
+        <div class="flex items-center">
+            <?= $block->getChildHtml('amasty.menu.toggle.hyva') ?>
+
+            <?= $block->getChildHtml('logo') ?>
+
+            <?php if (!empty($items)): ?>
+                <div class="z-20 order-2 navigation flex lg:ml-4 relative"
+                     :class="{ 'lg:flex-1': !isMobile }">
+                    <?= $block->getChildBlock('ammenu.top.menu')->setItems($items)->toHtml() ?>
+                </div>
+            <?php endif ?>
+        </div>
+    </div>
+<?php endif; ?>

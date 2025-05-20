@@ -1,0 +1,70 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var array $item */
+
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+
+//phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<span class="inline-block mr-1 cursor-pointer">
+    <template x-if="mobile_class === 'accordion' && isMobile">
+        <span :style="{
+            'color': color_settings?.toggle_icon_color ?? ''
+        }">
+            <?= $heroIcons->chevronDownHtml('', 24, 24, [
+                'title' => __('Open'),
+                '@click.stop' => 'itemOpen = true',
+                'x-cloak',
+                'x-show' => '!itemOpen'
+            ]); ?>
+            <?= $heroIcons->chevronUpHtml('', 24, 24, [
+                'title' => __('Back'),
+                '@click.stop' => 'itemOpen = false',
+                'x-cloak',
+                'x-show' => 'itemOpen'
+            ]); ?>
+        </span>
+    </template>
+    <template x-if="mobile_class === 'drill' && isMobile">
+        <span class="text-[#b258ce]">
+            <?= $heroIcons->chevronRightHtml('', 24, 24, [
+                'title' => __('Open'),
+                'x-cloak'
+            ]) ?>
+        </span>
+    </template>
+    <template x-if="!isMobile && is_hamburger">
+        <span :style="{
+            'color': color_settings?.toggle_icon_color ?? ''
+        }">
+            <?= $heroIcons->chevronRightHtml('', 24, 24, [
+                'title' => __('Open'),
+                '@click.stop' => 'itemOpen = true',
+                'x-cloak',
+                'x-show' => '!itemOpen'
+            ]); ?>
+            <?= $heroIcons->chevronLeftHtml('', 24, 24, [
+                'title' => __('Back'),
+                '@click.stop' => 'itemOpen = false',
+                'x-cloak',
+                'x-show' => 'itemOpen'
+            ]); ?>
+        </span>
+    </template>
+</span>

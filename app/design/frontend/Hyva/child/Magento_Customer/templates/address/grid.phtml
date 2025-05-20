@@ -1,0 +1,161 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Magento\Customer\Block\Address\Grid;
+use Magento\Framework\Escaper;
+
+/** @var Grid $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+?>
+
+<div class="block block-addresses-list">
+    <div class="mb-6 text-2xl block-title font-bold text-primary-purple py-2 border-b">
+        <?= $escaper->escapeHtml(__('Additional Registered Addresses')) ?>
+    </div>
+    <div class="block-content" x-data="initAddresses()">
+        <?php if ($additionalAddresses = $block->getAdditionalAddresses()): ?>
+            <div class="grid grid-cols-1 md:grid-cols-2 my-6 gap-y-4 gap-x-4 lg:gap-x-8 ">
+                <div class="border border-dashed rounded-2xl p-4 text-primary-purple">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('customer/address/new')) ?>"
+                       class="flex flex-col w-full text-center h-full items-center justify-center">
+                        <p><?= $heroicons->plusHtml('font-bold', 20, 20); ?></p>
+                        <strong><?= $escaper->escapeHtmlAttr(__('Add New Address')) ?></strong>
+                    </a>
+                </div>
+                <?php foreach ($additionalAddresses as $address): ?>
+                    <div class="h-full flex flex-col border rounded-2xl p-4 text-gray-700">
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('Company')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($address->getCompany()) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('Name')) ?></span>
+                            <span>:</span>
+                            <span>
+                                <?= $escaper->escapeHtml($address->getLastname()) ?>,
+                                <?= $escaper->escapeHtml($address->getFirstname()) ?>
+                            </span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('Address')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($block->getStreetAddress($address)) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('City')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($address->getCity()) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('State')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($address->getRegion()->getRegion()) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('Country')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($block->getCountryByCode($address->getCountryId())) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('Phone')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($address->getTelephone()) ?></span>
+                        </p>
+                        <p>
+                            <span><?= $escaper->escapeHtmlAttr(__('VAT')) ?></span>
+                            <span>:</span>
+                            <span><?= $escaper->escapeHtml($address->getVatId()) ?></span>
+                        </p>
+
+
+                        <div class="mt-2">
+                            <a class="items-center w-full mt-3 md:text-sm text-primary-purple underline underline-offset-4"
+                               title="<?= $escaper->escapeHtmlAttr(__('Edit')) ?>"
+                               href="<?= $escaper->escapeUrl($block->getUrl(
+                                   'customer/address/edit',
+                                   ['id' => $address->getId()]
+                               )) ?>">
+                                <span><?= $escaper->escapeHtmlAttr(__('Edit')) ?></span>
+                            </a>
+
+                            <a class="items-center w-full md:text-sm text-primary-purple underline border-l ml-4 pl-4 underline-offset-4"
+                               title="<?= $escaper->escapeHtmlAttr(__('Delete')) ?>"
+                               @click.prevent="deleteAddressById(<?= $escaper->escapeJs($address->getId()) ?>)" href="#">
+                                <span><?= $escaper->escapeHtmlAttr(__('Delete')) ?></span>
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="empty">
+                <?= $escaper->escapeHtml(__('You have no other address entries in your address book.')) ?>
+            </p>
+        <?php endif ?>
+
+        <script>
+            function initAddresses() {
+                return {
+                    deleteAddressById(id) {
+                        if (window.confirm(
+                            '<?= $escaper->escapeJs(__('Are you sure you want to delete this address?')) ?>'
+                        )) {
+                            hyva.postForm(
+                                {
+                                    "action": '<?= $escaper->escapeJs($block->getDeleteUrl()) ?>',
+                                    "data": {
+                                        "id": id
+                                    }
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+        </script>
+    </div>
+</div>
+
+<div class="actions-toolbar">
+    <div class="primary">
+        <?php if ( sizeof($additionalAddresses) == 0): ?>
+            <a href="<?= $escaper->escapeUrl($block->getUrl('customer/address/new')) ?>"
+               class="btn btn-primary block w-full uppercase text-center">
+                <span>
+                    <?= $escaper->escapeHtml(__('Add New Address')) ?>
+                </span>
+            </a>
+        <?php endif; ?>
+    </div>
+    <div class="secondary">
+        <a class="action back"
+           href="<?= $escaper->escapeUrl($block->getUrl('customer/account')) ?>">
+            <span>
+                <?= $escaper->escapeHtml(__('Back')) ?>
+            </span>
+        </a>
+    </div>
+</div>
+
+<style>
+    .actions-toolbar{
+        border-color: inherit;
+    }
+
+    .actions-toolbar a.back {
+        text-underline-offset: 4px;
+        color: #3E06B0;
+    }
+</style>

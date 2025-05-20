@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <customcarriertracking>
+            <general>
+                <enabled>0</enabled>
+            </general>
+        </customcarriertracking>
+        <carriers>
+            <customcarrier1>
+                <active>0</active>
+                <title>Custom Carrier Tracker 1</title>
+                <name>Custom Carrier Tracker 1</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker1</model>
+                <is_online>1</is_online>
+            </customcarrier1>
+            <customcarrier2>
+                <active>0</active>
+                <title>Custom Carrier Tracker 2</title>
+                <name>Custom Carrier Tracker 2</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker2</model>
+                <is_online>1</is_online>
+            </customcarrier2>
+            <customcarrier3>
+                <active>0</active>
+                <title>Custom Carrier Tracker 3</title>
+                <name>Custom Carrier Tracker 3</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker3</model>
+                <is_online>1</is_online>
+            </customcarrier3>
+            <customcarrier4>
+                <active>0</active>
+                <title>Custom Carrier Tracker 4</title>
+                <name>Custom Carrier Tracker 4</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker4</model>
+                <is_online>1</is_online>
+            </customcarrier4>
+            <customcarrier5>
+                <active>0</active>
+                <title>Custom Carrier Tracker 5</title>
+                <name>Custom Carrier Tracker 5</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker5</model>
+                <is_online>1</is_online>
+            </customcarrier5>
+            <customcarrier6>
+                <active>0</active>
+                <title>Custom Carrier Tracker 6</title>
+                <name>Custom Carrier Tracker 6</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker6</model>
+                <is_online>1</is_online>
+            </customcarrier6>
+            <customcarrier7>
+                <active>0</active>
+                <title>Custom Carrier Tracker 7</title>
+                <name>Custom Carrier Tracker 7</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker7</model>
+                <is_online>1</is_online>
+            </customcarrier7>
+            <customcarrier8>
+                <active>0</active>
+                <title>Custom Carrier Tracker 8</title>
+                <name>Custom Carrier Tracker 8</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker8</model>
+                <is_online>1</is_online>
+            </customcarrier8>
+            <customcarrier9>
+                <active>0</active>
+                <title>Custom Carrier Tracker 9</title>
+                <name>Custom Carrier Tracker 9</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker9</model>
+                <is_online>1</is_online>
+            </customcarrier9>
+            <customcarrier10>
+                <active>0</active>
+                <title>Custom Carrier Tracker 10</title>
+                <name>Custom Carrier Tracker 10</name>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <model>Meetanshi\CustomCarrierTracking\Model\Carrier\CustomTracker10</model>
+                <is_online>1</is_online>
+            </customcarrier10>
+        </carriers>
+    </default>
+</config>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="left">
+            <block class="Meetanshi\CustomCarrierTracking\Block\Adminhtml\Carrier\Edit\Tabs" name="customcarrier_carrier_tabs"/>
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block class="Meetanshi\CustomCarrierTracking\Block\Adminhtml\Carrier\Edit" name="customcarrier_carrier_edit"/>
+        </referenceContainer>
+    </body>
+</page>

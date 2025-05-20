@@ -1,0 +1,74 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\Store;
+use Hyva\Theme\ViewModel\StoreSwitcher;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Store\ViewModel\SwitcherUrlProvider;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var SwitcherUrlProvider $switcherUrlProvider */
+$switcherUrlProvider = $viewModels->require(SwitcherUrlProvider::class);
+
+/** @var Store $storeViewModel */
+$storeViewModel = $viewModels->require(Store::class);
+
+/** @var StoreSwitcher $storeSwitcherViewModel */
+$storeSwitcherViewModel = $viewModels->require(StoreSwitcher::class);
+
+$currentStore = $storeSwitcherViewModel->getStore();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$requestmanger = $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class);
+$storename = $requestmanger->getStore()->getName();
+?>
+<?php if (count($storeSwitcherViewModel->getStores()) > 1): ?>
+        <div x-data="{ open: false }" class="relative block text-left overflow-hidden w-full">
+            <button @click.prevent="open = !open"
+                @keydown.window.escape="open=false"
+                type="button"
+                class="flex w-full gap-2 items-center interstatelight mb-5 pr-1"
+                aria-haspopup="true"
+                aria-expanded="true"
+                >
+                <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/'.$storename.'.png'); ?>'
+                     alt="icon" width="32px" height="32px" loading="lazy" />
+                <?= $escaper->escapeHtml(__('País')) ?>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                     class="w-4 h-4 text-[#b258ce] ml-auto fill-current" :class="{'rotate-180': open}">
+                    <path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg>
+            </button>
+            <nav :class="{'absolute': !open,'relative': open}">
+                <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                <?php foreach ($storeSwitcherViewModel->getStores() as $lang): ?>
+                    <a href="<?= $escaper->escapeUrl($switcherUrlProvider->getTargetStoreRedirectUrl($lang)) ?>"
+                       class="block py-2 pl-10 interstatelight flex gap-2 mb-3
+                       items-center <?php if($storename == $lang->getName()) :?> active-flag<?php endif; ?>"
+                    >
+                        <?php $flagImage = 'Magecomp_Hyvachildtheme::image/'.$lang->getName().'.png'; ?>
+                        <img src="<?= $this->getViewFileUrl($flagImage); ?>" width="32px" height="32px" loading="lazy"
+                             alt="<?= $escaper->escapeHtml($lang->getName()) ?>" />
+                        <span class="language-name"><?= $escaper->escapeHtml($lang->getName()) ?></span>
+                    </a>
+                <?php endforeach; ?>
+                </div>
+            </nav>
+        </div>
+<?php endif; ?>

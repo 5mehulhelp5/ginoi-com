@@ -1,0 +1,69 @@
+<?php
+namespace Magecomp\Whatsapppro\Observer\Customer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class ContactPostObserver implements ObserverInterface
+{
+    protected $helperapi;
+    protected $helpercontact;
+    protected $emailfilter;
+
+    public function __construct(
+        \Magecomp\Whatsapppro\Helper\Apicall $helperapi,
+        \Magecomp\Whatsapppro\Helper\Contact $helpercontact,
+        \Magento\Email\Model\Template\Filter $filter
+    ) {
+        $this->helperapi = $helperapi;
+        $this->helpercontact = $helpercontact;
+        $this->emailfilter = $filter;
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        if (!$this->helpercontact->isEnabled()) {
+            return $this;
+        }
+
+        $request = $observer->getRequest();
+        $name = $request->getParam('name');
+        $email = $request->getParam('email');
+        $telephone = $request->getParam('telephone');
+        $comment = $request->getParam('comment');
+
+        $this->emailfilter->setVariables([
+            'name' => $name,
+            'email' => $email,
+            'telephone' => $telephone,
+            'comment' => $comment,
+            'store_name' => $this->helpercontact->getStoreName()
+        ]);
+
+        $json = json_encode([
+            'name' => $name,
+            'email' => $email,
+            'telephone' => $telephone,
+            'comment' => $comment,
+            'store_name' => $this->helpercontact->getStoreName(),
+            'mobilenumber' => $telephone." Contact US"
+        ]);
+
+
+
+        if ($this->helpercontact->isContactNotificationForUser($storeId=null)) {
+            $message = $this->helpercontact->getContactNotificationUserTemplate($storeId=null);
+            $finalmessage = $this->emailfilter->filter($message);
+            $csid = $this->helpercontact->getContactSidTemplate($storeId=null);
+            $this->helperapi->callApiUrl($telephone, $finalmessage,$storeId=null,$json,$csid);
+        }
+
+        if ($this->helpercontact->isContactNotificationForAdmin($storeId=null) && $this->helpercontact->getAdminNumber($storeId=null)) {
+            $message = $this->helpercontact->getContactNotificationForAdminTemplate($storeId=null);
+            $finalmessage = $this->emailfilter->filter($message);
+            $csid = $this->helpercontact->getContactSidAdmin($storeId=null);
+            $this->helperapi->callApiUrl($this->helpercontact->getAdminNumber(), $finalmessage,$storeId=null,$json,$csid);
+        }
+
+        return $this;
+    }
+}

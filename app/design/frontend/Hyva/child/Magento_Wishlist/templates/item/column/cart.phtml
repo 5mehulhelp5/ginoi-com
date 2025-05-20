@@ -1,0 +1,56 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Cart;
+use Magento\Wishlist\Model\Item;
+use Magento\Wishlist\ViewModel\AllowedQuantity;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Item $item */
+$item = $block->getItem();
+$product = $item->getProduct();
+/** @var AllowedQuantity $viewModel */
+$viewModel = $viewModels->require(AllowedQuantity::class);
+$allowedQty = $viewModel->setItem($item)->getMinMaxQty();
+?>
+<?php foreach ($block->getChildNames() as $childName): ?>
+    <?= /* @noEscape */ $block->getLayout()->renderElement($childName, false) ?>
+<?php endforeach;?>
+    <?php if ($product->isSaleable()): ?>
+            <button type="button"
+                    data-role="tocart"
+                    @click.prevent='addToCart("<?= $escaper->escapeHtmlAttr($item->getId()) ?>",
+                        <?= /* @noEscape */ $block->getItemAddToCartParams($item) ?>)'
+                    title="<?= $escaper->escapeHtmlAttr(__('Add %1 to Cart', $product->getName())) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Cart %1', $product->getName())) ?>"
+                    class="action"
+                    data-addto="cart"
+            >
+                    <img class="cancel-btn h-[25px] w-[25px]" x-data="{ hover: false }"
+                         src="<?= $this->getViewFileUrl('images/wishlist/bag-icon.svg') ?>"
+                         :src="hover ? '<?= $this->getViewFileUrl('images/wishlist/bag-hover.svg') ?>' : '<?= $this->getViewFileUrl('images/wishlist/bag-icon.svg') ?>'"
+                         @mouseenter="hover = true"
+                         @mouseleave="hover = false"
+                         alt="">
+            </button>
+    <?php else: ?>
+        <?php if ($product->getIsSalable()): ?>
+            <p class="available stock" title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>">
+                <span><?= $escaper->escapeHtml(__('In stock')) ?></span>
+            </p>
+        <?php else: ?>
+            <p class="unavailable stock" title="<?= $escaper->escapeHtmlAttr(__('Availability')) ?>">
+                <span><?= $escaper->escapeHtml(__('Out of stock')) ?></span>
+            </p>
+        <?php endif; ?>
+    <?php endif; ?>

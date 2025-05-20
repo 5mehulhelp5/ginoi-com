@@ -1,0 +1,319 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Shop By Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Amasty\Shopby\Block\Navigation\Widget\FromTo;
+use Amasty\ShopbyBase\Model\FilterSetting;
+use Amasty\ShopbyHyvaCompatibility\ViewModel\ProductListAjax;
+
+/** @var Escaper $escaper */
+/** @var FromTo $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var FilterSetting $filterSetting */
+
+/** @var ProductListAjax $productListAjax */
+$productListAjax = $viewModels->require(ProductListAjax::class);
+
+$postfix = '_' . uniqid();
+$filterCode = $escaper->escapeHtml($filterSetting->getAttributeCode());
+$min = $escaper->escapeHtml($fromToConfig['min']);
+$max = $escaper->escapeHtml($fromToConfig['max']);
+$from = $fromToConfig['from'];
+$to = $fromToConfig['to'];
+$step = $fromToConfig['step'];
+$fromToType = $block->getWidgetType();
+$hideDigitsAfterDot = $filterSetting->getHideZeros();
+$filterMode = $filterSetting->getDisplayMode();
+$isShowOnlyWidget = $filterSetting->getDisplayMode() === 0 || $filterSetting->getDisplayMode() === 3;
+$expandedMode = $filterSetting->getData('is_expanded');
+$filterName = $block->getFilter()->getName();
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<div id="am-filter-widget-<?= /* @noEscape */ $filterCode . $postfix ?>"
+     class="amshopby-fromto-wrap am-filter-items-<?= /* @noEscape */ $filterCode ?> <?= $escaper->escapeHtmlAttr($isShowOnlyWidget ? 'am-filter mt-4' : ''); ?> pt-3"
+     data-am-js="fromto-widget"
+     <?php if ($isShowOnlyWidget): ?>
+            <?= $expandedMode ? "data-amshopby-expanded=" . $escaper->escapeHtml($expandedMode) : "data-amshopby-expanded='0'"; ?>
+     x-data="initRanges<?= $escaper->escapeJs($postfix) ?>()"
+     x-init="amShopbyFilterRanges($el)"
+     <?php endif; ?>
+     >
+    <form
+        data-amshopby-filter="<?= /* @noEscape */ $filterCode ?>"
+        data-amshopby-filter-request-var="<?= /* @noEscape */ $block->getFilter()->getRequestVar() ?>"
+        :aria-label="ariaText"
+        <?= $from || $to ? 'class="amshopby-link-selected"' : '' ?>>
+        <input
+            :value="currentInputValues"
+            type="hidden"
+            data-amshopby-fromto="value"
+            name="amshopby[<?= $escaper->escapeHtml($block->getFilter()->getRequestVar()) ?>][]"/>
+        <div class="range am-fromto-widget amshopby_currency_rate flex flex-wrap justify-center px-4"
+             data-rate="<?= /* @noEscape */ $fromToConfig['curRate'] ?>">
+            <div class="amshopby-input-wrapper flex-grow relative"
+                 role="group"
+                 aria-labelledby="fromfield-id-<?= $escaper->escapeJs($postfix) ?>"
+            >
+            <span class="amshopby-currency"><?= $escaper->escapeHtml($fromToConfig['currencySymbol']) ?></span>
+                <input class="am-filter-price -from input-text text-center appearance-none p-0 border-none"
+                       data-amshopby-fromto="from"
+                       type="number"
+                       id="fromfield-id-<?= $escaper->escapeJs($postfix) ?>"
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('From')) ?>"
+                       placeholder="<?= $escaper->escapeHtmlAttr(__('From')) ?>"
+                       x-ref="widgetMin"
+                       :value="widgetMinValue"
+                    <?php if ($block->collectFilters()): ?>
+                       @input.debounce.500ms="calcWidgetMin($refs.widgetMin);setValue('min')"
+                    <?php else: ?>
+                       @input.debounce.500ms="calcWidgetMin($refs.widgetMin)"
+                    <?php endif; ?>
+                       :min="options.min"
+                       :max="options.max"
+                />
+                
+            </div>
+            <div class="amshopby-input-wrapper flex-grow text-right"
+                 role="group"
+                 aria-labelledby="tofield-id-<?= $escaper->escapeJs($postfix) ?>"
+            >
+            <span class="amshopby-currency"><?= $escaper->escapeHtml($fromToConfig['currencySymbol']) ?>
+                <input class="am-filter-price -from input-text text-center appearance-none p-0 border-none"
+                       data-amshopby-fromto="to"
+                       type="number"
+                       id="tofield-id-<?= $escaper->escapeJs($postfix) ?>"
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('To')) ?>"
+                       placeholder="<?= $escaper->escapeHtmlAttr(__('To')) ?>"
+                       x-ref="widgetMax"
+                       :value="widgetMaxValue"
+                    <?php if ($block->collectFilters()): ?>
+                       @input.debounce.500ms="calcWidgetMax($refs.widgetMax);setValue('max');"
+                    <?php else: ?>
+                       @input.debounce.500ms="calcWidgetMax($refs.widgetMax)"
+                    <?php endif; ?>
+                       :min="options.min"
+                       :max="options.max"
+                />
+            </div>
+            <?php if (!$block->collectFilters()): ?>
+                <button @click.prevent.stop="applyFilter()"
+                        type="button"
+                        class="am-filter-go btn bg-purple w-1/2 justify-center mt-4 rounded-full"
+                        title="<?= $escaper->escapeHtmlAttr(__('Apply filter')) ?>"
+                        data-amshopby-fromto="go">
+                    <?= $escaper->escapeHtml(__('Apply')) ?>
+                </button>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
+<?php if ($isShowOnlyWidget): ?>
+<script>
+    function initRanges<?= $escaper->escapeJs($postfix) ?>() {
+        return {
+            options: {
+                collectFilters: <?= /* @noEscape */ $block->collectFilters() ?>,
+                template: "<?= $escaper->escapeHtml($fromToConfig['template']) ?>",
+                currencySymbol: "<?= $escaper->escapeHtml($fromToConfig['currencySymbol']) ?>",
+                currencyPosition: "<?= $escaper->escapeHtml($fromToConfig['currencyPosition']) ?>",
+                step: <?= /* @noEscape */ $escaper->escapeHtml(floatval($fromToConfig['step'])) ?>,
+                from: "<?= /* @noEscape */ $fromToConfig['from'] ?>",
+                to: "<?= /* @noEscape */ $fromToConfig['to'] ?>",
+                deltaFrom: "<?= /* @noEscape */ $fromToConfig['deltaFrom'] ?>",
+                deltaTo: "<?= /* @noEscape */ $fromToConfig['deltaTo'] ?>",
+                curRate: "<?= /* @noEscape */ $fromToConfig['curRate'] ?>",
+                min: <?= (float)$min ?>,
+                max: <?= (float)$max ?>,
+                url: "<?= /* @noEscape */ $block->getSliderUrlTemplate() ?>",
+                code: "<?= $escaper->escapeHtml($filterSetting->getAttributeModel()->getAttributeCode()) ?>",
+                isAddFromWidget: <?= /* @noEscape */ $filterSetting->getAddFromToWidget() ? "1" : '0' ?>,
+                hideDigitsAfterDot: <?= /* @noEscape */ $hideDigitsAfterDot ? '1' : '0' ?>
+            },
+            selectors: {
+                sliderWrapper: "[data-amshopby-slider-id='slider']",
+                sliderInput: "[data-amshopby-slider-id='value']",
+                sliderHandles: ".noUi-handle",
+                sliderConnect: ".noUi-connect",
+                sliderTooltip: ".noUi-tooltip",
+                widgetFrom: "[data-amshopby-fromto='from']",
+                widgetTo: "[data-amshopby-fromto='to']",
+                topNav: ".amasty-catalog-topnav"
+            },
+            rangesElement: false,
+            initialValuesArray: false,
+            currentInputValues: '',
+            seted: false,
+            currentMin: 0,
+            currentMax: 0,
+            widgetMinValue: 0,
+            widgetMaxValue: 0,
+            ariaText: '<?= $escaper->escapeHtml(__('Filter %1 in sidebar', $filterName)) ?>',
+
+            filterWrapperCheck(el) {
+                let parent = el.closest(this.selectors.topNav);
+                if (parent) {
+                    this.ariaText = '<?= $escaper->escapeHtml($filterName) ?>';
+                }
+            },
+
+            amShopbyFilterRanges(element) {
+                this.filterWrapperCheck(element);
+                this.rangesElement = element;
+                this.currentMin = this.options.from && this.options.from >= this.options.min
+                    ? this.options.from
+                    : this.options.min;
+                this.currentMax = this.options.to && this.options.to <= this.options.max
+                    ? this.options.to
+                    : this.options.max;
+
+                this.currentMin = this._parseValue(this.currentMin);
+                this.currentMax = this._parseValue(this.currentMax);
+
+                this.widgetMinValue = this._parseValue(this.currentMin * +this.options.curRate);
+                this.widgetMaxValue = this._parseValue(this.currentMax * +this.options.curRate);
+            },
+
+            calcWidgetMin(el) {
+                this.currentMin = el.value / +this.options.curRate;
+                this.widgetMinValue = this._parseValue(this.currentMin * +this.options.curRate);
+                this.generateValues();
+            },
+
+            calcWidgetMax(el) {
+                this.currentMax = el.value / +this.options.curRate;
+                this.widgetMaxValue = this._parseValue(this.currentMax * +this.options.curRate);
+                this.generateValues();
+            },
+
+            setValue(flag) {
+                this.currentInputValues = this.currentMin + '-' + this.currentMax;
+                window.dispatchEvent(new CustomEvent('amSetButtonPosition', { detail: { element: this.rangesElement } }));
+                switch (flag) {
+                    case 'min':
+                        if (parseFloat(this.currentMin) >  parseFloat(this.options.min)) {
+                            this.applyFilter();
+                        }
+                        break;
+                    case 'max':
+                        if (parseFloat(this.currentMax) > parseFloat(this.options.min)) {
+                            this.applyFilter();
+                        }
+                        break;
+                }
+            },
+
+            generateValues() {
+                this.currentInputValues = this.currentMin + "-" + this.currentMax;
+            },
+
+            applyFilter() {
+                document.querySelectorAll(
+                    '.price-ranges input[type="radio"], .price-ranges input[type="checkbox"]'
+                ).forEach(input => {
+                    input.checked = false;
+                });
+
+                /* dispatch event on sliderAplly */
+                <?php if ($productListAjax->canShowBlock()): ?>
+                    this._dispatchEventsForAjax(this._generateSearchHref());
+                <?php else: ?>
+                    window.location.href = this._generateSearchHref();
+                <?php endif ?>
+            },
+
+            /**
+             *
+             * @returns {string}
+             * @private
+             */
+            _generateSearchHref() {
+                let min = 0;
+                let max = 0;
+                //restrict min
+                if (parseFloat(this.currentMin) > parseFloat(this.options.max)) {
+                    min = this.options.max;
+                } else if (parseFloat(this.currentMin) < parseFloat(this.options.min)) {
+                    min = this.options.min
+                } else {
+                    min = this.currentMin
+                }
+                //restrict max
+                if (parseFloat(this.currentMax) > parseFloat(this.options.max)) {
+                    max = this.options.max;
+                } else if (parseFloat(this.currentMax) < parseFloat(this.options.min)) {
+                    max = this.options.max
+                } else {
+                    max = this.currentMax
+                }
+                //restrict lover/highter than current max/min
+                if(parseFloat(max) < parseFloat(min)) {
+                    max = this.currentMin;
+                }
+                if(parseFloat(min) > parseFloat(max)) {
+                    min = this.currentMax;
+                }
+                return this.options.url
+                    .replace('amshopby_slider_from', min)
+                    .replace('amshopby_slider_to', max);
+            },
+
+            /**
+             *
+             * @param searchParams {string}
+             * @private
+             */
+            _dispatchEventsForAjax(searchParams) {
+                if (this.currentMin == this.options.min && this.currentMax == this.options.max) {
+                    this.currentInputValues = '';
+                } else {
+                    this.currentInputValues = this.currentMin + '-' + this.currentMax;
+                }
+
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('amSliderValuesUpdated', {
+                        detail: {
+                            searchParams: searchParams
+                        }
+                    }));
+                }, 0);
+            },
+
+            /**
+             * @private
+             * @param {String | Number} value
+             * @returns {String}
+             */
+            _parseValue(value) {
+                return this.amToFixed(parseFloat(value), 2, this.options.hideDigitsAfterDot);
+            },
+
+            /**
+             * Cut zeroes from value
+             *
+             * @param value
+             * @param {Number} digits - signs after dot
+             * @param hideDigitsAfterDot
+             * @returns {String | Number}
+             */
+            amToFixed(value, digits, hideDigitsAfterDot) {
+                let modifiedValue = value.toFixed(digits);
+
+                if (hideDigitsAfterDot && parseInt(modifiedValue) === value) {
+                    modifiedValue = parseInt(modifiedValue)
+                }
+
+                return modifiedValue;
+            },
+        }
+    }
+</script>
+<?php endif; ?>
+

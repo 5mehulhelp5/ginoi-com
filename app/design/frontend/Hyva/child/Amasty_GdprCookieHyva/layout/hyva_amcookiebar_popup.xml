@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="amasty.cookie.cookiebar">
+            <arguments>
+                <argument name="container_classes" xsi:type="string">
+                    fixed flex justify-start items-end text-left z-40 inset-0
+                </argument>
+                <argument name="dialog_classes" xsi:type="string">
+                    flex w-full max-w-xs shadow-xl rounded-lg relative p-5 m-10
+                    overflow-auto bg-white
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="amasty.cookie.cookiebar.buttons.allow">
+            <arguments>
+                <argument name="button_classes" xsi:type="string">
+                    ambar-btn-accept px-8 py-2 btn btn-primary justify-center rounded-full bg-purple mb-2
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="amasty.cookie.cookiebar.buttons.decline">
+            <arguments>
+                <argument name="button_classes" xsi:type="string">
+                    ambar-btn-decline w-full justify-center md:max-w-[30%] mb-2
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="amasty.cookie.cookiebar.buttons.settings">
+            <arguments>
+                <argument name="button_classes" xsi:type="string">
+                    ambar-btn-settings py-2 justify-center font-bold mb-2 order-first mr-2
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="amasty.cookie.cookiebar.settings">
+            <block class="Magento\Theme\Block\Html\Header\Logo" name="amasty.gdpr.logo">
+                <arguments>
+                    <argument name="logoPathResolver" xsi:type="object">Hyva\Theme\ViewModel\Logo\LogoPathResolver</argument>
+                    <argument name="logo_width" xsi:type="number">189</argument>
+                    <argument name="logo_height" xsi:type="number">64</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Cms\Block\Block" name="amasty.gdpr.popup.msg">
+                <arguments>
+                    <argument name="block_id" xsi:type="string">amasty_gdpr_popup_msg</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

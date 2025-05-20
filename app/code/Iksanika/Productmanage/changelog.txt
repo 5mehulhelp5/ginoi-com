@@ -1,0 +1,40 @@
+v2.0.11, 22.04.2024
+* FIX: Extension adjusted to PHP 8.2 changed as some php features was eliminated
+* FIX: Back button link generator adapted to PHP 8.2 last updates
++ Enhancement: Categories dropdown support all root categories (among all websites-stores)
++ Enhancement: Categories related mass actions dropdown's supports all root categories (among all websites-stores)
++ 'Category ID''s has been added to name of category in the Categories column
++ 'Category ID''s and Number of products assigned to categories has been added to name of category in the Categories filter
++ 'Category ID''s and Number of products assigned to categories has been added to name of category in the Categories Mass actions dropdwon
++ [NO CATEGORY] category filter returning list of products which are not assigned to any of categories (zero categories)
+
+v2.0.10, 24.02.2024
+— FIX: updated Zend_Currency which has been eliminated from latest versions of Magento
+— FIX: afterSave plugin updated for XML export
+— FIX: saveConfig fixed minor bug
+— FIX: Salable QTY — adjusted to latest updates of Magento v2.4.X-pX due to deprecation of Salable feature in those versions.
+       It will appear only in Magento 2 version which supports Salable Qty in Magento or where Adobe Commerce package
+       Inventory Api is available
+— FIX: Empty field / NULL in all date pickers related to the Product since latest version of Magento had been giving errors — fixed
+
+v2.0.9, 12.10.2023
+— FIX: Images size according to the extension Settings
+— FIX: Mass Actions according to User Role permission
+— FIX: Mass Actions according to the extension settings
+— FIX: Eliminated declined Settings from the extension main page 'Show image url'
+
+v2.0.8, 27.04.2022
+— FIX: compatibility with M2.4.4 and PHP8.1
+— FIX: resolved XML export issue in PHP8.1
++ Added: Salable Qty Column
+
+v2.0.7, 15.03.2022
+— Rewritten prices rendering functionality/columns (change to plugin approach) in order to be compatible with 3rd party extensions,
+e.g. MagePlaza Currency Formatter and others which overwrites prices globally accross Magento 2 store.
+— Fix: if image file is broken or not uploaded — default image will appear
+
+v2.0.6, 02.02.2022
+— Mass Action: Categories Remove — rewritten to new Magento Framework API: mass categories/links update
+— Mass Action: Categories Replace — rewritten to new Magento Framework API: mass categories/links update
+— Mass Action: Categories Add — rewritten to new Magento Framework API: mass categories/links update
+— Mass Action: Save Changes — rewritten categories editing feature part — to new Magento Framework API: mass categories/links update

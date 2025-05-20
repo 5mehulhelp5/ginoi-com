@@ -1,0 +1,945 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+// @codingStandardsIgnoreFile
+?>
+<?php if ($block->isUseTemplate() && $block->isInstock() && $block->isEnabled()) : ?>
+    <?php if ($block->getFonts()): ?>
+        <link href="https://fonts.googleapis.com/css?family=<?= $block->getFonts() ?>" rel="stylesheet">
+    <?php endif; ?>
+    <div id="gallery" class="w-full pt-6 md:pt-0 md:h-auto md:row-start-1 md:row-span-2 md:col-start-1"
+    >
+        <div>
+            <div class="giftcard-template-container" id="giftcard-template-container" data-bind="scope:'template'">
+                <div data-bind="afterRender: initEvent">
+                    <div class="giftcard-template-container-preview">
+                        <div class="giftcard-template-preview" style="transform: scale(0.859541); height: 350px;">
+                            <div class="preview-giftcard">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="giftcard-template-setting mt-5">
+                        <div class="block-title mb-3">
+                            <span data-bind="i18n: 'Gift card design'"><?= $block->escapeHtml(__('Gift card design')) ?></span>
+                        </div>
+                        <div class="giftcard-template-setting-select flex flex-wrap">
+
+
+                        </div>
+                        <div class="giftcard-template-setting-content">
+                            <div class="giftcard-template-choose-images"
+                                 data-bind="foreach: {data: activeTemplate().images, as: 'image'}, afterRender: initSlide">
+                                <section id="giftcard-template-choose-images" class="splide" aria-label="Related Posts">
+                                    <div class="splide__track">
+                                        <ul class="splide__list">
+                                        </ul>
+                                    </div>
+                                </section>
+
+
+                            </div>
+                            <div class="giftcard-template-upload" data-bind="if: activeTemplate().canUpload">
+                                <label for="giftcard-template-upload-image">
+                                    <?= $block->escapeHtml(__('Or upload your photo')) ?>
+                                    <!-- ko i18n: 'Or upload your photo' --><!-- /ko -->
+                                    <div class="field-tooltip toggle">
+                        <span class="field-tooltip-action"
+                              data-bind="mageInit: {'dropdown':{'activeClass': '_active'}}"></span>
+                                        <div class="field-tooltip-content" data-bind="html: uploadTooltip"></div>
+                                    </div>
+                                </label>
+                                <div id="giftcard-template-upload-image" class="giftcard-template-upload-image">
+                                    <!-- ko foreach: {data: uploadedImages(), as: 'image'} -->
+
+                                    <!-- /ko -->
+                                    <div class="image item-template image-placeholder" data-role="image-element">
+                                        <div id="image-uploader" class="uploader">
+                                            <div class="fileinput-button form-buttons button">
+                                                <input id="fileupload" type="file" name="image" multiple="multiple"
+                                                       accept="image/gif, image/jpeg, image/png"
+                                                       title="Browse to find or drag image here"
+                                                       onchange="uploadFile(this)">
+                                            </div>
+                                            <div id="image-uploader-spinner" class="file-row"></div>
+                                        </div>
+                                        <div class="template-image-wrapper">
+                                            <p class="image-placeholder-text"
+                                               data-bind="i18n: 'Browse to find or drag image here'"><?= $block->escapeHtml(__('Browse to find or
+                                                drag image here')) ?></p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php else : ?>
+    <?= /** @noEscape */
+    $block->getChildHtml('product.media.image.hyva') ?>
+<?php endif; ?>
+
+<?php if ($block->isEnabled()) : ?>
+    <script type="text/javascript">
+        var config          = <?= /** @noEscape */ \Mageplaza\GiftCard\Helper\Data::jsonEncode($block->getProductConfig()) ?>,
+            configureData   = <?= /** @noEscape */ \Mageplaza\GiftCard\Helper\Data::jsonEncode($block->getConfigureData()) ?>,
+            productData     = config.information,
+            templates       = config.template;
+        let defaultTemplate = Object.values(templates)[0] ?? {},
+            activeAmount    = 0,
+            activeImageSrc  = '',
+            from            = '',
+            message         = '',
+            to              = '',
+            rateActive      = 0;
+        let timezoneValue = productData?.timezone.value;
+        var uploadedImages  = [];
+        document.addEventListener("DOMContentLoaded", (event) => {
+            let deliveryFields = initDeliveryFields(productData.delivery[0]),
+                listAmounts    = document.querySelector('ul.giftcard-amount'),
+                listDelivery   = document.querySelector('ul.giftcard-delivery'),
+                finalPrice     = document.querySelector('.final-price .price'),
+                amounts        = productData?.amounts ?? [],
+                deliveries     = productData?.delivery ?? [],
+                amountEl       = document.querySelector('#giftcard-information-container input[name="amount"]'),
+                deliveryEl     = document.querySelector('#giftcard-information-container input[name="delivery"]'),
+                templateEl     = document.querySelector('#giftcard-information-container input[name="template"]');
+            if (templateEl) {
+                templateEl.value = defaultTemplate?.id;
+
+            }
+            calculateScale();
+            deliveries.forEach((item, index) => {
+                if (index === 0) {
+                    deliveryEl.value = item.key;
+                }
+                let liEl       = document.createElement('li');
+                liEl.className = index === 0 ? 'giftcard-design-button-container mb-1 active' : 'giftcard-design-button-container mb-1';
+                liEl.id        = `giftcard-delivery-${item.key}`;
+                liEl.innerHTML = ` <button type="button" class="giftcard-design-button"
+                                        onclick="handleChangeDelivery('${item.key}','${index}')">
+                            <span>
+                                ${item.label}
+                            </span>
+                                </button>`;
+                listDelivery.append(liEl);
+            });
+            amounts.forEach((item, index) => {
+                let liEl       = document.createElement('li');
+                liEl.className = index === 0 ? 'giftcard-design-button-container active' : 'giftcard-design-button-container';
+                liEl.id        = `amount-${item.record_id}`;
+                if (index === 0) {
+                    activeAmount   = item.amount;
+                    amountEl.value = item.amount;
+                }
+                if (index === 0) {
+                    finalPrice.innerHTML = hyva.formatPrice(item.price);
+                }
+                liEl.innerHTML = `<button type="button" class="giftcard-design-button" onclick="changeAmount(${item.amount}, ${item.record_id},${item.price})">
+                                <span>
+                                    ${hyva.formatPrice(item.amount)}
+                                </span>
+                            </button>`;
+                listAmounts.append(liEl);
+
+            });
+            if (productData?.openAmount) {
+                let liEl       = document.createElement('li');
+                liEl.className = 'giftcard-design-button-container';
+                liEl.innerHTML = ` <input type="text" class="giftcard-design-open-amount" placeHolder="Enter Amount"
+onclick="checkOpenAmount(this)"
+                                   onchange="handleOnInput(this,'${productData?.openAmount.min}','${productData?.openAmount.max}','${productData?.openAmount.rate}')"
+                                   data-bind="value: openAmountValue, click: checkOpenAmount">`;
+                listAmounts.append(liEl);
+            }
+
+
+            renderDeliveryFileds(deliveryFields);
+            renderTemplates();
+            renderSlide(defaultTemplate.images);
+
+            renderPreviewImg(defaultTemplate.design);
+
+
+            window.addEventListener('resize', function () {
+                calculateScale();
+            });
+        });
+
+        function initDeliveryFields (activeDelivery, activeTemplate) {
+            let deliveryFields = {};
+            let templateFields = {};
+
+            if (activeTemplate === undefined) {
+                activeTemplate = defaultTemplate;
+            }
+
+            if (activeDelivery?.fields !== undefined) {
+                Object.keys(activeDelivery.fields).forEach(index => {
+                    deliveryFields[index] = activeDelivery.fields[index];
+                });
+            }
+
+            if (activeTemplate.design !== undefined) {
+                templateFields = activeTemplate.design;
+            }
+
+            if (templateFields.from !== undefined) {
+                deliveryFields.from = {
+                    type: 'input',
+                    label: 'Sent From',
+                    name: 'from',
+                    value: from,
+                    placeHolder: 'Sender name'
+                };
+            }
+            if (templateFields.to !== undefined) {
+                deliveryFields.to = {
+                    type: 'input',
+                    label: 'Sent To',
+                    name: 'to',
+                    value: to,
+                    placeHolder: 'Recipient name'
+                };
+            }
+
+            if (templateFields.message !== undefined) {
+                deliveryFields.message = {
+                    type: 'textarea',
+                    label: 'Message',
+                    name: 'message',
+                    value: message,
+                    remainingLabel: 'characters remaining'
+                };
+            }
+
+            if (productData.enableDeliveryDate) {
+                deliveryFields.deliveryDate = {
+                    type: 'input',
+                    label: 'Delivery Date',
+                    name: 'delivery_date',
+                    class: 'validate-date',
+                    value: this.deliveryDate,
+                    readonly: true
+                };
+            }
+
+            if (productData.timezone.enable) {
+                if (this.timezoneList === undefined) {
+                    this.timezoneList = Object.values(productData.timezone.options);
+                }
+                deliveryFields.timezone = {
+                    type: 'select',
+                    label: 'Timezone',
+                    name: 'timezone',
+                    value: this.timezone,
+                    options: this.timezoneList
+                };
+            }
+
+            return (Object.values(deliveryFields));
+        }
+
+
+        function renderDeliveryFileds (deliveryFields) {
+            let deliveryFieldsContainer       = document.querySelector('.giftcard-information-delivery-content');
+            if(deliveryFieldsContainer) {
+                deliveryFieldsContainer.innerHTML = ``;
+                deliveryFields.forEach(function (field) {
+                    let fieldDiv = document.createElement('div');
+                    fieldDiv.classList.add('field', 'giftcard-information', 'giftcard-information-delivery-field');
+                    fieldDiv.id = 'delivery-' + field.name;
+                    if (field?.required) {
+                        fieldDiv.classList.add('required');
+                    }
+                    let labelHtml = `<label class="label giftcard-field-label">
+                            <span data-bind="attr: {for: '${field.name}'}, text: '${field.label}'">${field.label}</span>
+                        </label>`;
+
+                    let fieldWrapper = document.createElement('div');
+                    fieldWrapper.classList.add('giftcard-field-wrapper');
+
+                    let fieldElementHtml = '';
+                    if (field.type === 'input') {
+                        if (field.name === 'delivery_date') {
+                            fieldElementHtml += `<input id="${field?.name}" onkeyup="handleChangeInput(this,'${field?.name}')" type='date' value="${field.value ?? ''}" name="${field?.name}" class="${field?.class}" type="text"  ${field?.required ? 'required' : ''} placeholder="${field.placeHolder ?? ''}" data-bind="valueUpdate: 'keyup'" afterRender="$parent.initCalendar('${field.name}')">`;
+
+                        } else {
+                            fieldElementHtml += `<input id="${field?.name}" onkeyup="handleChangeInput(this,'${field?.name}')" value="${field.value}" name="${field?.name}" class="${field?.class}" type="text" ${field?.readonly ? 'readonly' : ''} ${field?.required ? 'required' : ''} placeholder="${field.placeHolder ?? ''}" data-bind="valueUpdate: 'keyup'" afterRender="$parent.initCalendar('${field.name}')">`;
+
+                        }
+                    }
+                    if (field.type === 'textarea') {
+                        fieldElementHtml += `<textarea class="w-full" onkeyup="handleChangeInput(this,'${field?.name}')" placeholder="${field?.placeHolder ?? ''}" name=${field?.name} data-bind="value: ${field.value ? field.value : ''}, valueUpdate: 'keyup', attr: { maxlength: $parent.maxLength ? $parent.maxLength : ''}"></textarea>`;
+                    }
+                    if (field.type === 'label') {
+                        fieldElementHtml += `<p class="note" id="delivery-field-${field?.name}">${field.value}</p>`;
+                    }
+                    if (field.type === 'select') {
+                        let optionsHtml = field.options.map(option => `<option value="${option.value}" ${productData?.timezone.value === option.value && 'selected'}>${option.label}</option>`).join('');
+                        fieldElementHtml += `<select name="${field.name}" id="${field.name}" onchange="changeSelectFile(this)">${optionsHtml}</select>`;
+                    }
+                    if (field.name === 'message') {
+                        fieldElementHtml += `<p class="note"><span data-bind="text: $parent.remainChar() + ' ' + '${field.remainingLabel}'"></span></p>`;
+                    }
+                    if (field.note) {
+                        fieldElementHtml += `<p class="note">${field.note}</p>`;
+                    }
+
+                    fieldWrapper.innerHTML = fieldElementHtml;
+                    fieldDiv.innerHTML     = labelHtml;
+                    fieldDiv.appendChild(fieldWrapper);
+                    deliveryFieldsContainer.appendChild(fieldDiv);
+
+                });
+            }
+
+        }
+        function changeSelectFile(e) {
+            if(e.id === 'timezone') {
+                timezoneValue = e.value;
+            }
+        }
+        function renderPreviewImg (designs) {
+            calculateScale();
+            let preViewEl       = document.querySelector('.preview-giftcard');
+            if(preViewEl) {
+                preViewEl.innerHTML = '';
+                let designHTML      = '';
+                Object.keys(designs)?.map(key => {
+                    var value = designs[key];
+                    if (value.css['font-family'] === undefined) {
+                        value.css['font-family'] = defaultTemplate.font;
+                    }
+                    switch (key){
+                        case 'from':
+                            value.value = 'From: ' + from;
+                            break;
+                        case 'to':
+                            value.value = 'To: ' + to;
+                            break;
+                        case 'value':
+                            value.value = hyva.formatPrice(activeAmount);
+                            break;
+                        case 'message':
+                            value.value = message;
+                            break;
+                        case 'image':
+                            value.src = activeImageSrc;
+                            break;
+                        case 'code':
+                            value.value = defaultTemplate.giftCodePattern;
+                            break;
+                    }
+                    return value;
+                });
+                for (const prop in designs){
+                    designHTML += `
+            <div id="preview-giftcard-${prop}" style='position: absolute; box-sizing: border-box; overflow-y: hidden; ${textCss(designs[prop].css)}'>
+        `;
+
+                    if (isImageField(prop)) {
+                        designHTML += `
+                <img src="${designs[prop].src}" style="width: ${prop === 'barcode' ? '100%' : ''}; height: ${prop === 'barcode' ? '100%' : ''};" />
+            `;
+                    } else {
+                        designHTML += `
+                <span>
+                    <span>${designs[prop].label ? designs[prop].label : ''}</span>
+                    <span style="white-space: pre-wrap; word-wrap: break-word;">${designs[prop].value ? designs[prop].value : ''}</span>
+                </span>
+            `;
+                    }
+
+                    designHTML += `</div>`;
+                }
+
+                preViewEl.innerHTML = designHTML;
+            }
+        }
+
+        function renderSlide (images) {
+            let imageEl           = document.querySelector('#giftcard-information-container input[name="image"]');
+            let wrapListImg       = document.querySelector('.giftcard-template-choose-images .splide__track .splide__list');
+            if(wrapListImg) {
+                wrapListImg.innerHTML = '';
+                let paginationEl      = document.querySelector('.splide__pagination.splide__pagination--ltr');
+                if (paginationEl) {
+                    paginationEl.innerHTML = '';
+                }
+                images.forEach((img, index) => {
+                    if (index === 0) {
+                        activeImageSrc = img.src;
+                        imageEl.value  = img.file;
+                    }
+                    wrapListImg.innerHTML += `
+                                    <li class="splide__slide">
+                                        <div class="image item-template ${index === 0 && 'active'}" data-role="image" id="item-template-${index}"
+                                             data-bind="css: {'active': image.file === $parent.activeImageSrc()}, click: $parent.changeImages.bind($parent)"
+                                             onclick="changeImage('${img.src}', ${index}, '${img.file}')" >
+                                            <div class="template-image-wrapper">
+                                                <img class="template-image" data-role="image-element" src="${img.src}"
+                                                     data-bind="attr: {src: image.src, alt: image.alt ? image.alt : $t('Gift Card Image')}"/>
+                                            </div>
+                                        </div>
+                                    </li>`;
+                });
+                new Splide('#giftcard-template-choose-images', {
+                    perPage: 4,
+                    arrows: false
+                }).mount();
+            }
+
+        }
+
+        function renderTemplates () {
+            if (!defaultTemplate?.canUpload) {
+                if(document.querySelector('.giftcard-template-upload')) {
+                    document.querySelector('.giftcard-template-upload').innerHTML = '';
+
+                }
+            }
+            let wrapPreviewEl       = document.querySelector('.giftcard-template-setting-select');
+            if(wrapPreviewEl) {
+                wrapPreviewEl.innerHTML = '';
+                if (Object.keys(templates).length > 5) {
+                    let options = ``;
+                    for (const prop in templates){
+                        options += ` <option value=${prop}>${templates[prop].name}</option>`
+                    }
+                    wrapPreviewEl.innerHTML = `
+                       <div class="w-full">
+                              <label for="giftcard-template-select">Select Templates</label>
+                             <select name="template_select" class="block w-full" id="giftcard-template-select" onchange="changeTemplate(this.value)">
+                                  ${options}
+                            </select>
+                       </div>
+                `
+                } else {
+                    let isActiveClass = true;
+                    for (const prop in templates){
+                        wrapPreviewEl.innerHTML += `
+                   <span class="giftcard-design-button-container giftcard-button-template ${isActiveClass && 'active'}" id="giftcard-button-template-${prop}">
+                    <button type="button" class="giftcard-design-button"
+                            id="giftcard-design-button-${prop}"
+                            onclick="changeTemplate('${prop}')"
+                            >
+                        <span>${templates[prop].name}</span>
+                    </button>
+                </span>`;
+                        isActiveClass = false;
+                    }
+                }
+            }
+        }
+
+        function isImageField (key) {
+            return ['image', 'logo', 'barcode'].includes(key);
+        }
+
+        function textCss (objCss) {
+            var cssText = "";
+            for (var prop in objCss){
+                if (objCss.hasOwnProperty(prop)) {
+                    cssText += prop + ": " + objCss[prop] + "; ";
+                }
+            }
+            return cssText;
+        }
+
+
+        function calculateScale () {
+            var card     = defaultTemplate?.card?.css ?? 0,
+                width    = parseInt(card.width, 10),
+                height   = parseInt(card.height, 10),
+
+                maxWidth = Number(document.getElementById('giftcard-template-container')?.offsetWidth) * 0.8,
+                rate     = Math.min(maxWidth / width, 350 / height, 1);
+
+            let templateReview = document.querySelector('.giftcard-template-preview');
+            if (templateReview) {
+                templateReview.style = textCss({
+                    transform: 'scale(' + rate + ')',
+                    height: Math.max(rate * height, 350) + 'px'
+                });
+            }
+            let tempContainerPreview = document.querySelector('.giftcard-template-container-preview');
+            if (tempContainerPreview) {
+                tempContainerPreview.style = textCss({
+                    width: rate * width + 'px'
+                });
+            }
+            if (document.querySelector('.preview-giftcard')) {
+                document.querySelector('.preview-giftcard').style = textCss(card);
+            }
+
+
+        }
+
+        function changeAmount (amount, id, price) {
+            let listAmounts   = document.querySelector('ul.giftcard-amount');
+            var amountEl      = document.querySelector('input[name="amount"]');
+            var rangeAmountEl = document.querySelector('input[name="range_amount"]');
+            let finalPrice    = document.querySelector('.final-price .price');
+
+            let listLi = listAmounts.querySelectorAll('li');
+            listLi.forEach(liEl => {
+                liEl.classList.remove('active');
+                if (liEl.id === 'amount-' + id) {
+                    liEl.classList.add('active');
+                }
+            });
+            activeAmount         = amount;
+            amountEl.value       = amount;
+            rangeAmountEl.value  = 0;
+            finalPrice.innerHTML = hyva.formatPrice(price);
+            renderPreviewImg(defaultTemplate.design)
+        }
+
+        function changeImage (src, id, file) {
+            let imageEl    = document.querySelector('#giftcard-information-container input[name="image"]');
+            imageEl.value  = file;
+            activeImageSrc = src;
+            renderPreviewImg(defaultTemplate.design);
+            let listImg = document.querySelectorAll('.giftcard-template-choose-images .image.item-template');
+            listImg.forEach(img => {
+                img.classList.remove('active');
+                if (img.id === 'item-template-' + id) {
+                    img.classList.add('active');
+                }
+            });
+            removeActiveImageUploaded();
+        }
+
+        function changeTemplate (prop) {
+            defaultTemplate  = templates[prop];
+            let templateEl   = document.querySelector('#giftcard-information-container input[name="template"]');
+            templateEl.value = defaultTemplate.id;
+            renderSlide(defaultTemplate.images);
+            renderPreviewImg(defaultTemplate.design);
+            if (!defaultTemplate?.canUpload) {
+                document.querySelector('.giftcard-template-upload').style.display = 'none';
+            } else {
+                document.querySelector('.giftcard-template-upload').style.display = 'block';
+            }
+            let listBtnTemp = document.querySelectorAll('.giftcard-button-template');
+            listBtnTemp.forEach(tempEl => {
+                tempEl.classList.remove('active');
+                if (tempEl.id === 'giftcard-button-template-' + prop) {
+                    tempEl.classList.add('active');
+                }
+            })
+        }
+
+        function handleChangeInput (e, name) {
+            if (name === 'from') {
+                from = e.value;
+            }
+            if (name === 'to') {
+                to = e.value;
+            }
+            if (name === 'message') {
+                message = e.value;
+            }
+            renderPreviewImg(defaultTemplate.design);
+        }
+
+        function handleOnInput (e, min, max, rate) {
+            if (!Number(e.value)) {
+                e.value = ''
+            } else {
+                if (Number(e.value) < min) {
+                    e.value = min
+
+                }
+                if (Number(e.value) > max) {
+                    e.value = max
+                }
+                activeAmount = e.value;
+                rateActive   = rate;
+
+                renderPreviewImg(defaultTemplate.design);
+                let finalPrice       = document.querySelector('.final-price .price');
+                finalPrice.innerHTML = hyva.formatPrice(activeAmount * rateActive / 100);
+
+                var amountEl        = document.querySelector('input[name="amount"]');
+                amountEl.value      = activeAmount;
+                var rangeAmountEl   = document.querySelector('input[name="range_amount"]');
+                rangeAmountEl.value = 1;
+                let listAmounts     = document.querySelector('ul.giftcard-amount');
+                let listLi          = listAmounts.querySelectorAll('li');
+                listLi.forEach(liEl => {
+                    liEl.classList.remove('active');
+                });
+                let liElement = e.closest('li');
+                liElement.classList.add('active');
+            }
+
+
+        }
+
+        function checkOpenAmount (e) {
+            if (e.value) {
+                activeAmount = e.value;
+                renderPreviewImg(defaultTemplate.design);
+                let finalPrice       = document.querySelector('.final-price .price');
+                finalPrice.innerHTML = hyva.formatPrice(activeAmount * rateActive / 100);
+
+                var amountEl        = document.querySelector('input[name="amount"]');
+                amountEl.value      = activeAmount;
+                var rangeAmountEl   = document.querySelector('input[name="range_amount"]');
+                rangeAmountEl.value = 1;
+                let listAmounts     = document.querySelector('ul.giftcard-amount');
+                let listLi          = listAmounts.querySelectorAll('li');
+                listLi.forEach(liEl => {
+                    liEl.classList.remove('active');
+                });
+                let liElement = e.closest('li');
+                liElement.classList.add('active');
+            }
+        }
+
+        function handleChangeDelivery (key, index) {
+            let listLi = document.querySelectorAll('.giftcard-delivery li');
+            listLi.forEach(liEl => {
+                liEl.classList.remove('active');
+                if (liEl.id === 'giftcard-delivery-' + key) {
+                    liEl.classList.add('active');
+                }
+            });
+            let deliveryEl     = document.querySelector('#giftcard-information-container input[name="delivery"]');
+            deliveryEl.value   = key;
+            let deliveryFields = initDeliveryFields(productData.delivery[index]);
+            renderDeliveryFileds(deliveryFields);
+        }
+
+        function uploadFile (e) {
+            let files = (e.files);
+            if (files) {
+                for (const key in files){
+                    if (files.hasOwnProperty(key)) {
+                        const file = files[key];
+                        if (file.size > 1048576) {
+                            dispatchMessages([
+                                {
+                                    type: "error",
+                                    text: 'File size exceeds the maximum allowed size (1 MB)'
+                                }
+                            ], 5000);
+                        } else {
+                            var formData = new FormData();
+                            formData.append('image', file);
+                            fetch(config.information.fileUploadUrl, {
+                                method: 'POST',
+                                headers: {
+                                    "X-Requested-With": "XMLHttpRequest"
+                                },
+                                body: formData,
+                                mode: "cors",
+                                credentials: "include"
+                            })
+                            .then(response => response.json())
+                            .then(responseData => {
+                                if (!responseData?.error) {
+                                    activeImageSrc = responseData.url;
+                                    let imageEl    = document.querySelector('#giftcard-information-container input[name="image"]');
+                                    imageEl.value  = responseData.file;
+                                    uploadedImages.push(responseData);
+                                    renderUploadedImages();
+                                    renderPreviewImg(defaultTemplate.design);
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+
+                    }
+                }
+
+
+            }
+
+        }
+
+        function renderUploadedImages () {
+            let wrapperUploadedImgs       = document.querySelector('#giftcard-template-upload-image');
+            wrapperUploadedImgs.innerHTML = ``;
+            uploadedImages.forEach((img, index) => {
+                let isActive = index === uploadedImages.length - 1 ? 'active' : '';
+                wrapperUploadedImgs.innerHTML += `
+                        <div class="image item-template ${isActive}" data-role="image" data-file="${img.file}"
+                                onclick="changeImageUploaded('${img.url}','${img.file}')">
+                              <div class="template-image-wrapper">
+                                    <img class="template-image" data-role="image-element" src="${img.url}" />
+                             </div>
+                        </div>
+                `
+            });
+            wrapperUploadedImgs.innerHTML += `
+            <div class="image item-template image-placeholder" data-role="image-element">
+                                        <div id="image-uploader" class="uploader">
+                                            <div class="fileinput-button form-buttons button">
+                                                <input id="fileupload" type="file" name="image" multiple="multiple"
+                                                       title="Browse to find or drag image here"
+                                                       onchange="uploadFile(this)">
+                                            </div>
+                                            <div id="image-uploader-spinner" class="file-row"></div>
+                                        </div>
+                                        <div class="template-image-wrapper">
+                                            <p class="image-placeholder-text" data-bind="i18n: 'Browse to find or drag image here'">Browse to find or drag image here</p>
+                                        </div>
+                                    </div>`;
+            removeActiveImageChoose();
+
+        }
+
+        function changeImageUploaded (url, file) {
+            activeImageSrc = url;
+            let imageEl    = document.querySelector('#giftcard-information-container input[name="image"]');
+            imageEl.value  = file;
+            renderPreviewImg(defaultTemplate.design);
+            removeActiveImageChoose();
+            let listImg = document.querySelectorAll('.giftcard-template-upload-image .image.item-template');
+            listImg.forEach(img => {
+                const dataFile = img.getAttribute("data-file");
+                img.classList.remove('active');
+                if (dataFile === file) {
+                    img.classList.add('active');
+                }
+            })
+        }
+
+        function removeActiveImageChoose () {
+            let listImg = document.querySelectorAll('.giftcard-template-choose-images .image.item-template');
+            listImg.forEach(img => {
+                img.classList.remove('active');
+            });
+        }
+
+        function removeActiveImageUploaded () {
+            let listImg = document.querySelectorAll('.giftcard-template-upload-image .image.item-template');
+            listImg.forEach(img => {
+                img.classList.remove('active');
+            });
+        }
+        function previewGiftCardEmail() {
+            let amountEl       = document.querySelector('#giftcard-information-container input[name="amount"]'),
+                deliveryEl     = document.querySelector('#giftcard-information-container input[name="delivery"]');
+            let imageEl    = document.querySelector('#giftcard-information-container input[name="image"]');
+            let dataSend ={
+                'giftcode_pattern': config.information['giftcodePattern'],
+                'template_id': defaultTemplate.id,
+                'expire_after': productData.expire_after,
+                'balance': amountEl.value,
+                'delivery_method': deliveryEl.value,
+                'template_fields': JSON.stringify({
+                    'sender': from ? from : 'Sender name',
+                    'recipient': to,
+                    'message': message
+                }),
+                'timezone': timezoneValue,
+                'image': imageEl.value
+            };
+            let queryParams = '';
+            for (const key in dataSend) {
+                if (dataSend.hasOwnProperty(key)) {
+                    queryParams += `productData[${key}]=${dataSend[key]}&`;
+                }
+            }
+            queryParams = queryParams.slice(0, -1);
+            let path = '/V1/mpgiftcard/preview/email';
+            var url = BASE_URL + 'rest/' + CURRENT_STORE_CODE + path;
+            url += '?' + new URLSearchParams( queryParams ).toString();
+            fetch(url,{
+                headers: {
+                    contentType: "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                method: "GET",
+                mode: "cors",
+                credentials: "include"
+
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(function(response) {
+                window.openDialogPreview();
+                document.querySelector('#dom-element-id').innerHTML = response;
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+<?php endif ?>
+<style>
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .image.item-template {
+        background: #fff;
+        box-sizing: border-box;
+        display: inline-block;
+        margin: 5px 0 5px 5px;
+        position: relative;
+        vertical-align: top;
+        width: 75px;
+        height: 75px;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .giftcard-template-choose-images {
+        border: 1px solid #ccc;
+        background-color: #fef8f2;
+        margin: 11px 0;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .template-image-wrapper .template-image {
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        max-height: 100%;
+        max-width: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 1;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .template-image-wrapper {
+        background: #fff;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        cursor: pointer;
+        line-height: 1;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        position: relative;
+        width: 75px;
+        height: 75px;
+    }
+
+    .giftcard-template-setting .splide__pagination__page.is-active {
+        background: #869791;
+    }
+
+    .giftcard-template-setting .splide__pagination {
+        position: relative;
+        padding: 10px 1em;
+        bottom: 0;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .image.item-template.active .template-image-wrapper {
+        border: 2px solid orange;
+    }
+
+    .giftcard-template-container-preview {
+        margin: auto;
+    }
+
+    .giftcard-template-container .giftcard-template-container-preview .giftcard-template-preview {
+        transform-origin: top left;
+        cursor: pointer;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .template-image-wrapper {
+        background: #fff;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        cursor: pointer;
+        line-height: 1;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        position: relative;
+        width: 75px;
+        height: 75px;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .giftcard-template-upload .image.image-placeholder .template-image-wrapper:before {
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 15px;
+        z-index: 1;
+        -webkit-font-smoothing: antialiased;
+        font-size: 35px;
+        line-height: inherit;
+        color: #ccc;
+        content: '\f030';
+        font-family: 'FontAwesome';
+        vertical-align: middle;
+        display: inline-block;
+        font-weight: normal;
+        overflow: hidden;
+        speak: none;
+        text-align: center;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .giftcard-template-upload .image.image-placeholder .image-placeholder-text {
+        display: none;
+        bottom: 0;
+        color: #008bdb;
+        font-size: 11px;
+        left: 0;
+        line-height: 1.333;
+        margin: 0;
+        padding: 0 1rem;
+        position: absolute;
+        right: 0;
+        text-align: center;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .giftcard-template-upload .image.image-placeholder input[type='file'] {
+        border: 500px solid transparent;
+        bottom: 0;
+        cursor: pointer;
+        font-size: 10em;
+        height: 100%;
+        left: 0;
+        opacity: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+        z-index: 3;
+    }
+
+    .giftcard-template-container .giftcard-template-setting .giftcard-template-setting-content .giftcard-template-upload .image.image-placeholder .fileinput-button {
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        overflow: hidden;
+        float: left;
+    }
+
+    .giftcard-template-container .giftcard-template-container-preview .giftcard-template-preview .preview-giftcard {
+        margin: auto;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+</style>

@@ -1,0 +1,21 @@
+/* custom nav related styles */
+.navigation {
+    @apply self-stretch;
+
+    .child-wrapper {
+        &.hover-open {
+            .child-submenu {
+                @apply pointer-events-auto opacity-100;
+            }
+        }
+    }
+}
+
+.mobile-customer-menu {
+    a {
+        @apply px-0 mb-2;
+        span {
+            @apply text-base;
+        }
+    }
+}

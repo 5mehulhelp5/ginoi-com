@@ -1,0 +1,168 @@
+<?php
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Shop By Hyva Compatibility
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Amasty\Shopby\Block\Navigation\Widget\HideMoreOptions;
+use Amasty\Shopby\Model\Source\DisplayMode;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+/** @var Escaper $escaper */
+/** @var HideMoreOptions $block */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsOutline $heroicons */
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+$dataAmJsAttribute = 'data-am-js=%s';
+$dataTextMore = __('Show (%1) more', '<span class="am-counter" data-am-counter="counter"></span>');
+
+if ($block->getIsState()) {
+    $buttonSelector = sprintf($dataAmJsAttribute, 'show-more_button_state');
+    $itemSelector = '[' . sprintf($dataAmJsAttribute, 'shopby-container') . ']';
+    $numberUnfoldedOptions = $block->getUnfoldedOptions();
+    $isModeDropdown = false;
+    $filterCode = '';
+} else {
+    $filterSetting = $block->getFilterSetting();
+    $isModeDropdown = $filterSetting->getDisplayMode() == DisplayMode::MODE_DROPDOWN;
+    $filterCode = $escaper->escapeHtml($filterSetting->getAttributeCode());
+    $buttonSelector = sprintf($dataAmJsAttribute, 'am-filter-items-' . $filterCode . '-show-more');
+    $itemSelector = '.am-filter-items-' . $filterCode;
+    $numberUnfoldedOptions = $filterSetting->getNumberUnfoldedOptions();
+}
+$uniqueId = "_" . uniqid();
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<?php if (!$isModeDropdown): ?>
+    <div class="am-show-more text-center" x-data="amShopbyFilterHideMoreOptions<?= $escaper->escapeHtml($uniqueId) ?>()"
+         x-init="initHideMore($el)"
+         x-spread="eventListeners"
+         x-bind="eventListeners"
+         data-unfolded-options="<?= $escaper->escapeHtmlAttr($numberUnfoldedOptions) ?>">
+        <template x-if="isActive">
+            <button class="items-center mt-4 border-t pt-1"
+                    @click="triggerOptions()"
+                    :title="title"
+                    :aria-expanded="showMore ? 'true' : 'false' "
+            >
+            <?php if($filterCode == 'layernav_brand'): ?>
+                <span class="more-text"><?= $escaper->escapeHtml(__('clear')) ?></span>
+            <?php else: ?>
+                <span class="more-text" x-html="title"></span>
+            <?php endif; ?>
+            </button>
+        </template>
+    </div>
+
+
+    <script>
+        function amShopbyFilterHideMoreOptions<?= $escaper->escapeHtml($uniqueId)?>() {
+            return {
+                options: [],
+                isActive: true,
+                numberMore: 0,
+                numberUnfoldedOptions: <?= $escaper->escapeHtml($numberUnfoldedOptions) ?>,
+                showMore: true,
+                titlePrefix: "<?= $escaper->escapeHtml(__('Show')) ?>",
+                titleSufix: "<?= $escaper->escapeHtml(__('more')) ?>",
+                titleLess: "<?= $escaper->escapeHtml(__('Less')) ?>",
+                title: '',
+                isCategoryFilter: false,
+                isSearchActive: false,
+                selectors: {
+                    filterContent: '.filter-options-content',
+                    filterItem: '.item',
+                    filterWrapper: '.am-filter',
+                    showMoreButton: '.am-show-more',
+                    collapsedItems: '.item-category .collapsed',
+                    highlighted: '.marked'
+                },
+                initHideMore(element) {
+                    this.isCategoryFilter = !!this.getIsCategoryFilter(element);
+                    this.options = this.getOptions(element);
+                    this.$nextTick(() => {
+                        this.numberMore = this.getFoldedQty();
+                        if (this.numberMore <= 0) {
+                            this.isActive = false;
+                        } else {
+                            this.hideOptions(this.options, this.numberUnfoldedOptions);
+                            this.generateTitle();
+                        }
+                    });
+                    this.$watch('showMore', (yes) => {
+                        if (yes) {
+                            if (this.numberMore <= 0) {
+                                this.showMore = false;
+                                this.isActive = false;
+                            } else {
+                                this.hideOptions(this.options, this.numberUnfoldedOptions);
+                                this.generateTitle();
+                            }
+                        } else {
+                            this.showOptions(this.options, this.isSearchActive);
+                            this.title = this.titleLess;
+                        }
+                    })
+                },
+                getIsCategoryFilter(element) {
+                    return element
+                        .closest(this.selectors.filterContent)
+                        .querySelector(this.selectors.filterWrapper).dataset.amshopbyFilterRequestVar === "cat";
+                },
+                generateTitle() {
+                    return this.title = this.titlePrefix + ' (' + this.numberMore + ') ' + this.titleSufix;
+                },
+                getOptions(element) {
+                    return element
+                        .closest(this.selectors.filterContent)
+                        .querySelectorAll(this.selectors.filterItem);
+                },
+                getFoldedQty() {
+                    return this.options.length - parseInt(this.numberUnfoldedOptions);
+                },
+                triggerOptions() {
+                    this.showMore = !this.showMore;
+                },
+                hideOptions(options, numberUnfolded) {
+                    options.forEach((node, index) => {
+                        if (index >= numberUnfolded) {
+                            node.classList.add('hidden');
+                        }
+                    })
+                },
+                showOptions(options, isSearch) {
+                    options.forEach((node) => {
+                        if (isSearch) {
+                            if (!!node.querySelector(this.selectors.highlighted)) {
+                                node.classList.remove('hidden');
+                            }
+                        } else {
+                            node.classList.remove('hidden');
+                        }
+                    })
+                },
+                eventListeners: {
+                    ['@filter-search-active']() {
+                        this.showMore = false;
+                        this.isActive = false;
+                        this.isSearchActive = true;
+                    },
+                    ['@filter-search-inactive']() {
+                        this.showMore = true;
+                        this.isActive = true;
+                        this.isSearchActive = false;
+                    }
+                }
+            }
+        }
+    </script>
+<?php endif; ?>
+

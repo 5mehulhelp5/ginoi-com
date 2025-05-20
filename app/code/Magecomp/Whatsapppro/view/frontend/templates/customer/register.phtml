@@ -1,0 +1,87 @@
+<fieldset class="fieldset create account">
+    <legend class="legend"><span><?php /* @noEscape */ echo __('Additional Information') ?></span></legend>
+    <div class="field <?php if ($block->getCountryFlagEnable()): ?> required <?php endif; ?>">
+        <label for="phonenumber" class="label">
+                <span><?= /* @noEscape */ __('Whatsapp Number') ?></span>
+            </label>
+        <div class="control">
+            <input type="text" name="mobilenumber" id="mobilenumber" title="<?php /* @noEscape */ echo __('mobilenumber') ?>" class="input-text mobilenumber" autocomplete="off" placeholder="WhatsApp Number" maxlength="12"  pattern="[0-9]">
+            <input type="hidden" value="" id="countryreg" name="countryreg">
+            <?php if (!$block->getCountryFlagEnable()): ?>
+            <div class="comment" style="float: left;width: 100%;"><?php /* @noEscape */ echo __('Enter Your WhatsApp No. With Country Code i.e 91xxxxxxx09') ?></div>
+            <?php endif;?>
+        </div>
+        <div id="smserror" name="smserror" generated="true" class="mage-error"></div>
+    </div>
+</fieldset>
+<script>
+        require(['jquery', 'jquery/ui', 'Magecomp_Wappcountryflag/js/intlTelInput.min'], function($)
+        {
+            function Smsresetdata()
+            {
+                $('#mobilenumber').removeClass('mage-error');
+                $('#smserror').html('');
+            }
+
+            function Smstoggeldata(Elementid)
+            {
+                $(Elementid).toggle();
+            }
+            <?php if ($block->getCountryFlagEnable()): ?>
+                var country_flag = "<?php /* @noEscape */ echo $block->getDefaultCountry();?>";
+                <?php if ($block->getCountryFlagDetectByIP()):?>
+                    country_flag = "<?php /* @noEscape */ echo $block->getGeoCountryCode();?>";
+                <?php endif; ?>
+                $("#mobilenumber").intlTelInput({
+                    initialCountry: country_flag,
+                    utilsScript: "<?php /* @noEscape */ echo $block->getViewFileUrl('Magecomp_Whatsapppro::countryflag/js/utils.js'); ?>"
+                });
+                
+                jQuery("#mobilenumber").keyup(function(){
+                    Smsresetdata();
+                    var str = jQuery(".selected-flag").attr("title");
+                    var countrycode =  str.split('+')[1];
+                    var mobilelength=$('#mobilenumber').val().length;
+                    var mobile = countrycode+$('#mobilenumber').val();
+                    jQuery("#countryreg").val(countrycode);
+                    var temp=true;
+                    if(mobile == null || mobile == '')
+                    {
+                        temp=false;
+                        $('#mobilenumber').addClass('mage-error');
+                        $('#smserror').html('<?php /* @noEscape */ echo __('This is a required field.') ?>');
+                    }
+                    if(!$.isNumeric(mobile) || mobile.substring(0,1)=='+' || mobile.substring(0,1)=='-')
+                    {
+                        temp=false;
+                        $('#mobilenumber').addClass('mage-error');
+                        $('#smserror').html('<?php /* @noEscape */ echo __('Please, Enter Valid Mobile Number.') ?>');
+                    }
+                    var countrycode = jQuery(".flag-container > .country-list > .active").attr("data-country-code");
+
+                    $.ajax({
+                        type: "POST",
+                        url: '<?php /* @noEscape */ echo $block->getUrl('whatsapppro/customer/register')?>',
+                        data:{'mobile':mobile,'countrycode':countrycode,'mobilelength':mobilelength},
+                        success: function(data)
+                        {
+                            if(data.validate==true){
+                                $('#smserror').html('<?php /* @noEscape */ echo '' ?>');
+                                $(".actions-toolbar .primary .action.submit.primary").prop("disabled", false);
+                            }
+                            else{
+                                if(temp==true){
+                                    $('#smserror').html(data.message);
+                                }
+                                $(".actions-toolbar .primary .action.submit.primary").prop("disabled", true);
+                            }
+                        },
+                        error: function(data) {
+                            $('#smserror').html('<?php /* @noEscape */ echo __('Something went wrong, Try again later.') ?>');
+                        }
+                    });
+                });
+            <?php endif; ?>
+
+        });
+</script>

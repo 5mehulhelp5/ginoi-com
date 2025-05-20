@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="magecomp" translate="label" sortOrder="100" class="magecomp-logo">
+            <label><![CDATA[]]></label>
+        </tab>
+        <section id="whatsappcontact" translate="label" type="text" sortOrder="310" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <label>WhatsApp Contact</label>
+            <tab>magecomp</tab>
+            <resource>Magecomp_Whatsappcontact::mcwhatsappcontact</resource>
+            <group id="general" translate="label" sortOrder="10" type="text" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Configuration</label>
+                <field id="enable" translate="label" sortOrder="10" type="select" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>WhatsApp Contact</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                </field>
+                <field id="onlymobile" translate="label" sortOrder="20" type="select" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enable only in Mobile</label>
+                    <comment>Show only on mobile device</comment>
+                     <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="mobile" translate="label" sortOrder="30" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>WhatsApp Number</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <comment>Add your WhatsApp Number Along With Country Prefix Without Any Sign.</comment>
+                    <validate>required-entry</validate>
+                </field>
+                <field id="msg" translate="label" sortOrder="40" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Default WhatsApp Message</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <validate>required-entry</validate>
+                </field>
+                <field id="tab_settings_heading" translate="label comment" type="text" sortOrder="50" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Frontend Settings</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <frontend_model>Magecomp\Whatsappcontact\Block\Adminhtml\Config\Backend\Heading</frontend_model>
+                </field>
+                <field id="btncolor" translate="label" sortOrder="60" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Button Color</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <frontend_model>Magecomp\Whatsappcontact\Block\Color</frontend_model>
+                </field>
+                <field id="iconcolor" translate="label" sortOrder="70" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Icon Color</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <frontend_model>Magecomp\Whatsappcontact\Block\Color</frontend_model>
+                </field>
+                <field id="top" translate="label" sortOrder="80" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Top Position</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <comment>in Pixel</comment>
+                </field>
+                <field id="left" translate="label" sortOrder="90" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Left Position</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <comment>in Pixel</comment>
+                </field>
+                <field id="right" translate="label" sortOrder="100" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Right Position</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <comment>in Pixel</comment>
+                </field>
+                <field id="bottom" translate="label" sortOrder="110" type="text" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Bottom Position</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <comment>in Pixel</comment>
+                </field>
+                <field id="btnanimation" translate="label" sortOrder="120" type="select" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Button Animation Effect</label>
+                    <depends><field id="whatsappcontact/general/enable">1</field></depends>
+                    <source_model>Magecomp\Whatsappcontact\Model\System\Config\Source\Effact</source_model>
+                </field>
+
+            </group>
+        </section>
+    </system>
+</config>

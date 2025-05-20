@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/view.xsd">
+    <vars module="Magento_Catalog">
+        <var name="gallery">
+            <var name="navdir">vertical</var>
+            <var name="navarrows">true</var>
+            <var name="navoverflow">true</var>
+            <var name="autoplay">true</var>
+        </var>
+    </vars>
+    <media>
+        <images module="Magento_Catalog">
+            <image id="cart_page_product_thumbnail" type="small_image">
+                <width>160</width>
+                <height>160</height>
+            </image>
+        </images>
+    </media>
+</view>

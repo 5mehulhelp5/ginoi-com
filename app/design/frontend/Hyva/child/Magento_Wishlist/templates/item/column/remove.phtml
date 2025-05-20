@@ -1,0 +1,31 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+use Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Remove;
+use Magento\Framework\Escaper;
+use Magento\Wishlist\Model\Item;
+
+/** @var Remove $block */
+/** @var Escaper $escaper */
+
+/** @var Item $item */
+$item = $block->getItem();
+$product = $item->getProduct();
+?>
+<a href="#"
+   data-role="remove"
+   @click.prevent='hyva.postForm(<?= /* @noEscape */ $block->getItemRemoveParams($block->getItem()) ?>)'
+   title="<?= $escaper->escapeHtmlAttr(__('Remove Item')) ?>"
+   class="action inline-flex">
+    <img class="cancel-btn h-[25px] w-[25px]" x-data="{ hover: false }"
+         src="<?= $this->getViewFileUrl('images/wishlist/cancel-icon.svg') ?>"
+         :src="hover ? '<?= $this->getViewFileUrl('images/wishlist/cancel-hover.svg') ?>' : '<?= $this->getViewFileUrl('images/wishlist/cancel-icon.svg') ?>'"
+         @mouseenter="hover = true"
+         @mouseleave="hover = false"
+         alt="">
+</a>

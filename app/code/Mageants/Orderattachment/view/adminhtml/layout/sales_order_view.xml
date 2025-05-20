@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Mageants_Orderattachment::css/source/orderattachment.css"/>
+    </head>
+    <update handle="editor"/>
+    <body>
+        <referenceContainer name="left">
+            <referenceBlock name="sales_order_tabs">
+                <block class="Mageants\Orderattachment\Block\Adminhtml\Order\View\Tab\Attachments" name="sales.order.view.tab.attachment" as="attachments" template="order/view/tab/attachments.phtml"/>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">attachments</argument>
+                    <argument name="block" xsi:type="string">attachments</argument>
+                </action>
+        </referenceBlock>
+
+        <referenceBlock name="sales_order_edit">
+
+            <block class="Mageants\Orderattachment\Block\Adminhtml\Order\View\Buttons" name="custom_buttons" />
+
+        </referenceBlock>
+        </referenceContainer>
+    </body>
+</page>

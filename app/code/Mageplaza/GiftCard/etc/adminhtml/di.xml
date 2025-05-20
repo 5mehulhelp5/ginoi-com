@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="gift-code-pattern" xsi:type="array">
+                    <item name="class" xsi:type="string">Mageplaza\GiftCard\Ui\DataProvider\Product\Modifier\GiftCard</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+                <item name="gift-code-report" xsi:type="array">
+                    <item name="class" xsi:type="string">Mageplaza\GiftCard\Ui\DataProvider\Product\Modifier\Report</item>
+                    <item name="sortOrder" xsi:type="number">30</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\ImportExport\Controller\Adminhtml\Import\Download">
+        <plugin name="mp_giftcard_download_sample" type="Mageplaza\GiftCard\Plugin\Controller\ImportDownloadSample" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Creditmemo\Item">
+        <plugin name="mp_giftcard_calculate_creditmemo" type="Mageplaza\GiftCard\Plugin\Model\Order\Creditmemo\Item" sortOrder="200"/>
+    </type>
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\Builder">
+        <plugin name="mp_giftcard_set_empty_gift_card_amount" type="Mageplaza\GiftCard\Plugin\Controller\Product\Builder"/>
+    </type>
+    <type name="Magento\Sales\Block\Adminhtml\Order\Create\Coupons">
+        <plugin name="mp_giftcard_coupon_box" type="Mageplaza\GiftCard\Plugin\Block\Order\Create\Coupons"/>
+    </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="mp_giftcard_save_product_attributes" type="Mageplaza\GiftCard\Plugin\Model\Catalog\Product"/>
+    </type>
+    <type name="Magento\Ui\Model\Export\MetadataProvider">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <!-- Metadata for giftcard_code_listing -->
+                <item name="giftcard_code_listing" xsi:type="array">
+                    <item name="created_at" xsi:type="string">created_at</item>
+                </item>
+                <!-- Metadata for giftcard_pool_listing -->
+                <item name="giftcard_pool_listing" xsi:type="array">
+                    <item name="created_at" xsi:type="string">created_at</item>
+                </item>
+                <!-- Metadata for giftcard_template_listing -->
+                <item name="giftcard_template_listing" xsi:type="array">
+                    <item name="created_at" xsi:type="string">created_at</item>
+                </item>
+                <!-- Metadata for giftcard_report_listing -->
+                <item name="giftcard_report_listing" xsi:type="array">
+                    <item name="created_at" xsi:type="string">created_at</item>
+                </item>
+            </argument>
+        </arguments>
+
+        <plugin name="mpgiftcard_export" type="Mageplaza\GiftCard\Plugin\Export\MetadataProvider"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\Indexer\Product\Price\Action\Row">
+        <plugin name="mpgiftcard_indexer" type="Mageplaza\GiftCard\Plugin\Model\Price\RowIndexer"/>
+    </type>
+    <type name="Magento\Rule\Model\Condition\AbstractCondition">
+        <plugin name="mpgiftcard_custom_condition_rule" type="Mageplaza\GiftCard\Plugin\SystemConfig\ConditionRule"/>
+    </type>
+    <type name="Magento\Sales\Controller\Adminhtml\Order\Create\ConfigureProductToAdd">
+        <plugin name="mpgiftcard_check_group_add_cart" type="Mageplaza\GiftCard\Plugin\Controller\Adminhtml\Order\Create\ConfigureProductToAdd"/>
+    </type>
+</config>

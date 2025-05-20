@@ -1,0 +1,90 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+
+/** @var Escaper $escaper */
+/** @var Container $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $item */
+
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItemViewModel->setBlock($block);
+
+$itemId = uniqid();
+$elems = $item['elems'];
+$fontWeight = '400';
+$additionalClass = $item['current'] ? ' text-[var(--ammenu-current-category-color)] '
+    : ' text-[var(--ammenu-third-level-menu)] ';
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<div class="flex flex-col relative"
+     x-data="{ itemOpen: false }"
+     x-show="canShow('<?= $escaper->escapeHtml($item['status']) ?>', <?= /* @noEscape */ $item['is_category'] ? 'true' : 'false' ?>)"
+    <?php if (empty($elems)): ?>
+        x-cloak
+    <?php endif; ?>>
+    <div class="flex justify-between items-center"
+        <?php if (!empty($elems)): ?>
+            @click="itemOpen = !itemOpen"
+        <?php endif; ?>>
+        <?php if (empty($elems)): ?>
+            <?= /** @noEscape */ $menuItemViewModel->fetchView(
+                'components/mobile_menu/item/link.phtml',
+                ['item' => $item],
+                "Amasty_MegaMenuHyvaAddon::%s") ?>
+        <?php else: ?>
+            <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/item/button.phtml', [
+                'item' => $item,
+                'classes' => 'flex items-center py-4 text-start border-0 w-full background-none ' . $additionalClass,
+                'fontWeight' => $item['mobile_font'] ?? '700',
+                'attributes' => [
+                    ':class' => "{'!text-[var(--ammenu-submenu-text-hover)]': itemOpen }"
+                ]
+            ],
+                "Amasty_MegaMenuHyvaAddon::%s"); ?>
+            <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/item/arrows.phtml', [
+                'item' => $item
+            ],
+                "Amasty_MegaMenuHyvaAddon::%s"); ?>
+        <?php endif; ?>
+    </div>
+    <?php if (!empty($elems)): ?>
+        <template x-if="itemOpen && mobile_class === 'accordion'">
+            <div class="flex flex-col flex-nowrap w-full pl-3">
+
+                <template x-if="!hide_view_all_link">
+                    <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                       title="<?= $escaper->escapeHtmlAttr(__("View All %1", $item['name'])) ?>"
+                       class="block w-full underline text-md pb-3 pt-6 break-anywhere text-[var(--ammenu-third-level-menu)]"
+                       :style="{
+                            'font-weight': <?= $escaper->escapeHtmlAttr($fontWeight); ?>
+                       }">
+                        <span>
+                            <?= $escaper->escapeHtml(__("View All %1", $item['name'])) ?>
+                        </span>
+                    </a>
+                </template>
+
+                <?php foreach ($item['elems'] as $key => $childItem): ?>
+                    <?= /** @noEscape */ $menuItemViewModel->fetchView('components/mobile_menu/item.phtml',
+                        ['item' => $childItem],
+                        "Amasty_MegaMenuHyvaAddon::%s"); ?>
+                <?php endforeach; ?>
+            </div>
+        </template>
+    <?php endif; ?>
+</div>
+

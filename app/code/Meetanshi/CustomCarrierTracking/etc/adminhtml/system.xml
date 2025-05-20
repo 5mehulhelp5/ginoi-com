@@ -1,0 +1,281 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="meetanshi" translate="label" class="meetanshi" sortOrder="100">
+            <label></label>
+        </tab>
+        <section id="customcarriertracking" translate="label" sortOrder="120" showInDefault="1" showInStore="1" showInWebsite="1">
+            <tab>meetanshi</tab>
+            <label>Custom Carrier Tracking</label>
+            <resource>Meetanshi_CustomCarrierTracking::customcarriertracking</resource>
+            <group id="general" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+                <label>Settings</label>
+                <field id="enabled" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Carrier Trackers</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <config_path>customcarriertracking/general/enabled</config_path>
+                </field>
+            </group>
+            <group id="customcarrier1" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10">
+                <label>Custom Carrier Tracker 1</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier1/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier1/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier1/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier2" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="20">
+                <label>Custom Carrier Tracker 2</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier2/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier2/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier2/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier3" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="30">
+                <label>Custom Carrier Tracker 3</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier3/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier3/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier3/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier4" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="40">
+                <label>Custom Carrier Tracker 4</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier4/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier4/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier4/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier5" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="50">
+                <label>Custom Carrier Tracker 5</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier5/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier5/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier5/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier6" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="60">
+                <label>Custom Carrier Tracker 6</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier6/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier6/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier6/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier7" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="70">
+                <label>Custom Carrier Tracker 7</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier7/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier7/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier7/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier8" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="80">
+                <label>Custom Carrier Tracker 8</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier8/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier8/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier8/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier9" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="90">
+                <label>Custom Carrier Tracker 9</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier9/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier9/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier9/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="customcarrier10" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="100">
+                <label>Custom Carrier Tracker 10</label>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>carriers/customcarrier10/active</config_path>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tracker Title</label>
+                    <validate>required-entry</validate>
+                    <config_path>carriers/customcarrier10/title</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="url" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Select Tracker</label>
+                    <comment>Select related tracker added from Reports > Manage Custom Carrier Trackers.</comment>
+                    <validate>required-entry validate-select</validate>
+                    <source_model>Meetanshi\CustomCarrierTracking\Model\System\Config\Source\Carriers</source_model>
+                    <config_path>carriers/customcarrier10/url</config_path>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

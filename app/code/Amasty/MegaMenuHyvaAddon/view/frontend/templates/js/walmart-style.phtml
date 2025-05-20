@@ -1,0 +1,200 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Amasty\MegaMenuLiteHyva\ViewModel\ConfigData;
+
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var ConfigData $configData*/
+$configData = $viewModels->require(ConfigData::class);
+
+$tabNameMenu = $configData::TAB_NAME_MENU;
+$tabNameAccount = $configData::TAB_NAME_ACCOUNT;
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+
+<script>
+    'use strict';
+    function amMegaMenuWalmartStyle() {
+        return {
+            hoverTopPosition: '100%',
+            menuMinHeight: 0,
+            menuId: 'menu-dropdown',
+            openDropdown: false,
+            setMenuMinHeight(targetElement) {
+                const childMenu = targetElement.querySelector('div.container.absolute');
+                childMenu && (this.menuMinHeight = childMenu.getBoundingClientRect().height);
+            },
+            init() {
+                let self = this;
+                self.addHeightToMenu();
+                window.addEventListener("resize", (event) => {
+                    self.addHeightToMenu();
+                });
+                self.bindOutsideClick();
+            },
+            addHeightToMenu() {
+                const childMenu = document.getElementById(this.menuId);
+                if (childMenu) {
+                    const headerH = document.getElementById('header').offsetHeight;
+                    const overlayH = 'calc(100vh - '+headerH+'px)';
+                    const submenuVerticalGap = 40;
+                    const dropdownH = 'calc(100vh - '+(headerH+submenuVerticalGap)+'px)';
+                    let subMenus = childMenu.getElementsByClassName("child-submenu"),
+                        overlay = document.getElementById("menu-overlay"),
+                        topLevelLinks = childMenu.querySelector('.links-wrapper'),
+                        self = this;
+                    childMenu.style.maxHeight = dropdownH;
+                    childMenu.style.top = headerH+'px';
+                    topLevelLinks.style.maxHeight = dropdownH;
+                    overlay.style.height = overlayH;
+                    overlay.style.top = headerH+'px';
+                    for (let i = 0; i < subMenus.length; i++) {
+                        let innerContainer = subMenus[i].querySelector(".inner-container"),
+                            contentContainer = subMenus[i].querySelector('[data-content="ammenu-content"]'),
+                            linksHeight = 0,
+                            colWidth = 256;
+                        subMenus[i].style.maxHeight = dropdownH;
+                        subMenus[i].style.top = headerH+'px';
+                        subMenus[i].style.left = (topLevelLinks.offsetWidth+24)+'px';
+
+                        if (contentContainer) {
+                            contentContainer.style.height = dropdownH;
+                            contentContainer.style.top = headerH+'px';
+                            contentContainer.style.left = (topLevelLinks.offsetWidth+24)+'px';
+                            contentContainer.style.width = colWidth+'px';
+                            if (self.canShowContent(contentContainer)) {
+                                contentContainer.classList.remove('hidden');
+                                subMenus[i].classList.remove('rounded-br-md');
+                            }
+                        }
+
+                        if (innerContainer) {
+                            let subNodesCount = innerContainer.children.length,
+                                colCounter = 1,
+                                firstLoopFlag = false,
+                                secondLoopFlag = false,
+                                scrollBarWidth = 0;
+                            innerContainer.style.maxHeight = dropdownH;
+                            for(var k=0, len = subNodesCount; k < len; ++k){
+                                linksHeight += innerContainer.children[k].offsetHeight;
+                                linksHeight += parseInt(window.getComputedStyle(innerContainer.children[k]).getPropertyValue('margin-top'));
+                                linksHeight += parseInt(window.getComputedStyle(innerContainer.children[k]).getPropertyValue('margin-bottom'));
+                                if (linksHeight>innerContainer.offsetHeight && !firstLoopFlag) {
+                                    colCounter++;
+                                    firstLoopFlag = true;
+                                }
+                                if (linksHeight/2>innerContainer.offsetHeight && !secondLoopFlag) {
+                                    colCounter++;
+                                    secondLoopFlag = true;
+                                }
+                            }
+                            if (colCounter > 1) {
+                                innerContainer.style.width = (colCounter*colWidth)+'px';
+                            }
+                            if (linksHeight/3 > subMenus[i].offsetHeight) {
+                                let columnHeight = Math.ceil(linksHeight/3)+50;
+                                innerContainer.style.height = columnHeight+'px';
+                                innerContainer.style.maxHeight = 'unset';
+                                scrollBarWidth = self.getScrollBarWidth(innerContainer);
+                            }
+                            if (contentContainer) {
+                                var contentLeftPos = parseInt(window.getComputedStyle(contentContainer).left, 10);
+                                contentContainer.style.left = (contentLeftPos + colCounter*colWidth + scrollBarWidth)+'px';
+                            }
+                        }
+                    }
+                }
+            },
+            getScrollBarWidth(container) {
+                let el = document.createElement("div");
+                el.style.cssText = "overflow:scroll; visibility:hidden; position:absolute;";
+                container.appendChild(el);
+                let width = el.offsetWidth - el.clientWidth;
+                el.remove();
+                return width;
+            },
+            canShowContent(node) {
+                if (node.querySelector('[data-content-type="ammega_menu_widget"]')){
+                    return false;
+                }
+                return true;
+            },
+            bindOutsideClick() {
+                let self = this;
+                const body = document.body;
+                document.addEventListener("click", (event) => {
+                    const isClosest = event.target.closest('#menu-dropdown');
+                    if (event.target.id === 'desktop-toggler'){
+                        return;
+                    }
+                    if (event.target.id === 'menu-overlay'){
+                        self.openDropdown = false;
+                        body.classList.remove("overflow-hidden");
+                    }
+                    if (!isClosest){
+                        self.openDropdown = false;
+                        body.classList.remove("overflow-hidden");
+                    }
+                });
+            },
+            addSubmenuOpenClass(targetElement) {
+                const childMenu = document.getElementById(this.menuId);
+                if (targetElement.classList.contains('hover-open')) {
+                    return;
+                } else {
+                    let childWrappers = childMenu.getElementsByClassName('child-wrapper hover-open');
+                    for (let i = 0; i < childWrappers.length; i++) {
+                        childWrappers[i].classList.remove('hover-open');
+                    }
+                    targetElement.classList.add('hover-open');
+                }
+            },
+            toggleMenu() {
+                let self = this;
+                const body = document.body;
+                this.openDropdown = !this.openDropdown;
+                if (this.openDropdown === false){
+                    body.classList.remove("overflow-hidden");
+                } else {
+                    body.classList.add("overflow-hidden");
+                    setTimeout(function() {
+                        self.addHeightToMenu();
+                    }, 100);
+                }
+            },
+            // checkContentContainer(node) {
+            //     let child = node && node.firstChild,
+            //         childsCount = 1,
+            //         subChildCount = 0;
+            //     while (child) {
+            //         if (child.nodeType === 1 || child.nodeType === 11) {
+            //             childsCount++;
+            //         }
+            //         if (child.children.length > 0) {
+            //             for (var i = 0; child && child.childNodes[i]; i++) {
+            //                 if (child.childNodes[i].nodeType === 1 || child.childNodes[i].nodeType === 11) {
+            //                     return true;
+            //                 }
+            //             }
+            //         }
+            //         child = child.nextSibling;
+            //     }
+            //     return false;
+            // }
+            eventListeners: {
+                ['@toggle-desktop-menu.window'](event){
+                    this.toggleMenu();
+                }
+            }
+        }
+    }
+</script>

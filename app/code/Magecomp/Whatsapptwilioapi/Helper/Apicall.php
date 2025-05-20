@@ -1,0 +1,94 @@
+<?php
+namespace Magecomp\Whatsapptwilioapi\Helper;
+
+class Apicall extends \Magento\Framework\App\Helper\AbstractHelper
+{
+    const XML_TWILIOWHATSAPP_ACCOUNTSID = 'whatsapppro/smsgatways/twiliosid';
+    const XML_TWILIOWHATSAPP_AUTHTOKEN = 'whatsapppro/smsgatways/twiliotoken';
+    const XML_TWILIOWHATSAPP_MOBILENUMBER = 'whatsapppro/smsgatways/twilionumber';
+
+    protected $logger;
+
+    public function __construct(
+        \Magento\Framework\App\Helper\Context $context,
+        \Psr\Log\LoggerInterface $logger
+    ) {
+        $this->logger = $logger;
+        parent::__construct($context);
+    }
+
+    public function getTitle()
+    {
+        return __("Twilio API");
+    }
+
+    public function getAccountsid()
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_TWILIOWHATSAPP_ACCOUNTSID,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getAuthtoken()
+    {
+        return $this->scopeConfig->getValue(
+            self::XML_TWILIOWHATSAPP_AUTHTOKEN,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+    public function getMobileNumber()
+    {
+        return '+'.$this->scopeConfig->getValue(
+            self::XML_TWILIOWHATSAPP_MOBILENUMBER,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function validateSmsConfig()
+    {
+        $twilioclassExist = class_exists('Twilio\Rest\Client');
+
+        if (!$twilioclassExist) {
+            $this->logger->error(__("Run 'composer require twilio/sdk' from CLI to use Twilio."));
+        }
+
+        return $twilioclassExist && $this->getAccountsid() && $this->getAuthtoken() && $this->getMobileNumber();
+    }
+
+    public function callApiUrl($mobilenumbers, $message,$json,$dlt)
+    {
+        $writer = new \Zend_Log_Writer_Stream(BP . '/var/log/magecomp-test.log');
+	$logger = new \Zend_Log();
+	$logger->addWriter($writer);
+	$logger->info('message :'.$message.' dlt : '.$dlt);
+		
+        try {
+            $account_sid = $this->getAccountsid();
+            $auth_token = $this->getAuthtoken();
+            $contentSid = $dlt;
+            $contentVariables = $json;
+           
+            if (substr($mobilenumbers, 0, 1) !== '+') {
+                $mobilenumbers = '+'.$mobilenumbers;
+            }
+            
+            $client = new \Twilio\Rest\Client($account_sid, $auth_token);
+            
+            $returntwilio = $client->messages->create(
+                "whatsapp:".$mobilenumbers,
+                ['from' => "whatsapp:".$this->getMobileNumber(),'contentSid' => $contentSid,'contentVariables' => $contentVariables]
+            );
+           
+            $logger->info('return twilio :  '.$mobilenumbers.' - '.print_r($returntwilio->status,true));
+
+            if ($returntwilio->status == 'undelivered') {
+                return false;
+            }
+            return true;
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+}
+

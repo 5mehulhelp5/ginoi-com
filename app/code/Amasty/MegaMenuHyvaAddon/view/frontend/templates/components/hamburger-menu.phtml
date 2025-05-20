@@ -1,0 +1,265 @@
+<?php declare(strict_types=1);
+
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) Amasty (https://www.amasty.com)
+ * @package Mega Menu Lite Hyva
+ */
+
+use Amasty\MegaMenuLiteHyva\ViewModel\ConfigData;
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+use Amasty\MegaMenuLite\Block\Container;
+use Amasty\MegaMenuLite\ViewModel\Store\Menu;
+use Amasty\MegaMenuLiteHyva\ViewModel\DesktopMenuItem;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+
+/**
+ * @var Container $block
+ * @var Escaper $escaper
+ * @var ViewModelRegistry $viewModels
+ * @var DesktopMenuItem $menuItemViewModel
+ * @var Menu $viewModelMenu
+ **/
+/** @var HeroiconsOutline $heroIcons */
+/** @var array $item */
+$heroIcons = $viewModels->require(HeroiconsOutline::class);
+/** @var ConfigData $configData */
+$configData = $viewModels->require(ConfigData::class);
+
+$viewModelMenu = $viewModels->require(Menu::class);
+$menuItemViewModel = $viewModels->require(DesktopMenuItem::class);
+$menuItems = $block->getAllNodesData();
+$tabNameMenu = $escaper->escapeHtmlAttr($configData::TAB_NAME_MENU);
+
+/* MegaMenuAddon custom code */
+$storeConfigViewModel = $viewModels->require(StoreConfig::class);
+$walmartStyleEnabled = $storeConfigViewModel->getStoreConfig('ammegamenu/general/walmart_like_enabled') ?: false;
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+?>
+<?php if ($walmartStyleEnabled) : ?>
+    <div x-data="amMegaMenuWalmartStyle()"
+         x-init="init()"
+         x-bind="eventListeners"
+    >
+        <!-- desktop -->
+        <div class="inline-flex justify-between mx-auto w-full"
+             @keydown.window.escape="openDropdown=false"
+        >
+            <nav class="flex flex-wrap -mx-2 static navigation" :class="{ 'active' : openDropdown }">
+                <div id="menu-overlay"
+                     class="absolute left-0 top-full z-10 w-full opacity-0
+                            transition-opacity ease-out pointer-events-none bg-black"
+                     :class="{ 'hidden' : !openDropdown, 'opacity-20 pointer-events-auto' : openDropdown }"
+                ></div>
+                <div id="menu-dropdown"
+                     class="absolute left-0 top-full z-10 opacity-0 shadow-lg ml-6
+                            transition-opacity ease-out pointer-events-none overflow-y-auto flex rounded-bl-md"
+                     :class="{ 'hidden' : !openDropdown, 'opacity-100 pointer-events-auto' : openDropdown }"
+                >
+                    <ul class="links-wrapper block relative w-auto h-full pb-14 overflow-x-hidden overflow-y-auto bg-white">
+                        <li class="child-wrapper flex flex-col mb-1">
+                            <strong class="block w-64 px-4 py-2 px-5">
+                                <?= $escaper->escapeHtml(__('All Departments')) ?>
+                            </strong>
+                        </li>
+
+                        <?php $i=1; foreach ($menuItems as $index => $item): ?>
+                            <?php if ($item['is_category'] && ($item['status'] === 1 || $item['status'] === 2)): ?>
+                            <?php $elems = $item['elems'] ?? [];
+                                $itemId = $item['id'] ?? null;
+                                $content = $item['content'] ?? '';
+                                $fontWeight = $item['desktop_font'] ?? '700';
+                                $hideContent = isset($item['hide_content']) ? (bool)$item['hide_content'] : false;
+                                $hasDropdown = (!empty($elems) || !empty($content)) && !$hideContent;
+
+                                $submenuAnimation = $item['submenu_animation'] ?? '';
+                                $animationClass = $submenuAnimation ? 'animate-' . $submenuAnimation : '';
+
+                                $additionalClass = $item['current']
+                                    ? 'text-[var(--ammenu-current-category-color)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]'
+                                    : 'text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]';
+
+                                $bgClass = $item['current']
+                                    ? 'bg-[var(--ammenu-current-category-color)] group-hover:bg-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]'
+                                    : 'bg-[var(--ammenu-main-menu-text)] group-hover:bg-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]';
+
+                                $iconBlock = $block->getLayout()->getBlock('ammenu.top.menu.icon');
+                                $blockSubmenuType = $block->getLayout()->getBlock('ammenu.menu.top.submenu_type'); ?>
+                                <div class="child-wrapper mb-1 flex flex-col"
+                                    <?php if (!empty($item['elems'])): ?>
+                                        @mouseover.stop="setMenuMinHeight($event.currentTarget)"
+                                    <?php endif; ?>
+                                    @mouseover="addSubmenuOpenClass($event.currentTarget)"
+                                >
+                                    <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                       title="<?= $escaper->escapeHtmlAttr($item['name']) ?>"
+                                       class="flex items-center w-64 px-4 py-2 border-l-4 border-transparent break-anywhere
+                                       text-start background-none group hover:border-[#b258ce] hover:bg-[#e1beec]
+                                       <?= $escaper->escapeHtmlAttr($additionalClass); ?>"
+                                       @focus="setMenuMinHeight($event.currentTarget.parentNode)">
+
+                                        <?php if ($iconBlock): ?>
+                                            <?= /* @noEscape */ $iconBlock->setData('item', $item)
+                                                ->setData('additional_class', $bgClass)
+                                                ->setData('available', ['desktop', 'both'])->toHtml() ?>
+                                        <?php endif ?>
+
+                                        <span>
+                                            <?= $escaper->escapeHtml($item['name']) ?>
+                                        </span>
+
+                                        <?= /** @noEscape */ $menuItemViewModel->fetchView('components/label.phtml', [
+                                            'item' => $item,
+                                            'classes' => 'inline-block text-xs font-bold rounded p-1 ml-2 mr-6 whitespace-nowrap overflow-hidden'
+                                        ]) ?>
+                                    </a>
+                                    <?php if ($hasDropdown): ?>
+                                        <div class="fixed left-64 max-w-[65vw] max-h-[70vh] flex justify-items-stretch
+                                             bg-cover bg-no-repeat bg-center h-full top-0 opacity-0 pointer-events-none
+                                             overflow-hidden child-submenu rounded-br-md
+                                             z-40 shadow-lg overflow-y-auto <?= $escaper->escapeHtmlAttr($animationClass); ?>
+                                             bg-[var(--ammenu-submenu-background-color)] bg-[image:var(--ammenu-submenu-background-image)]">
+                                                <?php if (!empty($elems)): ?>
+                                                    <div class="flex flex-col flex-wrap inner-container pt-11 relative overflow-hidden">
+<!--                                                    <div class="grid lg:grid-cols-2 2xl:grid-cols-3 gap-y-8 gap-x-8 w-full max-h-full pt-11 relative">-->
+                                                            <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                                               title="<?= $escaper->escapeHtmlAttr($item['name']) ?>"
+                                                               class="block absolute top-0 left-0 w-full px-4 py-2 mb-1 break-anywhere top-level-link
+                                                                       underline hover:no-underline font-bold text-[var(--ammenu-main-menu-text-hover)]">
+                                                                <?= $escaper->escapeHtml(__('Shop All')) ?>
+                                                            </a>
+                                                        <?php // Grid columns
+                                                        $subMenuItemsCount = count($elems);
+                                                        $countPerCol = ceil($subMenuItemsCount/3);
+                                                        $j = 0;?>
+                                                            <?php foreach ($elems as $key => $itemChild): ?>
+                                                            <?php $additionalClass = $itemChild['current']
+                                                                    ? 'text-[var(--ammenu-current-category-color)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]'
+                                                                    : 'text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]';
+                                                            ?>
+<!--                                                            --><?php //if ($j === 0 || ($countPerCol>0 && ($j % $countPerCol == 0))): ?>
+<!--                                                                <div class="level-1">-->
+<!--                                                            --><?php //endif; ?>
+                                                                <strong class="flex items-center w-64 px-4 py-2 mb-1
+                                                                break-anywhere text-start min-h-0 min-w-0
+                                                                    <?php if ($itemChild['current']) {
+                                                                        echo ' text-[var(--ammenu-current-category-color)]';
+                                                                    } else {
+                                                                        echo ' text-[var(--ammenu-main-menu-text)]';
+                                                                    }?>">
+                                                                    <?= $escaper->escapeHtmlAttr($itemChild['name']) ?>
+                                                                </strong>
+                                                                <a href="<?= $escaper->escapeUrl($itemChild['url']) ?>"
+                                                                   title="<?= $escaper->escapeHtmlAttr($itemChild['name']) ?>"
+                                                                   class="flex items-center w-64 px-4 py-2 mb-1 break-anywhere min-h-0 min-w-0
+                                                                       text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)]
+                                                                       hover:underline">
+                                                                    <?= $escaper->escapeHtml(__('Shop All')) ?>
+                                                                </a>
+                                                                <?php if (!empty($itemChild['elems'])): ?>
+                                                                    <?php foreach ($itemChild['elems'] as $subItemChild): ?>
+                                                                        <?php $additionalClass = $subItemChild['current']
+                                                                            ? 'text-[var(--ammenu-current-category-color)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]'
+                                                                            : 'text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]';
+                                                                        ?>
+                                                                        <?php if (!empty($subItemChild['elems'])): ?>
+                                                                            <strong class="flex items-center w-64 px-4 py-2 mb-1
+                                                                                break-anywhere background-none group min-h-0 min-w-0
+                                                                                <?php if ($subItemChild['current']) {
+                                                                                echo ' text-[var(--ammenu-current-category-color)]';
+                                                                            } else {
+                                                                                echo ' text-[var(--ammenu-main-menu-text)]';
+                                                                            }?>">
+                                                                                <?= $escaper->escapeHtmlAttr($subItemChild['name']) ?>
+                                                                            </strong>
+                                                                            <a href="<?= $escaper->escapeUrl($subItemChild['url']) ?>"
+                                                                               title="<?= $escaper->escapeHtmlAttr($subItemChild['name']) ?>"
+                                                                               class="flex items-center min-h-0 min-w-0 w-64 px-4 py-2 mb-1 break-anywhere
+                                                                                      text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)]
+                                                                                      hover:underline">
+                                                                                    <?= $escaper->escapeHtml(__('Shop All')) ?>
+                                                                            </a>
+                                                                            <?php foreach ($subItemChild['elems'] as $subChild): ?>
+                                                                                <?php $additionalClass = $subChild['current']
+                                                                                    ? 'text-[var(--ammenu-current-category-color)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]'
+                                                                                    : 'text-[var(--ammenu-main-menu-text)] hover:text-[var(--ammenu-main-menu-text-hover)] group-[.link]:bg-[var(--ammenu-main-menu-text-hover)]';
+                                                                                ?>
+                                                                                <a href="<?= $escaper->escapeUrl($subChild['url']) ?>"
+                                                                                   title="<?= $escaper->escapeHtmlAttr($subChild['name']) ?>"
+                                                                                   class="flex items-center min-h-0 min-w-0 w-64 px-4 py-2 mb-1 border-0 break-anywhere text-start background-none group hover:underline
+                                                                        <?= $escaper->escapeHtmlAttr($additionalClass); ?>">
+                                                                                    <?= $escaper->escapeHtmlAttr($subChild['name']) ?>
+                                                                                </a>
+                                                                            <?php endforeach ?>
+                                                                        <?php else: ?>
+                                                                            <a href="<?= $escaper->escapeUrl($subItemChild['url']) ?>"
+                                                                               title="<?= $escaper->escapeHtmlAttr($subItemChild['name']) ?>"
+                                                                               class="flex items-center min-h-0 min-w-0 w-64 px-4 py-2 mb-1 border-0 break-anywhere text-start background-none group hover:underline
+                                                                        <?= $escaper->escapeHtmlAttr($additionalClass); ?>">
+                                                                                <?= $escaper->escapeHtmlAttr($subItemChild['name']) ?>
+                                                                            </a>
+                                                                        <?php endif ?>
+                                                                    <?php endforeach ?>
+                                                                <?php endif ?>
+                                                            <?php $j++;?>
+<!--                                                            --><?php //if ($j == $subMenuItemsCount || ($countPerCol>0 && ($j % $countPerCol == 0))): ?>
+<!--                                                                </div>-->
+<!--                                                            --><?php //endif; ?>
+                                                            <?php endforeach ?>
+                                                        </div>
+                                                <?php endif; ?>
+
+                                                <?php if (!empty($content)): ?>
+                                                    <div data-content="ammenu-content" class="fixed overflow-y-auto rounded-br-md bg-white hidden p-2">
+                                                        <?= /* @noEscape */ $content; ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php $i++; endforeach; ?>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+<?php else: ?>
+<aside class="bg-[var(--ammenu-main-menu-background)] box-content fixed z-50 font-normal text-base shadow-lg pt-5 w-80 top-0 left-0 h-full"
+       x-show="open"
+       x-transition:enter="transition ease-in-out duration-500 transform"
+       x-transition:enter-start="-translate-x-12 opacity-0 duration-700"
+       x-transition:enter-end="translate-x-0 opacity-100"
+       x-transition:leave="transition ease-in-out duration-500"
+       x-transition:leave-start="opacity-100 translate-x-0"
+       x-transition:leave-end="opacity-0 -translate-x-12"
+       role="navigation"
+       x-cloak>
+    <h2 class="aside-title p-4 mb-4 flex justify-between items-center text-2xl">
+        <span class="text-[var(--ammenu-main-menu-text)]" x-text="mobile_menu_title"></span>
+        <button @click="open = false" type="button" class="text-[var(--ammenu-toggle-icon-color)]">
+            <?= $heroIcons->xHtml(''); ?>
+        </button>
+    </h2>
+
+    <?= /** @noEscape */ $menuItemViewModel->fetchView('components/tab-menu-wrapper.phtml') ?>
+
+    <template x-if="open">
+        <nav class="max-h-[calc(100vh-164px)] overflow-y-auto" aria-label="<?= $escaper->escapeHtmlAttr(__('Main Menu'))  ?>">
+        <ul class="flex flex-col" role="menubar">
+            <?php foreach ($menuItems as $key => $item): ?>
+                <?php if ($item['is_category'] && ($item['status'] === 1 || $item['status'] === 2)): ?>
+                    <?= /** @noEscape  */ $menuItemViewModel->fetchView('components/hamburger_menu/submenu-item.phtml', ['item' => $item]) ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </ul>
+    </nav>
+    </template>
+</aside>
+<?php endif; ?>

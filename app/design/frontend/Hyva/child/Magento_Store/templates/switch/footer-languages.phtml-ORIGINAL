@@ -1,0 +1,71 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Hyva\Theme\ViewModel\Store;
+use Hyva\Theme\ViewModel\StoreSwitcher;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Store\ViewModel\SwitcherUrlProvider;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var SwitcherUrlProvider $switcherUrlProvider */
+$switcherUrlProvider = $viewModels->require(SwitcherUrlProvider::class);
+
+/** @var Store $storeViewModel */
+$storeViewModel = $viewModels->require(Store::class);
+
+/** @var StoreSwitcher $storeSwitcherViewModel */
+$storeSwitcherViewModel = $viewModels->require(StoreSwitcher::class);
+
+$currentStore = $storeSwitcherViewModel->getStore();
+
+?>
+<?php if (count($storeSwitcherViewModel->getStores()) > 1): ?>
+    <div x-data="{ open: false }">
+        <div class="relative inline-block text-left">
+                <button @click.prevent="open = !open"
+                @click.outside="open = false"
+                @keydown.window.escape="open=false"
+                type="button"
+                class="inline-flex justify-center w-full text-sm gap-4 items-center interstatelight"
+                aria-haspopup="true"
+                aria-expanded="true"
+                >
+                <?= $escaper->escapeHtml(__('País')) ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4"><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg>
+                </button>
+            <nav x-cloak=""
+                 x-show="open"
+                 class="absolute right-0 top-full z-20 w-56 py-2 mt-1 overflow-auto origin-top-left rounded-sm shadow-lg sm:w-48 lg:mt-3 bg-container-lighter" style="top: -800%;right: -150%;">
+                <div class="my-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                <?php foreach ($storeSwitcherViewModel->getStores() as $lang): ?>
+                        <a href="<?= $escaper->escapeUrl($switcherUrlProvider->getTargetStoreRedirectUrl($lang)) ?>"
+                           class="block px-4 py-2 lg:px-5 lg:py-2 hover:bg-gray-100 interstatelight flex gap-1 items-center"
+                        >
+                        <?php $flagImage = 'Magecomp_Hyvachildtheme::image/'.$lang->getName().'.png'; ?>
+                        <img src="<?= $this->getViewFileUrl($flagImage); ?>">
+                            <?= $escaper->escapeHtml($lang->getName()) ?>
+                        </a>
+                <?php endforeach; ?>
+                </div>
+            </nav>
+        </div>
+    </div>
+<?php endif; ?>

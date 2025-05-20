@@ -1,0 +1,68 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Currency;
+use Hyva\Theme\ViewModel\HeroiconsSolid;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var HeroiconsSolid $heroiconsSolid */
+$heroiconsSolid = $viewModels->require(HeroiconsSolid::class);
+
+/** @var Currency $currencyViewModel */
+$currencyViewModel = $viewModels->require(Currency::class);
+?>
+<?php if ($currencyViewModel->getCurrencyCount() > 1): ?>
+    <?php $currencies = $currencyViewModel->getCurrencies(); ?>
+    <?php $currentCurrencyCode = $currencyViewModel->getCurrentCurrencyCode(); ?>
+        <div x-data="{ open: false }" class="relative block text-left overflow-hidden w-full">
+                <button @click.prevent="open = !open"
+                        @keydown.window.escape="open=false"
+                        type="button"
+                        class="flex w-full gap-2 items-center interstatelight mb-5 pr-1"
+                        aria-haspopup="true"
+                        :aria-expanded="open"
+                >
+                <?php $flagImage = 'Magecomp_Hyvachildtheme::image/'.$block->getCurrentCurrencyCode().'.png'; ?>
+                    <img src="<?= $this->getViewFileUrl($flagImage); ?>" alt="icon" width="32px" height="32px" loading="lazy" />
+                    <?= $escaper->escapeHtml(__('Moneda')) ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                         class="w-4 h-4 text-[#b258ce] ml-auto fill-current" :class="{'rotate-180': open}">
+                        <path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg>
+                </button>
+            <nav :class="{'absolute': !open,'relative': open}">
+                    <?php foreach ($currencies as $code => $name): ?>
+                            <button
+                               role="link"
+                               class="py-2 pl-10 interstatelight flex items-center gap-2 mb-3 <?php if($block->getCurrentCurrencyCode() == $code) :?> active-flag<?php endif; ?>"
+                               aria-describedby="currency-heading"
+                               @click.prevent='hyva.postForm(<?= /* @noEscape */ $currencyViewModel->getSwitchCurrencyPostData($code) ?>)'
+                            >
+                            <?php $flagImage = 'Magecomp_Hyvachildtheme::image/'.$code.'.png'; ?>
+                            <img src="<?= $this->getViewFileUrl($flagImage); ?>" width="32px" height="32px" loading="lazy"
+                                 alt="<?= $escaper->escapeHtml($name) ?>" />
+                            <?php if($code == 'COP'): ?>
+                            <span class="interstatelight currency-name"><?= $escaper->escapeHtml(__('Pesos - $ COP')) ?></span>
+                            <?php endif; ?>
+                            <?php if($code == 'USD'): ?>
+                            <span class="interstatelight currency-name"><?= $escaper->escapeHtml(__('Dólares - $ USD')) ?></span>
+                            <?php endif; ?>
+                            </button>
+                    <?php endforeach; ?>
+            </nav>
+        </div>
+<?php endif; ?>

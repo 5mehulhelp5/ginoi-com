@@ -1,0 +1,17 @@
+{
+    "meetanshi_custom_carrier": {
+        "column": {
+            "id": true,
+            "title": true,
+            "url": true,
+            "active": true
+        },
+        "index": {
+            "MEETANSHI_CUSTOM_CARRIER_TITLE": true,
+            "MEETANSHI_CUSTOM_CARRIER_URL": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

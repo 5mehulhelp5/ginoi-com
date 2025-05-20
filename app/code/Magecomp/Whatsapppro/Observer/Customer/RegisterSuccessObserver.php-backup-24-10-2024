@@ -1,0 +1,55 @@
+<?php
+namespace Magecomp\Whatsapppro\Observer\Customer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class RegisterSuccessObserver implements ObserverInterface
+{
+    protected $helperapi;
+    protected $helpercustomer;
+    protected $emailfilter;
+
+    public function __construct(
+        \Magecomp\Whatsapppro\Helper\Apicall $helperapi,
+        \Magecomp\Whatsapppro\Helper\Customer $helpercustomer,
+        \Magento\Email\Model\Template\Filter $filter
+    ) {
+        $this->helperapi = $helperapi;
+        $this->helpercustomer = $helpercustomer;
+        $this->emailfilter = $filter;
+    }
+
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        if (!$this->helpercustomer->isEnabled()) {
+            return $this;
+        }
+
+        $customer = $observer->getEvent()->getCustomer();
+
+        $controller = $observer->getAccountController();
+
+        $mobilenumber = $controller->getRequest()->getParam('mobilenumber');
+        $this->emailfilter->setVariables([
+            'customer' => $customer,
+            'mobilenumber' => $mobilenumber
+        ]);
+
+        if ($this->helpercustomer->isSignUpNotificationForAdmin($storeId=null) && $this->helpercustomer->getAdminNumber($storeId=null)) {
+            $message = $this->helpercustomer->getSignUpNotificationForAdminTemplate($storeId=null);
+            $finalmessage = $this->emailfilter->filter($message);
+            $this->helperapi->callApiUrl($this->helpercustomer->getAdminNumber(), $finalmessage,$storeId=null);
+        }
+        if ($mobilenumber == '' || $mobilenumber == null) {
+            return $this;
+        }
+
+        if ($this->helpercustomer->isSignUpNotificationForUser($storeId=null)) {
+            $message = $this->helpercustomer->getSignUpNotificationForUserTemplate($storeId=null);
+            $finalmessage = $this->emailfilter->filter($message);
+
+            $this->helperapi->callApiUrl($mobilenumber, $finalmessage,$storeId=null);
+        }
+        return $this;
+    }
+}

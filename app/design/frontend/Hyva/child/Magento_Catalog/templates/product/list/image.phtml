@@ -1,0 +1,79 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Magento\Catalog\Block\Product\Image;
+use Magento\Framework\Escaper;
+
+/** @var Image $block */
+/** @var Escaper $escaper */
+
+$hasLoadingAttribute = ($block->getCustomAttributes() ?: [])['loading'] ?? false;
+$product = $block->getProduct();
+
+$flipperImageUrl = '';
+if ($product) {
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $scopeConfig = $objectManager->get(\Magento\Framework\App\Config\ScopeConfigInterface::class);
+    $storeManager = $objectManager->get(\Magento\Store\Model\StoreManagerInterface::class);
+
+    $config = $scopeConfig->getValue('imageflipper/setting', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $enable = $config['enable'] ?? false;
+
+    if ($enable) {
+        $flipper_img_name = $product->getData('flipper_img');
+        if ($flipper_img_name && $flipper_img_name != "no_selection") {
+            $flipperImageUrl = $storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).'catalog/product'.$flipper_img_name;
+        }
+    }
+}
+
+$originalImageUrl = $block->getImageUrl();
+?>
+<div x-data="{
+        originalSrc: '<?= $escaper->escapeJs($originalImageUrl) ?>',
+        flipperSrc: '<?= $escaper->escapeJs($flipperImageUrl) ?>',
+        flipped: false,
+        flipImage() {
+            if (!this.flipperSrc) return;
+            this.flipped = !this.flipped;
+        }
+    }" class="relative w-32 h-32 xs:w-40 xs:h-40 sm:w-52 sm:h-52" @mouseenter="flipImage()" @mouseleave="flipImage()">
+
+    <div class="relative transition-all duration-700 ease-in-out w-full h-full"
+        :style="flipped ? 'transform: rotateY(180deg)' : 'transform: rotateY(0deg)'">
+
+        <!-- Original image (front) -->
+        <img class="aspect-square object-contain absolute w-full h-full transition-opacity <?= $escaper->escapeHtmlAttr($block->getClass()) ?>"
+             x-data=""
+             @update-gallery-<?= (int)$block->getProductId() ?>.window="$root.src = $event.detail"
+        <?php foreach ($block->getCustomAttributes() as $name => $value): ?>
+            <?= $escaper->escapeHtmlAttr($name) ?>="<?= $escaper->escapeHtmlAttr($value) ?>"
+        <?php endforeach; ?>
+        src="<?= $escaper->escapeUrl($block->getImageUrl()) ?>"
+        <?php if (! $hasLoadingAttribute): ?>
+            loading="lazy"
+        <?php endif; ?>
+        width="<?= $escaper->escapeHtmlAttr($block->getWidth()) ?>"
+        height="<?= $escaper->escapeHtmlAttr($block->getHeight()) ?>"
+        alt="<?= $escaper->escapeHtmlAttr($block->getLabel()) ?>"
+        title="<?= $escaper->escapeHtmlAttr($block->getLabel()) ?>"
+        />
+
+        <!-- Flipper image (back) -->
+        <template x-if="flipperSrc">
+            <img class="aspect-square absolute w-full h-full object-contain transition-opacity <?= $escaper->escapeHtmlAttr($block->getClass()) ?>"
+                :class="flipped ? 'opacity-100' : 'opacity-0'" :src="flipperSrc"
+                width="<?= $escaper->escapeHtmlAttr($block->getWidth()) ?>"
+                height="<?= $escaper->escapeHtmlAttr($block->getHeight()) ?>"
+                alt="<?= $escaper->escapeHtmlAttr($block->getLabel()) ?> - Flip image view"
+                title="<?= $escaper->escapeHtmlAttr($block->getLabel()) ?> - Flip image view" />
+        </template>
+    </div>
+</div>

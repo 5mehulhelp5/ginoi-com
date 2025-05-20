@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/system_file.xsd">
+    <system>
+        <tab id="magecomp" translate="label" sortOrder="100" class="magecomp-logo">
+ 		    <label><![CDATA[]]></label>
+        </tab>
+        <section id="subcategoriesslider" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Subcategories Slider</label>
+            <tab>magecomp</tab>
+            <resource>Magecomp_Subcategoriesslider::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Configuration</label>
+                <field id="enable" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Subcategories Slider</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                </field>
+                <field id="upload_image_id" translate="label comment" type="image" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Set Default Image</label>
+                    <comment>Allowed file types:PNG, GIF, JPG, JPEG.
+                        Image uplode required otherwise default image show.
+                    </comment>
+                    <backend_model>Magecomp\Subcategoriesslider\Model\Config\Image</backend_model>
+                    <base_url type="media" scope_info="1">subcategoriesslider/image</base_url>
+                    <validate>required-file</validate>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="backgroundcolor" translate="label" type="text" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Background Color</label>
+                    <comment><![CDATA[Background color]]></comment>
+                    <frontend_model>Magecomp\Subcategoriesslider\Block\Color</frontend_model>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="fontcolor" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Font Color</label>
+                    <comment><![CDATA[Font color]]></comment>
+                    <frontend_model>Magecomp\Subcategoriesslider\Block\Color</frontend_model>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="subcategorylist" translate="label" type="select" sortOrder="60" showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Subcategories Listview</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                 <field id="categoryid" translate="label" type="text" sortOrder="70" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Category Id</label>
+                    <comment><![CDATA[Pass Category Id ie. 1]]></comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
+
+

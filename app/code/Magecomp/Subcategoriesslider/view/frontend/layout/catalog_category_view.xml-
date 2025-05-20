@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Magecomp_Subcategoriesslider::css/subcategoriesslider.css"/>
+        <css src="Magecomp_Subcategoriesslider::css/source/subcategoryslider.css"/>
+        <css src="Magecomp_Subcategoriesslider::css/owl.theme.default.min.css"/>
+        <css src="Magecomp_Subcategoriesslider::css/owl.carousel.min.css"/>
+        <script src="Magecomp_Subcategoriesslider::js/jquery-1.12.1.min.js"/>
+        <script src="Magecomp_Subcategoriesslider::js/owl.carousel.js" defer="true"/>
+        <script src="Magecomp_Subcategoriesslider::js/owl.carousel.min.js" defer="true"/>
+    </head>
+    <referenceContainer name="columns.top">
+        <block before="-" class="Magecomp\Subcategoriesslider\Block\Showsubcategory"
+               name="subcategoriesslider.general.block.subcategoriesslider"
+               template="Magecomp_Subcategoriesslider::subcategoriesslider.phtml"
+               ifconfig="subcategoriesslider/general/enable"/>
+    </referenceContainer>
+</page>

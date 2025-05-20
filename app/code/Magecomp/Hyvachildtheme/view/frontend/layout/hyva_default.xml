@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer.header.faq.link" remove="true"/>
+        <referenceBlock name="header.customer.logged.in.links">
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.dashboard.link" template="Magecomp_Hyvachildtheme::html/account.phtml">
+                    <arguments>
+                        <argument name="sort_order" xsi:type="number">10</argument>
+                    </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.order.link" template="Magecomp_Hyvachildtheme::html/header_link.phtml">
+                <arguments>
+                    <argument name="sort_order" xsi:type="number">20</argument>
+                </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.address.book.link" template="Magecomp_Hyvachildtheme::html/repeat-order.phtml">
+                    <arguments>
+                        <argument name="sort_order" xsi:type="number">30</argument>
+                    </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.wishlist.link" template="Magecomp_Hyvachildtheme::html/list.phtml">
+                    <arguments>
+                        <argument name="sort_order" xsi:type="number">40</argument>
+                    </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.gift.link" template="Magecomp_Hyvachildtheme::html/gift-card.phtml">
+                    <arguments>
+                        <argument name="sort_order" xsi:type="number">50</argument>
+                    </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.aid.link" template="Magecomp_Hyvachildtheme::html/help.phtml">
+                    <arguments>
+                        <argument name="sort_order" xsi:type="number">60</argument>
+                    </arguments>
+            </block>
+            <block class="Hyva\Theme\Block\SortableItemInterface" name="customer.header.sign.out.link" template="Magecomp_Hyvachildtheme::html/sign_out.phtml">
+                <arguments>
+                    <argument name="sort_order" xsi:type="number">2000</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,89 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_GiftCard
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\GiftCard\Block\Adminhtml\Product\Edit\Tab\ReportColumn;
+use Mageplaza\GiftCard\Helper\SynChronized;
+
+/** @var ReportColumn $block */
+
+$_product = $block->getProduct();
+?>
+<div class="container">
+    <div class="gift-card-report total gift code">
+        <span>Total Gift Card Code:</span>
+        <span><?= /** @noEscape */ $block->getProductAttribute(SynChronized::ATR_TOTAL_CODE_REPORT) ?></span>
+    </div>
+    <div class="gift-card-report total balance">
+        <span>Total Balance:</span>
+        <span><?= /** @noEscape */ $block->getProductAttribute(SynChronized::ATR_TOTAL_BALANCE_REPORT) ?></span>
+    </div>
+    <div class="gift-card-report total amount used">
+        <span>Amount Used:</span>
+        <span><?= /** @noEscape */ $block->getProductAttribute(SynChronized::ATR_TOTAL_AMOUNT_REPORT) ?></span>
+    </div>
+    <div class="gift-card-report total amount purchased">
+        <span>Total Amount Purchased:</span>
+        <span><?= /** @noEscape */ $block->getProductAttribute(SynChronized::ATR_TOTAL_PURCHASED_REPORT) ?></span>
+    </div>
+</div>
+<style>
+    .container {
+        display: flex;
+        margin-bottom: 50px;
+    }
+
+    .container > * {
+        margin: 0 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .gift-card-report {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .gift-card-report {
+        display:flex;
+        color: #f0f0f0;
+        flex-direction:column;
+        font-size: large;
+        font-family: 'Open Sans';
+        width:15%;
+        height:150px;
+    }
+    .gift-card-report.total.gift.code{
+        background-color: #e3550e;
+    }
+    .gift-card-report.total.balance{
+        background-color: #1e6ee6;
+    }
+    .gift-card-report.total.amount.used{
+        background-color: #35ab2c;
+    }
+    .gift-card-report.total.amount.purchased{
+        background-color: #882cd4;
+    }
+    .container {
+        justify-content:space-around
+    }
+
+</style>

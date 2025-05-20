@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mageants" translate="label">
+            <label>Mageants</label>
+        </tab>
+         <section id="orderattachments" translate="label" type="text" sortOrder="1566" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Order Attachments</label>
+             <tab>mageants</tab>
+            <resource>Mageants_Orderattachments::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                </field>
+                <field id="attachment_title" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attachment Title</label>
+                </field>
+                 <field id="attachment_information" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attachment Information</label>
+                    <comment><![CDATA[<b> * You Can Add Custom Information here </b> ]]></comment>
+                </field>
+                <field id="display_attachment" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display Attachment</label>
+                    <source_model>Mageants\Orderattachment\Model\Config\Source\AttachmentDisplayOptions</source_model>
+                </field>
+                <field id="count" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Limit</label>
+                    <comment>Per Order</comment>
+                </field>
+                <field id="size" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Size, Kilobytes</label>
+                    <comment>Per File</comment>
+                </field>
+                <field id="extension" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Allowed extensions</label>
+                    <comment><![CDATA[
+                        <script type="text/javascript">
+                            var extensionInput = document.getElementById('orderattachments_general_extension');
+                            if (extensionInput) {
+                                extensionInput.addEventListener('blur', function() {
+                                    extensionInput.value = extensionInput.value.toLowerCase();
+                                });
+                                extensionInput.addEventListener('keyup', function() {
+                                    extensionInput.value = extensionInput.value.toLowerCase();
+                                });
+                            }
+                        </script>
+                        <p>For Ex. jpg, jpeg, png, gif, pdf</p>
+                    ]]></comment>
+                </field>   
+            </group>
+            
+    
+            <group id="demo" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Email </label>
+                <field id="template" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email Sender</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                    <comment>Email template is chosen based on theme fallback when "Default" option is selected.</comment>
+                </field>
+
+              <field id="request_email_tepmlate" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+               </field>
+                <field id="adminmail" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Email</label>
+                    <comment>Admin get a mail after place order on this Email address.</comment>
+                </field>          
+            </group>
+
+            <group id="frontend_demo" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                
+                <label>Is Customer Allowed To Add New Attachments </label>
+                <field id="Fenabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                    <comment>If Enable then customer Can Add new attachment in Existing Order and send mail to Store Owner .</comment>
+                </field>
+              <field id="admin_email" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                <depends>
+                    <field id="orderattachments/frontend_demo/Fenabled">1</field>
+                </depends>
+                <label>Enter Admin Email</label>
+                <comment>Set store Owner( ADMIN ) Email .</comment>
+                 <validate>required-entry</validate>
+                </field>         
+            </group>
+        </section>
+    </system>
+</config>

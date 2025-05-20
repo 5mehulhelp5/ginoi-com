@@ -1,0 +1,38 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+/**
+ * The AlpineJS scope of this file is the method `initCartTotals()` in Magento_Checkout::php-cart/totals.phtml
+ */
+?>
+<!-- display subtotal excluding tax -->
+<template x-if="segment.code === 'grand_total' && checkoutConfig.includeTaxInGrandTotal">
+    <div class="-mx-4 border-t-2 border-gray-200">
+        <div class="m-4 font-semibold text-violet-800">
+            <div class="flex justify-between my-2">
+                <div x-html="`${segment.title} ${includingTaxMessage}`"></div>
+                <div x-text="hyva.formatPrice(segment.value)"></div>
+            </div>
+
+            <div class="flex justify-between my-2">
+                <div x-html="`${segment.title} ${excludingTaxMessage}`"></div>
+                <div x-text="hyva.formatPrice(totalsData.grand_total)"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- display subtotal including tax -->
+<template x-if="segment.code === 'grand_total' && !checkoutConfig.includeTaxInGrandTotal">
+    <div class="-mx-4 border-t-2 border-gray-200">
+        <div class="m-4 mb-5 flex font-semibold text-violet-800 justify-between">
+            <div x-html="`${segment.title}`"></div>
+            <div x-text="hyva.formatPrice(segment.value)"></div>
+        </div>
+    </div>
+</template>

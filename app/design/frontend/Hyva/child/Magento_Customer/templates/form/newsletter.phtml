@@ -1,0 +1,77 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+/** @var Newsletter $block */
+/** @var Escaper $escaper */
+use Magento\Customer\Block\Newsletter;
+use Magento\Framework\Escaper;
+
+?>
+<h1 class="mb-6 text-2xl block-title font-bold border-l-4 border-[#3E06B0] text-primary-purple pl-4 py-2">
+    <?= $escaper->escapeHtml(__('Newsletter Subscriptions')) ?>
+</h1>
+<?= $block->getChildHtml('form_before') ?>
+<div class="lg:flex lg:justify-between gap-x-4">
+    <div class="w-full lg:w-1/2 mt-4 lg:mt-0 border rounded-2xl">
+
+        <form class="form form-newsletter-manage"
+              action="<?= $escaper->escapeUrl($block->getAction()) ?>"
+              method="post"
+              id="form-validate">
+            <div class="p-4">
+                <fieldset class="fieldset">
+                    <?= $block->getBlockHtml('formkey') ?>
+                    <legend class="legend text-primary-purple mb-2">
+                        <span><?= $escaper->escapeHtml(__('Subscriptions Options')); ?></span>
+                    </legend>
+                    <div class="field choice">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="1" name="is_subscribed" class="sr-only peer"
+                                   title="<?= $escaper->escapeHtmlAttr(__('General Subscription')) ?>"
+                                <?php if ($block->getIsSubscribed()): ?> checked<?php endif; ?>>
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-800"></div>
+                            <span class="text-gray-600 ml-4">
+                                <?= $escaper->escapeHtml(__('General Subscription')) ?>
+                            </span>
+                        </label>
+                    </div>
+                    <?php /* Extensions placeholder */ ?>
+                    <?= $block->getChildHtml('customer.form.newsletter.extra') ?>
+                </fieldset>
+            </div>
+            <div class="actions-toolbar p-4" style="margin-top: 0;border-color: #e5e7eb;">
+                <div class="primary">
+                    <button type="submit"
+                            title="<?= $escaper->escapeHtmlAttr(__('Save')) ?>"
+                            class="action save primary"
+                    >
+                    <span class="font-bold">
+                        <?= $escaper->escapeHtml(__('Save')) ?>
+                    </span>
+                    </button>
+                </div>
+                <div class="secondary">
+                    <a class="action back underline-offset-4"
+                       href="<?= $escaper->escapeUrl($block->getBackUrl()) ?>"
+                    >
+                    <span class="text-primary-purple ">
+                        <?= $escaper->escapeHtml(__('Back')) ?>
+                    </span>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+<?php /* Extensions placeholder */ ?>
+<?= $block->getChildHtml('customer.form.newsletter.extra2') ?>
+

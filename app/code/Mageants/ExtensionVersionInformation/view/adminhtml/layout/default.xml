@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <!-- <referenceBlock
+            class="Magento\AdminNotification\Block\Window"
+                   name="notification_window"
+                   as="notification_window"
+                   aclResource="Magento_AdminNotification::show_toolbar"
+                   template="Magento_AdminNotification::notification/window.phtml">
+               </referenceBlock> -->
+
+     <referenceBlock name="notification_window" class="Mageants\ExtensionVersionInformation\Block\Window">
+        <action method="setTemplate">
+            <argument name="template" xsi:type="string">Mageants_ExtensionVersionInformation::notification/window.phtml </argument>
+        </action>
+    </referenceBlock>
+        
+</page>

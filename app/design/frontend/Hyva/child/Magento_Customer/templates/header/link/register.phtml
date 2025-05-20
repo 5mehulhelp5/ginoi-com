@@ -1,0 +1,50 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes 2020-present. All rights reserved.
+ * This product is licensed per Magento install
+ * See https://hyva.io/license
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Block\SortableItem;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\CustomerRegistration;
+use Magento\Framework\Escaper;
+
+/** @var SortableItem $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var CustomerRegistration $customerRegistration */
+
+$customerRegistration = $viewModels->require(CustomerRegistration::class);
+
+$label = $block->getLabel() ? $block->getLabel() : __('Create an Account');
+?>
+
+<?php if ($customerRegistration->isAllowed()): ?>
+    <a id="<?= $escaper->escapeHtmlAttr($block->getNameInLayout()) ?>"
+       class="flex gap-2 py-2 lg:py-2 hover:bg-gray-100 px-2 items-center"
+       href="<?= $escaper->escapeUrl($customerRegistration->getRegisterUrl()) ?>"
+       title="<?= $escaper->escapeHtmlAttr($label) ?>"
+    >
+        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/Create_Account.svg'); ?>' alt="Create Account" class="w-6">
+        <span class="text-sm interstatelight"><?= $escaper->escapeHtml($label) ?></span>
+    </a>
+<?php endif; ?>
+<a id="<?= $escaper->escapeHtmlAttr($block->getNameInLayout()) ?>"
+       class="flex gap-2 py-2 lg:py-2 hover:bg-gray-100 px-2 items-center"
+       href="<?= $escaper->escapeUrl($block->getUrl('sales/guest/form/')) ?>"
+       title="<?= __('Track Order') ?>"
+    >
+        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/track_orders.svg'); ?>' alt="track_orders" class="w-6">
+        <span class="text-sm interstatelight"><?= __('Track Order') ?></span>
+    </a><a id="<?= $escaper->escapeHtmlAttr($block->getNameInLayout()) ?>"
+       class="flex gap-2 py-2 lg:py-2 hover:bg-gray-100 px-2 items-center"
+       href="<?= $escaper->escapeUrl($block->getUrl('faq/')) ?>"
+       title="<?= __('Help') ?>"
+    >
+        <img src='<?php echo $this->getViewFileUrl('Magecomp_Hyvachildtheme::image/help.svg'); ?>' alt="help" class="w-6">
+        <span class="text-sm interstatelight"><?= __('Help') ?></span>
+    </a>
