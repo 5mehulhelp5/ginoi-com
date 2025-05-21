@@ -25,4 +25,17 @@
 /dev
 /update/
 # 2025-04-03 https://gemini.google.com/u/1/app/de95853eeeb45648
-/vendor/
+# 2025-05-21
+# 1) https://g.co/gemini/share/e0a1ce59ec79
+# 2) https://chatgpt.com/share/682d5158-5c18-8003-b315-57a4ae068d30
+#/vendor/*
+/vendor/endroid/
+# 2025-05-22
+/vendor/hyva-themes/magento2-default-theme/
+# 2025-05-22
+/vendor/hyva-themes/magento2-theme-module/tests/
+/vendor/magento/framework/Test
+/vendor/magento/magento2-functional-testing-framework
+# 2025-05-22
+/vendor/mpdf/mpdf/tmp/
+/vendor/tubalmartin
