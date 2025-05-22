@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-  <table name="mageants_Orderattachment" resource="default" engine="innodb" comment="Mageants Orderattachment Table">
+<!-- 2025-05-22 Dmitrii Fediuk https://upwork.com/fl/mage2pro
+«Table 'mgec_mageants_orderattachment' already exists,
+query was: CREATE TABLE `mgec_mageants_Orderattachment` on `bin/magento setup:upgrade`»:
+https://github.com/ginoi-com/site/issues/2 -->
+  <table name="mageants_orderattachment" resource="default" engine="innodb" comment="Mageants Orderattachment Table">
     <column xsi:type="int" name="attachment_id" padding="11" unsigned="false" nullable="false" identity="true" comment="Attachment ID"/>
     <column xsi:type="int" name="quote_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Quote ID"/>
     <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="true" identity="false" comment="Order ID"/>
