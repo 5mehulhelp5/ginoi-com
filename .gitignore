@@ -35,6 +35,8 @@
 /vendor/hyva-themes/magento2-default-theme/
 # 2025-05-22 Dmitrii Fediuk https://upwork.com/fl/mage2pro
 /vendor/hyva-themes/magento2-theme-module/tests/
+# 2025-05-23 Dmitrii Fediuk https://upwork.com/fl/mage2pro
+/vendor/mage2pro
 /vendor/magento/framework/Test
 /vendor/magento/magento2-base
 /vendor/magento/magento2-functional-testing-framework
