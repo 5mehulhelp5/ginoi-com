@@ -494,6 +494,7 @@ return [
         'Df_Wishlist' => 1,
         'Df_Xml' => 1,
         'Df_Zf' => 1,
+        'Dfe_ZoomVe' => 1,
         'Amasty_AjaxCartHyva' => 1,
         'Hyva_Email' => 1,
         'Hyva_GraphqlTokens' => 1,
